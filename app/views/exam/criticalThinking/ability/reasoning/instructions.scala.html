@@ -1,0 +1,131 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/criticalThinking/ability/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    <style>
+        .btn-imitation{
+            height:40px;
+            width:150px;
+            margin-left: 20px;
+            border:2px solid #6ACB9A;
+            background:#d2ede3;
+        }
+        .row .title{
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .row .text{
+            border-bottom: 1px solid #CCCCCC;
+            font-size: 15px;
+        }
+    </style>
+    <script>
+        $(function(){
+            $("#inputBtn").bind('click', function() {
+                showNext(this);
+            });
+        })
+        function showNext(obj){
+            $('#tab_1').css('display','none');
+            $('#tab_2').css('display','block');
+            $(obj).val("练 习");
+            $(obj).unbind("click");
+            $(obj).bind('click', function() {
+                location.replace('/criticalThinking/ability/reasoning/practice?tid=' + tid);
+            });
+        }
+    </script>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div id="tab_1" class="panel-body">
+                        <div class="row" style="font-size:18px;padding: 10px 20px">
+                            <div class="col-md-12">
+                                <span>测验1</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;word-spacing:20px;" value="推 理"/>
+                            </div>
+                        </div>
+                        <div class="row" style="font-size: 16px;padding: 30px 50px;line-height: 2.22857;">
+                            <div class="col-md-12">
+                                <p style="text-indent:2em;">
+                                    推理是一个人根据特定的观察或所谓的事实从中得到的结论的过程。例如，李雷看到一间屋里的灯是亮着的，并且听到声音从屋里传出，他可能推断出“有人在房间里”。但是这个推断不一定是正确的。因为也可能是有人在离开屋子后没有关掉灯和电视。
+                                </p>
+                                <p style="text-indent:2em;">
+                                    在本测验中，每一部分都会先提供一段“事实陈述”，你可将其中的内容都视为正确的。在每一个“事实陈述”后，会列举几个推断的结果。分别检查每一个推断结果，然后依照下一页所提示的<strong>正确、可能正确、资料缺乏、可能错误、和错误</strong>五个等级，对每一个推断结果做出评价。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab_2" class="panel-body" style="display: none;">
+                        <div class="row" style="font-size:18px;padding: 10px 20px">
+                            <div class="col-md-12">
+                                <span>测验1</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;word-spacing:20px;" value="推 理"/>
+                            </div>
+                        </div>
+                        <div class="row" style="font-size:16px;padding: 5px 20px">
+                            <div class="col-md-12">
+                                <u><strong>判断依据</strong></u>
+                            </div>
+                        </div>
+                        <div class="row" style="padding: 5px 50px;">
+                            <div class="col-md-2 title">
+                                <strong>正  确</strong>
+                            </div>
+                            <div class="col-md-10 text">
+                                指若根据“事实陈述”来判断，这则推断结果是正确的，并且能恰当地解释“事实陈述”中有疑问的地方。
+                            </div>
+                        </div>
+                        <div class="row" style="padding: 5px 50px;">
+                            <div class="col-md-2 title">
+                                <strong>可能正确</strong>
+                            </div>
+                            <div class="col-md-10 text">
+                                指若根据“事实陈述”来判断，这则推断结果可能是正确的，也就是正确的概率大于错误的概率。
+                            </div>
+                        </div>
+                        <div class="row" style="padding: 5px 50px;">
+                            <div class="col-md-2 title">
+                                <strong>资料不足</strong>
+                            </div>
+                            <div class="col-md-10 text">
+                                指单从“事实陈述”中无法得知这则推断结果是正确还是错误；或是“事实陈述”无法作为判断推断结果正确与否的标准。
+                            </div>
+                        </div>
+                        <div class="row" style="padding: 5px 50px;">
+                            <div class="col-md-2 title">
+                                <strong>可能错误</strong>
+                            </div>
+                            <div class="col-md-10 text">
+                                指若根据“事实陈述”来判断，这则推断结果可能是错误的，也就是错误的程度大于正确的程度。
+                            </div>
+                        </div>
+                        <div class="row" style="padding: 5px 50px;">
+                            <div class="col-md-2 title">
+                                <strong>错  误</strong>
+                            </div>
+                            <div class="col-md-10 text" style="padding: 10px;">
+                                指这则推断结果可能误解了“事实陈述”的含义，或是违反了。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="inputBtn" type="button" class="btn-test btn-default" value="继 续"/>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,41 @@
+CACHE MANIFEST
+# 2015-07-29 10:27
+/symbolicOperation/practice
+
+/assets/javascripts/jquery-1.9.0.min.js
+/assets/javascripts/layer.min.js
+/assets/javascripts/question/question.js
+https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js
+https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js
+
+/assets/stylesheets/bootstrap.min.css
+/assets/stylesheets/offcanvas.css
+
+# 图片
+/assets/images/common/logo_xinli.png
+/assets/images/common/questiontype/num_1.png
+/assets/images/common/questiontype/num_2.png
+/assets/images/common/questiontype/num_3.png
+/assets/images/common/questiontype/num_4.png
+/assets/images/common/questiontype/num_5.png
+/assets/images/common/questiontype/num_6.png
+/assets/images/common/questiontype/num_7.png
+
+/assets/images/grapfSearch/0.png
+/assets/images/grapfSearch/1.png
+/assets/images/grapfSearch/2.png
+/assets/images/grapfSearch/3.png
+/assets/images/grapfSearch/4.png
+/assets/images/grapfSearch/5.png
+/assets/images/grapfSearch/6.png
+/assets/images/grapfSearch/7.png
+/assets/images/grapfSearch/8.png
+/assets/images/grapfSearch/9.png
+/assets/images/grapfSearch/10.png
+/assets/images/grapfSearch/11.png
+/assets/images/grapfSearch/12.png
+/assets/images/grapfSearch/13.png
+/assets/images/common/right.png
+/assets/images/common/wrong.png
+/assets/images/common/hongquan.png
+

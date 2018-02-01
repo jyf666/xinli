@@ -1,0 +1,56 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/criticalThinking/ability/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    <style>
+        .btn-imitation{
+            height:40px;
+            width:150px;
+            margin-left: 20px;
+            border:2px solid #6ACB9A;
+            background:#d2ede3;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row" style="font-size:18px;padding: 10px 20px">
+                            <div class="col-md-12">
+                                <span>测验5</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;" value="评估论证过程"/>
+                            </div>
+                        </div>
+                        <div class="row" style="font-size: 16px;padding: 30px 50px;line-height: 2.22857;">
+                            <div class="col-md-12">
+                                <p style="text-indent:2em;">
+                                    为了对重要的问题做出决策，需要具有判断一个论证过程是否具有说服力的能力，需要具有判断一个论证是紧扣主题还是“跑题”的能力。一个具有说服力的论证，一方面需要能够抓住问题的要害展开论述，而不是仅仅关注一些琐碎的细节；另一方面，需要紧扣问题，而不是离开问题本身的慷慨激昂。尽管有些慷慨激昂的论证是非常正确的，但对于解决问题的帮助很小。
+                                </p>
+                                <p style="text-indent:2em;">
+                                    在这部分测试中，首先会给出一个比较重要的问题，题目是对于这一问题的论证。你需要对这些论证做出“有说服力”或“无说服力”的判断。
+                                </p>
+                                <p style="text-indent:2em;">
+                                    请注意，所有这些论证都是可以成立的。你在答题时，尽量不要受到自己个人好恶的影响，应尽量从论证本身、站在论证者的立场去判断一个论证是否具有说服力。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="inputBtn" type="button" class="btn-test btn-default"
+                    onclick="location.replace('/criticalThinking/ability/assessment/practice?tid=' + tid);" value="练 习"/>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

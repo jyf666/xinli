@@ -1,0 +1,112 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/emotionRecognition/instructionsManifest">
+<head>
+    @views.html.common.instructions.head()
+<style>
+    .optionBtn{
+        height:25px;
+        width:35px;
+        border:none;
+        font-size:18px;
+    }
+</style>
+<script>
+    function uncontrols(element){
+       $(element).removeAttr("controls");
+    }
+</script>
+</head>
+<body>
+    <div class="container">
+    @views.html.common.instructions.progress(questionTypeMap)
+        <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+            <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+            </div>
+            <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                <div class="panel-body">
+                    <div class="row">
+                        <h4><p class="text-center"><b>情绪智力测试</b></p></h4>
+                    </div>
+                    <div class="row" style="font-size: 16px;padding: 10px 50px 10px 50px">
+                            &nbsp;&nbsp;&nbsp;&nbsp;本测试中，你将看到一张面部表情的动图，动图下方有五个情绪选项。<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;你需要按照图片中的面部特写，回答图中面孔上的表情在多大程度上包含了以下选项的情绪。<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;从 0-5表示该情绪的强烈程度不断增强， 0表示完全没有，5表示很强。<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;例：
+                    </div>
+                    <div class="row" style="font-size: 16px;" >
+                        <table align="center" width="800px">
+                            <tr>
+                                <td align="center"  height="240" style="color: #49B992;font-size: 16px;">
+                                    <video width="320" controls onplay="uncontrols(this)">
+                                        <source src="@routes.Assets.versioned("videos/emotionRecognition/a/139.mp4")" type="video/mp4" />
+                                    </video>
+                                </td>
+                                <td align="center">
+                                    <div>
+                                        没有表现出悲伤
+                                        <input type="button" class="optionBtn" style="background:#ffffff;cursor:default;" value="0"/>
+                                        <input type="button" class="optionBtn" style="background:#f2faf7;cursor:default;" value="1"/>
+                                        <input type="button" class="optionBtn" style="background:#e3f4ed;cursor:default;" value="2"/>
+                                        <input type="button" class="optionBtn" style="background:#dcf1e9;cursor:default;" value="3"/>
+                                        <input type="button" class="optionBtn" style="background:#d7efe6;cursor:default;" value="4"/>
+                                        <input type="button" class="optionBtn" style="background:#d2ede3;cursor:default;" value="5"/>
+                                        十分悲伤
+                                    </div>
+                                    <div style="margin-top: 15px;">
+                                        没有表现出愤怒
+                                        <input type="button" class="optionBtn" style="background:#ffffff;cursor:default;" value="0"/>
+                                        <input type="button" class="optionBtn" style="background:#f2faf7;cursor:default;" value="1"/>
+                                        <input type="button" class="optionBtn" style="background:#e3f4ed;cursor:default;" value="2"/>
+                                        <input type="button" class="optionBtn" style="background:#dcf1e9;cursor:default;" value="3"/>
+                                        <input type="button" class="optionBtn" style="background:#d7efe6;cursor:default;" value="4"/>
+                                        <input type="button" class="optionBtn" style="background:#d2ede3;cursor:default;" value="5"/>
+                                        十分愤怒
+                                    </div>
+                                    <div style="margin-top: 15px;">
+                                        没有表现出快乐
+                                        <input type="button" class="optionBtn" style="background:#ffffff;cursor:default;" value="0"/>
+                                        <input type="button" class="optionBtn" style="background:#f2faf7;cursor:default;" value="1"/>
+                                        <input type="button" class="optionBtn" style="background:#e3f4ed;cursor:default;" value="2"/>
+                                        <input type="button" class="optionBtn" style="background:#dcf1e9;cursor:default;" value="3"/>
+                                        <input type="button" class="optionBtn" style="background:#d7efe6;cursor:default;" value="4"/>
+                                        <input type="button" class="optionBtn" style="background:#d2ede3;cursor:default;" value="5"/>
+                                        十分快乐
+                                    </div>
+                                    <div style="margin-top: 15px;">
+                                        没有表现出恐惧
+                                        <input type="button" class="optionBtn" style="background:#ffffff;cursor:default;" value="0"/>
+                                        <input type="button" class="optionBtn" style="background:#f2faf7;cursor:default;" value="1"/>
+                                        <input type="button" class="optionBtn" style="background:#e3f4ed;cursor:default;" value="2"/>
+                                        <input type="button" class="optionBtn" style="background:#dcf1e9;cursor:default;" value="3"/>
+                                        <input type="button" class="optionBtn" style="background:#d7efe6;cursor:default;" value="4"/>
+                                        <input type="button" class="optionBtn" style="background:#d2ede3;cursor:default;" value="5"/>
+                                        十分恐惧
+                                    </div>
+                                    <div style="margin-top: 15px;">
+                                        没有表现出兴奋
+                                        <input type="button" class="optionBtn" style="background:#ffffff;cursor:default;" value="0"/>
+                                        <input type="button" class="optionBtn" style="background:#f2faf7;cursor:default;" value="1"/>
+                                        <input type="button" class="optionBtn" style="background:#e3f4ed;cursor:default;" value="2"/>
+                                        <input type="button" class="optionBtn" style="background:#dcf1e9;cursor:default;" value="3"/>
+                                        <input type="button" class="optionBtn" style="background:#d7efe6;cursor:default;" value="4"/>
+                                        <input type="button" class="optionBtn" style="background:#d2ede3;cursor:default;" value="5"/>
+                                        十分兴奋
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+        </div>
+        <div class="row">
+            <p class="text-center" style="margin-top:10px;">
+                <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                onclick="location.replace('/emotionRecognition/practice?tid=' + tid);" value="测试练习"/>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!doctype html>
+<html>
+<head>
+    @views.html.common.admin.head()
+    <link rel="stylesheet" href="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.css")"/>
+    <script src="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.min.js")" type="text/javascript"></script>
+    <style>
+        .menu{
+            overflow: hidden;
+            position: fixed;
+            left: 0;
+        }
+        .right-content {
+            overflow: hidden;
+            position: fixed;
+            right: 0;
+            left: 50%;
+            width: auto;
+        }
+        .right-content iframe {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript">
+        var roleTable;
+        var queryData = new Object();
+
+        /**
+         * 表单验证插件
+         **/
+        function formValidator(){
+            $('.am-form').validator({
+                onValid: function(validity) {
+                    $(validity.field).closest('.am-form-group').find('.am-alert').hide();
+                },
+                onInValid: function(validity) {
+                    var $field = $(validity.field);
+                    var $group = $field.closest('.am-form-group');
+                    var $alert = $group.find('.am-alert');
+                    var msg = $field.data('validationMessage') || this.getValidationMessage(validity);
+                    if (!$alert.length) {
+                        $alert = $('<div class="am-alert am-alert-danger" style="margin-top:42px;"></div>').hide().
+                            appendTo($group);
+                    }
+                    $alert.html(msg).show();
+                }
+            });
+        }
+
+        $(function(){
+            formValidator();
+            queryData.roleName = $("#roleName").val();
+            roleTable = $('#role_table').DataTable({
+                ajax: {
+                    url: "/admin/system/role/page",
+                    data:queryData
+                },
+                serverSide: true,
+                pagingType: "full_numbers",
+                processing: true,
+                columns: [
+                    {"data":null},
+                    {"data": "id"},
+                    {"data": "roleName"}
+                ],
+                "columnDefs": [{
+                    "targets": [0],
+                    "searchable": false,
+                    "orderable": false
+                },{
+                    "targets": 1,
+                    "visible": false,
+                    "searchable": false
+                }],
+                "order": [[1, 'asc']],
+                "language": {
+                    "sProcessing": "正在加载...",
+                    "lengthMenu": "每页_MENU_ 条记录",
+                    "zeroRecords": "没有找到记录",
+                    "info": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 )",
+                    "infoEmpty": "无记录",
+                    "infoFiltered": "(从 _MAX_ 条记录过滤)",
+                    "paginate": {
+                        "previous": "上一页",
+                        "next": "下一页"
+                    }
+                },
+                "dom": 'rt<"am-g am-datatable-footer"<"am-u-sm-5"i><"am-u-sm-7"p>>'
+            });
+            roleTable.on('order.dt search.dt',function() {
+                roleTable.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                }).nodes().each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+            });
+
+            $('#role_table tbody').on( 'click', 'tr', function () {
+                if ($(this).hasClass('am-active')) {
+                    $(this).removeClass('am-active');
+
+                    $("#permissionTreeFrame").contents().find("#permission_role_name").html("请选择角色");
+                    var roleId = roleTable.row('.am-active').data().id;
+                    $("#permissionTreeFrame")[0].contentWindow.initTree(roleId);
+                } else {
+                    roleTable.$('tr.am-active').removeClass('am-active');
+                    $(this).addClass('am-active');
+
+                    var roleName = roleTable.row('.am-active').data().roleName;
+                    var roleId = roleTable.row('.am-active').data().id;
+                    $("#permissionTreeFrame").contents().find("#permission_role_name").html(roleName);
+                    $("#permissionTreeFrame")[0].contentWindow.initTree(roleId);
+                }
+            } );
+        })
+
+        /**
+         * 检索角色
+         **/
+        function search(){
+            queryData.search_EQ_roleName = $("#roleName").val();
+            roleTable.destroy();
+            roleTable=darwTable(queryData);
+//            roleTable.draw();
+        }
+
+        function darwTable(queryData){
+            var table = $('#role_table').DataTable({
+                ajax: {
+                    url: "/admin/system/role/page",
+                    data:queryData
+                },
+                serverSide: true,
+                pagingType: "full_numbers",
+                processing: true,
+                columns: [
+                    {"data":null},
+                    {"data": "id"},
+                    {"data": "roleName"}
+                ],
+                "columnDefs": [{
+                    "targets": [0],
+                    "searchable": false,
+                    "orderable": false
+                },{
+                    "targets": 1,
+                    "visible": false,
+                    "searchable": false
+                }],
+                "order": [[1, 'asc']],
+                "language": {
+                    "sProcessing": "正在加载...",
+                    "lengthMenu": "每页_MENU_ 条记录",
+                    "zeroRecords": "没有找到记录",
+                    "info": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 )",
+                    "infoEmpty": "无记录",
+                    "infoFiltered": "(从 _MAX_ 条记录过滤)",
+                    "paginate": {
+                        "previous": "上一页",
+                        "next": "下一页"
+                    }
+                },
+                "dom": 'rt<"am-g am-datatable-footer"<"am-u-sm-5"i><"am-u-sm-7"p>>'
+            });
+            table.on('order.dt search.dt',function() {
+                table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                }).nodes().each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+            });
+            return table;
+        }
+
+        function openModel(flag){
+            if (flag == "add"){
+                $("#roleFormTitle").html("添加角色");
+                $("#form_roleName").val("");
+                $("#form_code").val("");
+            } else if (flag == "edit"){
+                if(roleTable.row('.am-active').data() == undefined){
+                    alert("请选择要修改的角色");
+                    return;
+                } else if(roleTable.row('.am-active').data().code == "admin"){
+                    alert("该角色不能修改");
+                    return;
+                }
+                var roleId = roleTable.row('.am-active').data().id;
+                var roleName = roleTable.row('.am-active').data().roleName;
+                var code = roleTable.row('.am-active').data().code;
+                $("#roleFormTitle").html("修改角色");
+                $("#form_roleId").val(roleId);
+                $("#form_roleName").val(roleName);
+                $("#form_code").val(code);
+            }
+            $('#role_form_prompt').modal({
+                relatedTarget: this,
+                onConfirm: function(e){
+                    if (flag == "add"){
+                        addRole();
+                    } else if (flag == "edit"){
+                        editRole();
+                    }
+                }
+            });
+        }
+
+        /**
+         * 添加数据
+         **/
+        function addRole() {
+            if ($("#role_form").validator().data('amui.validator').isFormValid()) {
+                ajax("/admin/system/role/add", $('#role_form').serialize(), "添加");
+            }
+        }
+
+        /**
+         * 编辑用户
+         */
+        function editRole(){
+            ajax("/admin/system/role/edit", $('#role_form').serialize(), "修改");
+        }
+
+        /**
+         * 删除用户
+         */
+        function deleteRole(){
+            if(roleTable.row('.am-active').data() == undefined){
+                alert("请选择要删除的角色");
+                return;
+            } else if(roleTable.row('.am-active').data().code == "admin"){
+                alert("该角色不能删除");
+                return;
+            }
+            $('#my-confirm').modal({
+                onConfirm: function() {
+                    var roleId = roleTable.row('.am-active').data().id;
+                    var data = {
+                        roleId:roleId
+                    };
+                    ajax("/admin/system/role/delete", data, "删除");
+                }
+            });
+        }
+
+        function ajax(url, data, operation){
+            $.ajax({
+                type:"post",
+                url:url + "?t=" + (new Date()).valueOf(),
+                data:data,
+                success:function(data) {
+                    if(data == "1"){
+                        alert(operation + "成功");
+                        roleTable.ajax.reload();
+                    } else if(data == "0"){
+                        alert(operation + "失败");
+                    }
+                },
+                error:function() {
+                    alert(operation + "失败");
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    @views.html.common.admin.upgradeBrowserInfo()
+    <!-- content start -->
+    <div class="am-cf admin-main">
+            <!-- sidebar start -->
+        <div class="admin-sidebar am-offcanvas menu" id="admin-offcanvas" style="width: 50%;">
+            <div class="am-offcanvas-bar admin-offcanvas-bar">
+
+    <div class="admin-content">
+
+        <div class="am-cf am-padding">
+            <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">角色管理</strong></div>
+        </div>
+        <div class="am-cf am-padding am-form-inline">
+            <div class="am-form-group">
+                <input type="text" id="roleName" class="am-form-field" placeholder="角色名称">
+            </div>
+            <span class="am-input-group-btn am-form-group">
+                <button class="am-btn am-btn-default" type="button" onclick="search()">搜索</button>
+            </span>
+        </div>
+        <div class="am-g am-text-right am-u-sm-12">
+            <button class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="openModel('add')" type="button">
+                <span class="am-icon-plus"></span> 添加
+            </button>
+            <button class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="openModel('edit')" type="button">
+                <span class="am-icon-pencil-square-o"></span> 修改
+            </button>
+            <button class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="deleteRole()" type="button">
+                <span class="am-icon-trash-o"></span> 删除
+            </button>
+        </div>
+        <div class="am-g am-u-sm-12 am-scrollable-horizontal">
+            <table width="100%" class="am-table am-table-striped am-table-bordered am-table-radius am-table-compact am-text-nowrap am-table-centered am-table-hover am-table-compact am-text-nowrap" id="role_table">
+                <thead>
+                    <tr>
+                        <th class="table-id">序号</th>
+                        <th>ID</th>
+                        <th class="table-title">角色名称</th>
+                        @*<th class="table-set">操作</th>*@
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+        </div>
+    </div>
+        <!-- sidebar end -->
+
+        <!-- content start -->
+    <div class="admin-content right-content">
+        <iframe name="permissionTreeFrame" src="/admin/system/permission/treeView" id="permissionTreeFrame"  frameborder="no" scrolling="auto" width="100%" height="auto" allowtransparency="true"></iframe>
+    </div>
+        <!-- content end -->
+
+</div>
+<div class="am-modal am-modal-prompt" tabindex="-1" id="role_form_prompt">
+    <div class="am-modal-dialog">
+        <div class="am-modal-hd" id="roleFormTitle">添加角色</div>
+        <div class="am-modal-bd">
+            <form class="am-form am-form-horizontal" id="role_form">
+                <fieldset>
+                    <input type="hidden" name="id" id="form_roleId">
+                    <div class="am-form-group">
+                        <label for="roleName" class="am-u-sm-3 am-form-label">角色名称：</label>
+                        <div class="am-u-sm-9">
+                            <input type="text" id="form_roleName" name="roleName" maxlength="10" placeholder="输入角色名称(最大10个字符)" required/>
+                        </div>
+                    </div>
+
+                    <div class="am-form-group">
+                        <label for="code" class="am-u-sm-3 am-form-label">角色编码：</label>
+                        <div class="am-u-sm-9">
+                            <input type="text" id="form_code" name="code" maxlength="20" placeholder="输入角色编码(最大20个字符)" required/>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div class="am-modal-footer">
+            <span class="am-modal-btn" data-am-modal-cancel>取消</span>
+            <span class="am-modal-btn" data-am-modal-confirm>提交</span>
+        </div>
+    </div>
+</div>
+
+<div class="am-modal am-modal-confirm" tabindex="-1" id="my-confirm">
+    <div class="am-modal-dialog">
+        <div class="am-modal-bd">
+            你确定要删除这条记录吗？
+        </div>
+        <div class="am-modal-footer">
+            <span class="am-modal-btn" data-am-modal-cancel>取消</span>
+            <span class="am-modal-btn" data-am-modal-confirm>确定</span>
+        </div>
+    </div>
+</div>
+<!-- content end -->
+</body>
+</html>

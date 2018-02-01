@@ -1,0 +1,554 @@
+@import java.util
+@(pdfData:Map[String,Object])
+<!DOCTYPE html>
+<html lang="en" style="font-size: 14px; line-height : 2rem ;">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.css")"/>
+	<script src="@routes.Assets.versioned("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.min.js")" type="text/javascript"></script>
+	<script type="text/javascript" src="@routes.Assets.versioned("javascripts/fsapi.js")" onerror="alert('Error: failed to load ' + this.src)">
+	<script src="http://html2canvas.hertzen.com/build/html2canvas.js"></script>
+	<script type="text/javascript" src="@routes.Assets.versioned("javascripts/raphael/raphael.js")"></script>
+	<style type="text/css">
+		.container{
+			width: 1024px;
+			margin: 0 auto;
+		}
+		.page{
+			width: 100%;
+			height: 0;
+			margin: 0 auto;
+			/*border:1px solid red;*/
+			padding-bottom: 150%;
+		}
+		.first_level{
+		color:#203B70;
+		margin-left: 90px;
+		}
+		.header {
+		background-color: #f59089;
+		color: white;
+		font-size: 2.5rem;
+		font-weight: bold;
+		line-height: 3rem;
+		text-align: center;
+		width: 100%;
+		}
+		.header .card_header{
+			background-color: blue;
+		}
+		.card_grapf{
+			width: 40%;
+			float: left;
+		}
+		.card_disp{
+			width: 60%;
+			float: left;
+			font-size : 1.5rem;
+			font-family: '宋体';
+		}
+		.card_disp span{
+			font-weight : bold ;
+		}
+		.personality_abstract{
+			width: 100%;
+		}
+		.title{
+			font-size: 2rem ;
+			font-family : '宋体';
+			font-weight: bold;
+			float: left;
+			line-height: 4rem;
+		}
+		.card_intelli{
+			width: 100%;
+		}
+		.card_header_text{
+			font-size:2em;
+			color:white;
+			font-family: '微软雅黑';
+			font-weight: bold;
+			text-align: center;
+		}
+		.card_info{
+			width : 100 % ;
+		}
+		.list {
+		border: 2px solid #f59089;
+		border-collapse:collapse;
+			text-align: center;
+			width: 100%;
+		cellspacing: "0";
+		cellpadding: "0";
+		}
+		.list td, .list th{
+		border: 1px solid #f59089;
+		}
+		.card_content {
+			border: 2px solid #1da8de;
+			height: 1400px;
+			padding: 1%;
+			/*padding-bottom: 55%;*/
+		}
+		.card_info table{
+			width: 80%;
+			text-align: center;
+			font: 1.5rem '宋体';
+		}
+		.card_info table td{
+		}
+		.sname{
+			font: 3rem '黑体';
+			font-weight: bold;
+			text-align: left;
+		}
+		.card_intelli table{
+		border-collapse:collapse;
+		text-align: center;
+		width: 100%;
+		cellspacing: "0";
+		cellpadding: "0"
+		}
+		.card_intelli table td, .card_intelli table th{
+		border: 1px solid #82a1d1;
+		}
+		.table_disp {
+		font-family: '黑体';
+		font-size: 1.5rem;
+		line-height: 0rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		@defining(pdfData.get("scoreList").asInstanceOf[List[Map[String, Object]]]) { scoreList =>
+			@scoreList.toList.map { scores =>
+			<div class="page">
+			<div class="header">
+				<p>四环英才指标-智力、创造力、情绪智力、人格</p>
+			</div>
+			<div style="clear:both">
+			<table class="list am-table am-table-bordered am-table-striped am-table-hover">
+				<tr>
+					<th>账号</th>
+					<th>班级</th>
+					<th>姓名</th>
+					<th>性别</th>
+					<th>年龄</th>
+					<th style="background : #fdefed ;">智力得分</th>
+					<th style="background : #fdefed ;">智力排名</th>
+					@defining(scores.get("header").asInstanceOf[List[String]]) { header=>
+						@header.toList.map { col=>
+							<th>@col</th>
+						}
+					}
+				</tr>
+
+				@defining(scores.get("scores").asInstanceOf[List[Object]]) {score =>
+					@score.toList.map{useInfos=>
+					<tr>
+						@defining(useInfos.asInstanceOf[List[Object]]) { useInfo =>
+							@for(i <- 0 to useInfo.size() - 1)  {
+								@if(i == useInfo.size() - 1){
+									<td>
+									@defining(useInfo.get(i).asInstanceOf[String].replace("[","").replace("]","")){ texts =>
+										@if(texts.length != 0){
+											@texts.split(",").toList.map{ text=>
+												@defining({"images/admin/orgReort/"+text.replace(" ","")+".png"}){ fuck=>
+													<img src="@routes.Assets.versioned(fuck)" >
+												}
+											}
+										}
+									}
+									</td>
+								}else {
+									<td @if(i == 5 || i == 6) {style="background: #fdefed;"}>@useInfo.get(i)</td>
+								}
+							}
+						}
+					</tr>
+					}
+				}
+				</table>
+		    </div>
+			<div class="footer">
+			</div>
+			</div>
+			}
+		}
+		@defining(pdfData.get("userCards").asInstanceOf[List[Map[String, Object]]]){userCards =>
+		    @userCards.toList.map {userCard =>
+			<div class="page">
+				<div class = "header" style="background-color: #1da8de">
+					<p>考生能力卡</p>
+				</div>
+				<div class="card_content">
+				@defining(userCard.get("userInfo").asInstanceOf[Map[String, Object]]){userInfo =>
+					<div class = "card_info">
+						<table>
+							<tbody>
+								<tr>
+									<td class="sname" rowspan="2" >@userInfo.get("name")</td>
+									<th>学生账号</th>
+									<th>班级</th>
+									<th>性别</th>
+									<th>年龄</th>
+									<th>学号</th>
+								</tr>
+								<tr>
+									<td>@userInfo.get("account")</td>
+									<td>@userInfo.get("class")</td>
+									<td>@userInfo.get("sex")</td>
+									<td>@userInfo.get("age")</td>
+									<td>@userInfo.get("sid")</td>
+								</tr>
+							</tbody>
+						</table>
+						<hr width=100% size=1px color=#82a1d1 align=center noshade>
+					</div>
+					<div class="card_disp">
+						<br/><br/><br/>
+						<p>智力成绩均分：@userInfo.get("intelli")</p>
+						<p>智力排名：@userInfo.get("intelliRank")</p>
+						@if(userInfo.contains("creativity")) {
+							<p>创造力成绩：@userInfo.get("creativity")</p>
+						}
+						@if(userInfo.contains("emotion")) {
+							<p>情绪智力成绩均分：@userInfo.get("emotion")</p>
+						}
+				    </div>
+				}
+				@defining(userCard.get("userInfo").asInstanceOf[Map[String, Object]]){userInfo =>
+					<div class="card_grapf" id=@{"rose" + userInfo.get("id")}>
+					</div>
+					@defining(userCard.get("intelligence").asInstanceOf[Map[String, Object]].get("table").asInstanceOf[Map[String, Object]]) { table =>
+						<div class="card_intelli" style="clear : both">
+							<table>
+								<tbody>
+                                    <tr>
+                                        <td rowspan="2">智力项目</td>
+                                        @for(classify <-table.get("classify").asInstanceOf[String].split(";")){
+                                                <th colspan="@classify.split(",").toList.get(1)">@classify.split(",").toList.get(0)</th>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        @for(ability <-table.get("ability").asInstanceOf[String].split(",")){
+                                            <td>@ability</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <td>分数</td>
+                                        @for(score <-table.get("score").asInstanceOf[String].split(",")){
+                                            <td>@score</td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <td>排名</td>
+                                        @for(rank <-table.get("rank").asInstanceOf[String].split(",")){
+                                            <td>@rank</td>
+                                        }
+                                    </tr>
+								</tbody>
+							</table>
+						</div>
+					}
+					<div class="table_disp">
+					@defining(userCard.get("intelligence").asInstanceOf[Map[String, Object]].get("explain").asInstanceOf[List[String]]){explain=>
+						@explain.toList.map { expalinItem =>
+							<div style="clear: left; float: left; padding: 1%; text-align: center"><img src="@routes.Assets.versioned("images/admin/orgReort/hook.png")" ></div>
+							<p style=" float: left">@expalinItem</p>
+						}
+					}
+					</div>
+					@defining(userCard.get("personality").asInstanceOf[Map[String, Object]].get("explain").asInstanceOf[Map[String, String]]) {personality=>
+						<div class="personality_abstract" style="clear: both">
+							<br/>
+							<div class="title">人格特质：</div>
+							<div class="title">
+							@defining(personality.get("abstract").asInstanceOf[String].replace("[","").replace("]","")){ texts =>
+								@if(texts.length != 0){
+									@texts.split(",").toList.map{ text=>
+										@defining({"images/admin/orgReort/"+text.replace(" ","")+".png"}){ fuck=>
+											<img src="@routes.Assets.versioned(fuck)" >
+										}
+									}
+								}
+							}
+							</div>
+						</div>
+						<div class="card_disp" style="width : 58% ; clear: both">
+							<br/>
+							@if(personality.get("star").equals("")) {
+								<p>该同学在各人格特质上的得分未达到星级标准，请参考各特质的具体得分。</p>
+							}else {
+								<span>加星特质：</span> <br/>
+								@personality.get("star").asInstanceOf[String].split(";").toList.map{ text=>
+								<p>@text</p>
+								}
+							}
+							<br/>
+							@if(personality.get("lightning").equals("")){
+						 		<p>该同学在各人格特质上的得分均高于警戒标准，请参考各特质的具体得分。</p>
+							}else {
+								<span>警戒特质：</span> <br/>
+								@personality.get("lightning").asInstanceOf[String].split(";").toList.map{ text=>
+								<p>@text</p>
+								}
+							}
+						</div>
+					}
+					<div class="card_grapf" id=@{"personality" + userInfo.get("id")} >
+					</div>
+				}
+				</div>
+			</div>
+			}
+		}
+		@defining(pdfData.get("absentUsers").asInstanceOf[List[Object]]) { absentUsers =>
+			@absentUsers.toList.map { users =>
+				<div class="page">
+					<div class="header">
+						<p>缺考考生名单</p>
+					</div>
+					<div style="clear:both">
+						<table class="list am-table am-table-bordered am-table-striped am-table-hover">
+							<tr>
+								<th>账号</th>
+								<th>班级</th>
+								<th>姓名</th>
+								<th>性别</th>
+								<th>年龄</th>
+							</tr>
+							@defining(users.asInstanceOf[List[Object]]) {user =>
+								@user.toList.map {useInfos =>
+									@defining(useInfos.asInstanceOf[List[Object]]) { useInfo =>
+										<tr>
+											@for(i <- 0 to useInfo.size() - 1)  {
+												<td>@useInfo.get(i)</td>
+											}
+										</tr>
+									}
+								}
+							}
+						</table>
+					</div>
+					<div class="footer">
+					</div>
+				</div>
+			}
+		}
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+    var font_size = 14;
+    var stroke_width = 1;
+    var rosediv = [];
+    var rosedata = [];
+    var radardiv = [];
+    var radardata = [];
+    @defining(pdfData.get("userCards").asInstanceOf[List[Map[String, Object]]]) { userCards =>
+		@userCards.toList.map { userCard =>
+			@defining(userCard.get("intelligence").asInstanceOf[Map[String,Object]]) { intelligence =>
+				@defining(userCard.get("userInfo").asInstanceOf[Map[String, Object]]) { userInfo =>
+				    rosediv.push('@{"rose" + userInfo.get("id")}')
+				}
+				@defining(intelligence.get("roseGraph").asInstanceOf[Map[String, Object]]) { roseGraph =>
+					rosedata.push(@roseGraph.toString.replace("=", ":"))
+				}
+			}
+			@defining(userCard.get("personality").asInstanceOf[Map[String,Object]]) { personailty =>
+				@defining(userCard.get("userInfo").asInstanceOf[Map[String, Object]]) { userInfo =>
+				    radardiv.push('personality@userInfo.get("id")')
+				}
+				@defining(personailty.get("radarGragh").asInstanceOf[Map[String, String]]) { radarGragh =>
+				    radardata.push(['@radarGragh.get("dimname").toString', '@radarGragh.get("score")'])
+				}
+			}
+		}
+	}
+
+	for (var i = 0; i < rosediv.length; i++){
+		drawRose(rosediv[i], rosedata[i]);
+		drawRadar(radardiv[i], radardata[i][0], radardata[i][1]);
+	}
+
+	function drawRose(argv, args){
+		var inner_data = [];
+		var inner_angle = [];
+		var middle_data = [];
+		var middle_size = [];
+		var out_data = [];
+		(function(){
+			for (var key in args){
+				inner_data.push(key);
+				var temp = args[key];
+				var size = 0;
+				for (var middle_key in temp){
+					size++;
+					var temp_value = temp[middle_key];
+					middle_data.push(temp_value);
+					if (temp_value > 150)
+						middle_size.push(1);
+					else if (temp_value < 50)
+						middle_size.push(0);
+					else
+						middle_size.push((temp_value - 50) / 100);
+					out_data.push(middle_key)
+				}
+				inner_angle.push(size);
+			}
+			console.log(inner_data, inner_angle, middle_data, middle_size, out_data);
+		})();
+
+
+		var width = document.getElementById(argv).offsetWidth;
+		var paper = Raphael(argv, width, width);
+
+		var center_x = width * 0.5;
+		var center_y = width * 0.5;
+		var big_radius = width * 0.45;
+		var middle_radius = width * 0.40;
+		var small_radius = width * 0.15;
+		var inner_radius = width * 0.10;
+		var n = out_data.length;
+		var start_angle = 0;
+		var rotate_angle = Math.PI * 2 / n;
+		for (var j=0; j<n; j++)
+		{
+			var fill = ['#C5C5C5', '#FEEF70', '#FCBA6C', '#FC9757', '#FC5E45'];
+			var index = 4;
+			if (5 * middle_size[j] > 4)
+				index = 4;
+			else
+				index = Math.floor(5 * middle_size[j]);
+			drawSector([center_x, center_y], (1 - middle_size[j]) * small_radius + middle_size[j] * middle_radius, small_radius, start_angle, rotate_angle, 0, fill[index], paper);
+			var text_radius = (1 - middle_size[j]) * small_radius + middle_size[j] * middle_radius - 10;
+			if (text_radius - 10  < small_radius)
+				text_radius = (1 - middle_size[j]) * small_radius + middle_size[j] * middle_radius + 10;
+			[x_text, y_text] = calcSector([center_x, center_y], text_radius, start_angle + rotate_angle / 2);
+			text = paper.text(x_text, y_text, middle_data[j]);
+			text.transform('r' + (start_angle + rotate_angle / 2) / Math.PI * 180);
+			text.attr("font-size", font_size);
+			start_angle = start_angle + rotate_angle;
+		}
+		n = middle_data.length;
+		start_angle = 0;
+		rotate_angle = Math.PI * 2 / n;
+		for (var i=0;i<n;i++)
+		{
+			drawSector([center_x, center_y], big_radius, middle_radius, start_angle, rotate_angle, stroke_width, '#DEDFDE', paper);
+			var [x_text, y_text] = calcSector([center_x, center_y], (middle_radius + big_radius) / 2, start_angle + rotate_angle / 2);
+			var text = paper.text(x_text, y_text, out_data[i]);
+			text.transform('r' + (start_angle + rotate_angle / 2) / Math.PI * 180);
+			text.attr("font-size", font_size);
+			start_angle = start_angle + rotate_angle;
+		}
+
+		var m = inner_data.length;
+		start_angle = 0;
+		for (var k=0; k<m; k++)
+		{
+			drawSector([center_x, center_y], small_radius, inner_radius, start_angle, rotate_angle * inner_angle[k], stroke_width, 'white', paper);
+//                            [x_text, y_text] = calcSector([center_x, center_y],  (small_radius + inner_radius) / 2, start_angle + rotate_angle * inner_angle[k] / 2);
+//                            text = paper.text(x_text, y_text, inner_data[k]);
+//                            text.transform('r' + (start_angle + rotate_angle * inner_angle[k] / 2) / Math.PI * 180);
+//                            text.attr("font-size", font_size);
+			start_angle = start_angle + rotate_angle * inner_angle[k];
+		}
+		start_angle = 0;
+		for (var l=0; l<n; l++){
+			drawLine([center_x, center_y], middle_radius, small_radius, start_angle, stroke_width, paper);
+			start_angle = start_angle + rotate_angle;
+		}
+		var c = paper.circle(center_x, center_y, inner_radius).attr("stroke", "#C5C5C5").attr("stroke-width", stroke_width);
+	}
+
+	function drawRadar(divname,names, scores){
+		var name = names.split(',');
+		var score = scores.split(',');
+
+
+			var width = document.getElementById(divname).offsetWidth;
+			var paper = Raphael(divname, width, width);
+
+		var center_x = width * 0.5;
+		var center_y = width * 0.5;
+		var radius = width * 0.4;
+		var text_radius = width * 0.45;
+		var n = 3;
+		var m = name.length;
+		var len = radius / n;
+		var angle = Math.PI * 2 / m;
+		var fill = ['#FCBA6C', '#FC9757', '#FC5E45'];
+		var start_angle = 0;
+		var line = 'M';
+		for (var j=0; j<m; j++){
+			for (var i=0; i<n; i++){
+				var small_len = len * i;
+				var big_len = len * (i + 1);
+				drawEchelon([center_x, center_y], big_len, small_len, start_angle, angle, stroke_width, fill[i], paper);
+			}
+			var [x_text, y_text] = calcSector([center_x, center_y], text_radius, start_angle);
+			var text = paper.text(x_text, y_text, name[j]);
+			text.attr("font-size", font_size);
+			var l = (score[j] - 55) / 90.0;
+			if (l < 0)
+				l = 0;
+			else if (l > 1)
+				l = 1;
+			var [x, y] = calcSector([center_x, center_y], l * radius, start_angle);
+			line = line + x + ' ' + y;
+			start_angle = start_angle + angle;
+			if (j == m - 1)
+				line += 'z';
+			else
+				line += 'L';
+		}
+		line = paper.path(line);
+		line.attr("stroke-width", stroke_width);
+		line.attr("stroke", "black");
+	}
+
+
+    function drawEchelon(center, out_radius, inner_radius, begin_angle, angle, stroke_width, fill, paper){
+        var [x1, y1] = calcSector(center, inner_radius, begin_angle);
+        var [x2, y2] = calcSector(center, out_radius, begin_angle);
+        var [x3, y3] = calcSector(center, out_radius, begin_angle + angle);
+        var [x4, y4] = calcSector(center, inner_radius, begin_angle + angle);
+        var path = 'M' + x2 + ' ' + y2 + 'L' + x3 + ' ' + y3 + 'L' + x4 + ' ' + y4 + 'L' + x1 + ' ' + y1 + 'z';
+        var sector = paper.path(path);
+        sector.attr("stroke-width", stroke_width);
+        sector.attr("fill", fill);
+        sector.attr("stroke", "#C5C5C5");
+    }
+
+    function calcSector(center, radius, angle){
+        return [center[0] + radius * Math.sin(angle), center[1] - radius * Math.cos(angle)]
+    }
+
+    function drawSector(center, out_radius, inner_radius, begin_angle, angle, stroke_width, fill, paper){
+        var [x1, y1] = calcSector(center, inner_radius, begin_angle);
+        var [x2, y2] = calcSector(center, out_radius, begin_angle);
+        var [x3, y3] = calcSector(center, out_radius, begin_angle + angle);
+        var [x4, y4] = calcSector(center, inner_radius, begin_angle + angle);
+        var c = 0;
+        if (angle > Math.PI)
+            c = 1;
+        var path = 'M' + x2 + ' ' + y2 + 'A' + out_radius + ' ' + out_radius + ' 0 ' + c + ' 1 ' + x3 + ' ' + y3 + 'L' + x4 + ' ' + y4 + 'A' + inner_radius + ' ' + inner_radius + ' 0 ' + c + ' 0 ' + x1 + ' ' + y1 + 'z';
+        var sector = paper.path(path);
+        sector.attr("stroke-width", stroke_width);
+        sector.attr("fill", fill);
+        sector.attr("stroke", "#C5C5C5");
+    }
+
+    function drawLine(center, out_radius, inner_radius, angle, stroke_width, paper){
+        var [x1, y1] = calcSector(center, inner_radius, angle);
+        var [x2, y2] = calcSector(center, out_radius, angle);
+        var line = paper.path('M' + x2 + ' ' + y2 + 'L' + x1 + ' ' + y1);
+        line.attr("stroke-width", stroke_width);
+        line.attr("stroke", "#C5C5C5");
+    }
+</script>

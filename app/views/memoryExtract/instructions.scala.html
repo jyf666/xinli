@@ -1,0 +1,82 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]], size: java.lang.Long)
+<html lang="en" manifest="/memoryExtract/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4 style="margin-top: 40px"><p class="text-center" ><b>配对回忆测试</b></p></h4>
+                        </div>
+                        <div class="row" >
+                            <div align="center">
+                                (该部分为记忆提取，需要你根据配对记忆中所识记的图形对应关系进行选择)
+                            </div>
+                            <table align="center" width="650px" style="border-collapse:separate;border-spacing: 10px;font-size: 14px;">
+                                <tr height="60px">
+                                    <td align="right">
+                                        <div style="text-align: center;background-color: #d2ede3;line-height:45px; height: 45px;width:150px;position:relative;">
+                                            <img src="@routes.Assets.versioned("images/common/feedback0.png")" style="width:60px;position: absolute;left:-28px;top:-7px;">
+                                            不反馈
+                                        </div>
+                                    </td>
+                                    <td>
+                                        共计 @size 道题，不反馈对错。
+                                    </td>
+                                </tr>
+                                <tr height="60px">
+                                    <td align="right">
+                                        <div style="text-align: center;background-color: #d2ede3;line-height:45px; height: 45px;width:150px;position:relative;">
+                                            <img src="@routes.Assets.versioned("images/common/clock0.png")" style="width:60px;position: absolute;left:-28px;top:-12px;">
+                                            <span>不限时</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        提交按钮在测试最后，点击提交。
+                                    </td>
+                                </tr>
+                                <tr height="60px">
+                                    <td align="right">
+                                        <div style="text-align: center;background-color: #d2ede3;line-height:45px; height: 45px;width:150px;position:relative;">
+                                            <img src="@routes.Assets.versioned("images/common/exchange1.png")" style="width:60px;position: absolute;left:-28px;top:-7px;">
+                                            <span>题目切换</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        作答后才可点击进入下一题，允许返回修改答案。
+                                    </td>
+                                </tr>
+                                <tr height="60px">
+                                    <td align="right">
+                                        <div style="text-align: center;background-color: #d2ede3;line-height:45px; height: 45px;width:150px;position:relative;">
+                                            <img src="@routes.Assets.versioned("images/common/tag1.png")" style="width:60px;position: absolute;left:-28px;top:-7px;">
+                                            <span>题目标记</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        可用<img src="@routes.Assets.versioned("images/common/mark.png")" style="width:20px;">标记不确定的题目， 点击右上角<img src="@routes.Assets.versioned("images/common/seemark.png")" style="width:20px;">按钮可快速查看<br>
+                                        并切换至相应题目
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                    onclick="location.replace('/memoryExtract/test?tid=' + tid);" value="开&nbsp;&nbsp;&nbsp;&nbsp;始"/></p>
+            </div>
+        </div>
+
+    </body>
+</html>

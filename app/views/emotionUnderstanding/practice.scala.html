@@ -1,0 +1,151 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import java.util.List
+@import utils.SystemConstant
+
+<!DOCTYPE html>
+    <html manifest="/emotionUnderstanding/practiceManifest">
+        <head>
+            @views.html.common.practice.head()
+            <script src="@routes.Assets.versioned("javascripts/question/emotionUnderstanding.js")" type="text/javascript"></script>
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            .optionBtn{
+                height:25px;
+                width:35px;
+                border:none;
+                font-size:18px;
+                background:#d2ede3;
+            }
+            .optionBtnSelected{
+                height:25px;
+                width:35px;
+                border:none;
+                font-size:18px;
+                background:#05c0c2;
+            }
+
+            .sender div:nth-of-type(1){
+                float: left;
+            }
+            .sender div:nth-of-type(2){
+                background-color: #F2F2F2;
+                float: left;
+                padding: 5px 5px 5px 0px;
+                border-radius:7px;
+            }
+
+            .left_triangle{
+                height:0px;
+                width:0px;
+                border-right:10px solid #F2F2F2;
+                border-bottom: 4px solid transparent;
+                border-top: 7px solid transparent;
+                position: relative;
+                left:-9px;
+                top:3px;
+            }
+        </style>
+        <script>
+
+            function setTimeoutForShow(){
+                var obj = $("#content-index >div");
+                var pageNum = getPageNum();// 当前页码
+                if (pageNum <= obj.length) {
+                    setTimeout("showReminder('div')", 2000);
+                    setTimeout("showReminder('img')", 3000);
+                }
+            }
+            function showReminder(tagName){
+                var pageNum = getPageNum();// 当前页码
+                $("#content-index >div").eq(pageNum-1).find(tagName + "[name=reminder]").css("display","block");
+            }
+            $(function(){
+                setTimeoutForShow();
+            })
+
+            /**
+             * 设置切换题目的向右箭头为绿色可用
+             */
+            function showArrowRight(){
+                $(".arrow-right").attr("onclick","show_next_practice('/emotionUnderstanding/practiceEnd?tid=" + tid + "');");
+                $(".arrow-right").css("border-left","50px solid #48C9A3");
+            }
+		</script>
+        </head>
+        <body>
+            <div class="container">
+                @views.html.common.instructions.progress(questionTypeMap)
+                <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+                    </div>
+                    <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                        @for(map <- list){
+                            <div class="panel-body" style=@if(map == list.head){"display:block"} else{"display:none"}>
+                                <div class="row" style="text-align:center;padding:0;">
+                                @defining(map.get("question").asInstanceOf[String]){question =>
+                                    <img width="180px" src="@routes.Assets.versioned("images/emotionUnderstanding/" + question + "_1.jpg")">
+                                    <img width="180px" src="@routes.Assets.versioned("images/emotionUnderstanding/" + question + "_2.jpg")">
+                                }
+                                </div>
+
+                                <div style="height:45px;margin-top:10px;">
+                                    <center>
+                                    <div name="reminder" class="row" style="height:45px;width:425px;background:#F2F2F2;display: none;text-align:left;padding:3px 0 0 5px;">
+                                        <p style="text-indent:2em;">请回答图中主角在多大程度上包含了以下选项的情绪，从 1-6表示该情绪的强烈程度不断增强， 1表示很弱，6表示很强。</p>
+                                    </div>
+                                    </center>
+                                </div>
+                                <div style="height:40px;margin-top:5px;">
+                                    <div style="float:left;margin-left:230px;">
+                                        在此漫画中，<img width="30px" src="@routes.Assets.versioned("images/emotionUnderstanding/ask/" + map.get("ask") + ".png")" style="margin-left: 15px;">的情绪是：
+                                    </div>
+                                    <div class="sender" style="float:left;margin-left:20px;">
+                                        <div></div>
+                                        <div>
+                                            <div class="left_triangle"></div>
+                                            <span id="say"> 您有10点可用 </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top:10px;">
+                                    <!-- 练习提示选择答案箭头-->
+                                    <div name="reminder" style="width:110px;height: 80px;left:110px;top:310px;position: absolute;display: none;">
+                                        <div style="margin-top:7px;background-color: #F2F2F2;width:75px;height:55px;float:left;text-align: center;vertical-align:middle;padding:7px;color:#68999c">请点击<br>进行选择</div>
+                                        <div style="border-left:35px solid #F2F2F2;border-bottom: 35px solid transparent;border-top: 35px solid transparent;float:left;"></div>
+                                    </div>
+
+                                @defining(map.get("options").asInstanceOf[List[String]]){options =>
+                                @for((option, index) <- options zipWithIndex){
+                                    <div style="text-align:center;padding:0;margin-top: 5px;">
+                                        @SystemConstant.EMOTION_MAP.get(option)
+                                        <input type="button" class="optionBtn" value="1" onclick="selected(this);showOrHideArrowRight();"/>
+                                        <input type="button" class="optionBtn" value="2" onclick="selected(this);showOrHideArrowRight();"/>
+                                        <input type="button" class="optionBtn" value="3" onclick="selected(this);showOrHideArrowRight();"/>
+                                        <input type="button" class="optionBtn" value="4" onclick="selected(this);showOrHideArrowRight();"/>
+                                        <input type="button" class="optionBtn" value="5" onclick="selected(this);showOrHideArrowRight();"/>
+                                        <input type="button" class="optionBtn" value="6" onclick="selected(this);showOrHideArrowRight();"/>
+                                    </div>
+                                }}
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                        <div class="arrow-right"  style="border-left:50px solid grey"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                    @pageNum
+                    </p>
+                </div>
+            </div>
+        </body>
+    </html>

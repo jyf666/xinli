@@ -1,0 +1,53 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/remoteAssociation/instructionsManifest">
+<head>
+    @views.html.common.instructions.head()
+<style>
+    .optionBtn{
+        height:25px;
+        width:35px;
+        border:none;
+        font-size:18px;
+        background:#d2ede3;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+    @views.html.common.instructions.progress(questionTypeMap)
+        <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+            <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+            </div>
+            <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                <div class="panel-body">
+                    <div class="row">
+                        <h4><p class="text-center"><b>远距离联想测试</b></p></h4>
+                    </div>
+                    <div class="row" style="font-size: 16px;padding: 10px 50px 10px 50px">
+                        本测试共25题，每个题目的题干是三个词语。请你想出一个双字词，与这三个词都具有一定程度的联系，并将答案填写在题目对应的横线上。<br>
+                    </div>
+                    <div class="row" style="font-size: 16px;padding: 10px 50px 10px 50px" >
+                        例：<br>
+                        <p class="text-center" style="font-size: 18px;font-weight: bold;">欣赏 艺术 歌曲<span style="margin-left:50px;border-bottom: 2px solid black;padding:0 15px 0 15px">音乐</span></p><br>
+                        题干词和答案词可能有多种不同的联系。具体包括：<br>
+                        （1）近义词联系，如<b>“音乐”</b>与<b>“歌曲”</b>；<br>
+                        （2）反义词联系，如<b>“高兴”</b>与<b>“悲伤”</b>；<br>
+                        （3）可以组成短语的联系，如<b>“欣赏”</b>和<b>“音乐”</b>组成<b>“欣赏音乐”</b>；<br>
+                        （4）特征相互关联，如<b>“火焰”</b>和<b>“炙热”</b>；<br>
+                        （5）同一类别或归属的联系，例如<b>“苹果”</b>和<b>“橘子”</b>都是水果，<b>“音乐”</b>是<b>“艺术”</b>的一种；<br>
+                        （6）以及其他形式的合理的联系等等。
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+        </div>
+        <div class="row">
+            <p class="text-center" style="margin-top:10px;">
+                <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                onclick="location.replace('/remoteAssociation/practice?tid=' + tid);" value="测试练习"/>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

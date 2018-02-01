@@ -1,0 +1,67 @@
+@import models.User
+@(user: User)
+<link href="@routes.Assets.versioned("stylesheets/bootstrap.min.css")" rel="stylesheet">
+<link href="@routes.Assets.versioned("javascripts/skin/layer.css")" rel="stylesheet">
+<style type="text/css">
+    .userinfo{
+        /*position: absolute;*/
+        /*top: 35%;*/
+        /*width: 100%;*/
+        /*height: 100%;*/
+        position: absolute;
+        margin: auto;
+        top: 0; left: 0; right: 0; bottom: 0;
+        overflow: auto;
+        background-color: #fff;
+    }
+    h3{
+        color : #fff;
+    }
+    div.row{
+        color: #fff;
+    }
+</style>
+<div class="userinfo am-alert" data-am-alert id="@user.getId()">
+    <div class="container">
+        <div class="row" style="margin-top:50px;">
+            <div class=" col-sm-offset-3 col-sm-7  panel-info" >
+                <div class="panel-body " style="background:#464646;border:1px #535554 solid;text-align: center">
+                    <h3>请仔细核对屏幕中的信息与您的准考证信息</h3>
+                </div>
+                <div class="panel-body" style="background:#464646;border:1px #535554 solid;">
+                    <div class="col-sm-7">
+                        <div class="row ">
+                            <div class="col-sm-1 am-icon-user"></div>
+                            <div class=" col-sm-4 ">账号</div>
+                            <div class="col-sm-7">@user.getAccount()</div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-sm-1 am-icon-venus-mars"></div>
+                            <div class="col-sm-4 ">姓名</div>
+                            <div class="col-sm-7">@user.getName()</div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-sm-1 am-icon-calendar"></div>
+                            <div class="col-sm-4 ">性别</div>
+                            <div class="col-sm-7">@user.getSex()</div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-sm-1 am-icon-envelope"></div>
+                            <div class="col-sm-4 ">邮箱</div>
+                            <div class="col-sm-7">@user.getEmail()</div>
+                        </div>
+                    </div>
+                    <div class="col-offset-1 col-sm-4">
+                        <img src="@routes.Assets.versioned("images/common/photo.png")"  class="img-circle" style="width:150px;height:150px;">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-sm-offset-3 col-sm-4" style="color:#999999;font-size:14px;">
+                <button style="color: #000;margin-right: 15%;" type="button" class="am-close">核对完毕</button>
+            </div>
+        </div>
+    </div> <!-- /container -->
+</div>

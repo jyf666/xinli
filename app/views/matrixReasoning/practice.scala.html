@@ -1,0 +1,109 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import java.util.HashMap
+
+<!DOCTYPE html>
+    <html manifest="/matrixReasoning/practiceManifest">
+        <head>
+            @views.html.common.practice.head()
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+        </style>
+        <script>
+
+            function chooseTrigger(obj){
+                $(obj).parent().children('h4').click();
+            }
+
+            /**
+             * param choice 选择的答案
+             * param answer 答案
+             * param obj 所选的DOM对象
+             */
+            function choose(obj, choice, answer){
+                if(choice == answer){
+                    $("#temp_pic").remove();
+					sign("@routes.Assets.versioned("images/common/right.png")", obj);
+				} else {
+                    $("#temp_pic").remove();
+                    sign("@routes.Assets.versioned("images/common/wrong.png")", obj);
+				}
+                huaquan(obj);
+            }
+
+			/**
+             * 反馈
+             */
+            function sign(src, obj){
+                var img = document.createElement("img");
+                img.src = src;
+                img.style = "z-index:9;position:absolute;left:"+ ($(obj).position().left) +"px;top:" + ($(obj).position().top)+"px;";
+                img.width = 20;
+                img.id = "temp_pic";
+                $(obj).parent().append(img);
+            }
+
+            /**
+             * 画圈
+             * param qid 题号
+             */
+            function huaquan(obj) {
+                var circles = $(obj).parent().parent().parent().find('div[name="circle"]');
+                circles.each(function(index){
+                    $(this).css("display", "none");
+                })
+                var circle_div = $(obj).parent().children('div[name="circle"]');
+                circle_div.css("display", "block");
+            }
+		</script>
+        </head>
+        <body>
+            <div class="container">
+                @views.html.common.instructions.progress(questionTypeMap)
+                <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+                    </div>
+                    <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                        @for(map <- list){
+                            <div class="panel-body" style=@if(map == list.head){"display:block"} else{"display:none"}>
+                                <div class="row" style="margin-top:10px;">
+                                @defining(map.get("question").asInstanceOf[String]){question =>
+                                    <div style="text-align:center;padding:0;width:100%;">
+                                        <img src="@routes.Assets.versioned("images/matrixReasoning/question/" + question + ".png")" width="200px" style="margin:auto;">
+                                    </div>
+                                }
+                                </div>
+
+                                <div class="row" style="margin-top:30px;padding-left: 156px;">
+                            @defining(map.get("question").asInstanceOf[String]){question =>
+                            @for((key, value) <- map.get("options").asInstanceOf[HashMap[String, String]]){
+                                    <div class="col-sm-offset-1 col-sm-1" style="text-align:center;padding:0;">
+                                        <img src="@routes.Assets.versioned("images/matrixReasoning/answer/" + question + "-" + value + ".png")" style="width:70px;cursor: pointer;" onclick="chooseTrigger(this)">
+                                        <h4 style="cursor: pointer;" onclick="choose(this, '@value', '@map.get("answer")')" name="">@key</h4>
+                                        <div name="circle" style="position:absolute;top:53px;left:8px;width:40px;height:40px;border:3px solid lightgreen;border-radius:40px;display: none;"></div>
+                                    </div>
+                            @if(key == "D"){
+                                </div>
+                                <div class="row" style="margin-top:5px;padding-left: 156px;">
+                            }}}
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                        <div class="arrow-right" onclick="show_next_practice('/matrixReasoning/practiceEnd?tid=' + tid);"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                    @pageNum
+                    </p>
+                </div>
+            </div>
+        </body>
+    </html>

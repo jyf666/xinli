@@ -1,0 +1,61 @@
+@(list:java.util.List[Questiontype])
+@import utils.SystemConstant
+<!DOCTYPE html>
+<html manifest="/instructions/indexManifest">
+    @views.html.common.instructions.head()
+<body style="background:#FFFFFF;">
+    <div style="height:100%;padding-left:50px;padding-right:50px;color:#000000;">
+        <div style="padding-left:50px;padding-right:50px;text-align: center;">
+            <div style="margin-top:60px;">
+                <p class="text-center" style="margin-top:10px;">
+                    <h3>说    明</h3>
+                </p>
+            </div>
+            <div style="margin-top:130px;">
+                <ul  class=" list-inline">
+                @for((questiontype, index) <- list zipWithIndex) {
+                    <li>
+                        <label style="font-size:13px;color:#4f68c7; ">@questiontype.getName</label>
+                        <br />
+                        <div name="circle" class="progress-num progress-num-waiting" style="width: 50px;height: 50px;border-radius: 50px;font-size: 24px;">@(index + 1)</div>
+                    </li>
+                @if((index + 1) != list.size) {
+                    <li style="width:60px;height:5px;background:#4f68c7;"></li>
+                }
+                }
+                </ul>
+            </div>
+            <div class="row" >
+                <table align="center" width="650px" style="margin-top: 70px">
+                    <tr height="40px">
+                        <td width="30px">
+                            <div style="width:12px;height:12px;border-radius:12px;background-color:#ff9500;"></div>
+                        </td>
+                        <td align="left">
+                            本系统共包含<span style="color:#ff9500;"><b>@list.size()</b></span>个测试
+                        </td>
+                    </tr>
+                    @for(questiontype <- list){
+                        @if(questiontype.getId() == SystemConstant.QUESTION_TYPE_MATERIAL_MEMORY){
+                            <tr height="40px">
+                                <td width="30px">
+                                    <div style="width:12px;height:12px;border-radius:12px;background-color:#ff9500;"></div>
+                                </td>
+                                <td align="left">
+                                    测试【<span style="color:#ff9500;">配对记忆</span>】的记忆内容会在测试【<span style="color:#ff9500;">配对回忆</span>】中进行测试
+                                </td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <p class="text-center" style="">
+                <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                onclick="location.replace('/instructions/instructions?tid=' + tid);" value="继续"/>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

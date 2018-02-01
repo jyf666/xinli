@@ -1,0 +1,75 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/personality/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+        <style>
+            .options_table{
+                margin-top: 5px;
+                border-collapse:separate;
+                border-spacing:10px;
+            }
+            .options_table td{
+                width:50%;
+            }
+            .options_table .options_tr td{
+                background-color:#d2ede3;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4><p class="text-center"><b>人格测试</b></p></h4>
+                        </div>
+                        <div class="row" >
+                            <div class="col-sm-12" style="padding:40px 30px 10px 30px;font-size:16px;line-height:30px;">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;每个题目都由A、B两个选项构成，他们描述了人们的不同特征。请你判断A、B中哪一个特征更符合你。如果两句话都符合，请选择最符合你的一个；如果两个都不符合，请选择相对较符合的，或排除最不符合的。<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;任何答案都无所谓对错。你所作的选择如果能最真实地反映你自己的行为、喜好与感觉，那就是最佳选择。
+                            </div>
+                            <div class="col-sm-12" style="padding:10px 30px 10px 30px;font-size:16px;">
+                                <div style="padding:10px 0px 0px 5px;">
+                                    <b>例:</b>
+                                </div>
+                                <table class="options_table" width="100%" >
+                                    <tr>
+                                        <td align="center">
+                                            A
+                                        </td>
+                                        <td align="center">
+                                            B
+                                        </td>
+                                    </tr>
+                                    <tr class="options_tr" height="120px">
+                                        <td>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在不太熟悉的人面前，我感到不自在、放不开。
+                                        </td>
+                                        <td>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;我总是不能严格执行自己制定的计划。
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                    onclick="location.replace('/personality/practiceEnd?tid=' + tid);" value="测试须知"/>
+                </p>
+            </div>
+        </div>
+
+    </body>
+</html>

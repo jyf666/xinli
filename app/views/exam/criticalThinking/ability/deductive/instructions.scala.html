@@ -1,0 +1,53 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/criticalThinking/ability/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    <style>
+        .btn-imitation{
+            height:40px;
+            width:150px;
+            margin-left: 20px;
+            border:2px solid #6ACB9A;
+            background:#d2ede3;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row" style="font-size:18px;padding: 10px 20px">
+                            <div class="col-md-12">
+                                <span>测验3</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;" value="演绎推理"/>
+                            </div>
+                        </div>
+                        <div class="row" style="font-size: 16px;padding: 30px 50px;line-height: 2.22857;">
+                            <div class="col-md-12">
+                                <p style="text-indent:2em;">
+                                    在这个测试中，每部分都会先给出一段前提性的陈述，这些陈述构成演绎推理的前提。接着列举几个根据前提可能导出的一些结论。为了测验的目的，这些前提被认为是正确的。你需要仔细阅读前提性陈述和每个结论，如果认为该结论是依据前提性陈述而推导得出，就点击“可以导出”，如果认为不能够根据陈述而推导，就点击“不可以导出”。
+                                </p>
+                                <p style="text-indent:2em;">
+                                    在测试中需要尽量避免受到偏见和思维定势的影响。有些结论，即使根据常识知道是真实的，但是，如果这一结论并不能从所给前提中必然地导出，你也不应选择“可以导出”。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="inputBtn" type="button" class="btn-test btn-default"
+                    onclick="location.replace('/criticalThinking/ability/deductive/practice?tid=' + tid);" value="练 习"/>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

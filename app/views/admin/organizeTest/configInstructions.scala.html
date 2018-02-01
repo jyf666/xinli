@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        @views.html.common.admin.head()
+        <link href="@routes.Assets.versioned("stylesheets/admin/organizeTest/organizeTest.css")" rel="stylesheet">
+        <style>
+            body{
+                font:12px"宋体","Arial Narrow",HELVETICA;
+                background:#fff;
+                -webkit-text-size-adjust:100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div style="height:50px;background-color:#f8f8f8;margin-bottom:30px;">
+                <div align="center" >
+                    <span class="guide" style="font-size:20px;">组织考试流程</span>
+                    <span class="guide jiacu" >确定配置</span>
+                    <img class="arrow" src="@routes.Assets.versioned("images/admin/arrow.png")" />
+                    <span class="guide" >考试安排</span>
+                    <img class="arrow" src="@routes.Assets.versioned("images/admin/arrow.png")" />
+                    <span class="guide" >考生导入</span>
+                </div>
+            </div>
+            <div id="config" style="display:block;height:700px">
+                <div id="head">
+                    <div align="center" style="margin-bottom:5px">
+                        <span style="font-size:20px;font-weight:bold;color:#072a46;font-family:'微软雅黑'">
+                            测 评 系 统 的 配 置 要 求
+                        </span>
+                    </div>
+                    <div align="center">
+                        <span style="font-size:12px;color:#a21d03;font-family:'微软雅黑'">
+                            (请检查你的网络配置和计算机环境，是否符合测试所需配置要求)</span>
+                    </div>
+                </div>
+                <div id="content" style="margin-top:10px">
+                    <div class="intro">
+                        <div>
+                            <div>
+                                <span class="biaoti">1 配 置 网 络</span>
+                            </div>
+                            <div style="margin-top:20px">
+                                <span class="textIntro">宽带光纤接入，多客户端同时使用时需保证每客户端128KB/S下行速率，</span>
+                            </div>
+                            <div style="margin-bottom:25px">
+                                <span class="textIntro">32KB/S上行速率。</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="intro">
+                        <div>
+                            <span class="biaoti">2 计 算 机 配 置 要 求</span>
+                        </div>
+                        <div>
+                            <div>
+                                <div style="margin-top:20px">
+                                    <span class="zibiaoti">最低配置</span>
+                                </div>
+                                <div class="text">
+                                    <span class="textIntro">CPU : Pentium5 1.5G 或 AMD Athlon XP 1500+</span>
+                                </div>
+                                <div class="text">
+                                    <span class="textIntro">内存 : 2G</span>
+                                </div>
+                                <div class="text">
+                                    <span class="textIntro">输入设备 : 多媒体滚轮鼠标 104键标准键盘</span>
+                                </div>
+                                <div class="text">
+                                    <span class="textIntro">显示设备 : 17寸显示器，分辨率1280*960</span>
+                                </div>
+                                <div class="text">
+                                    <span class="textIntro">操作系统 : Windows 7 SP1,Windows 8/8.1</span>
+                                </div>
+                                <div class="text" style="margin-bottom:20px">
+                                    <span class="textIntro">浏览器 : 火狐浏览器 firefox 43.0.4或更高版本</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="margin-top:20px">
+                                <span class="zibiaoti">推荐配置</span>
+                            </div>
+                            <div class="text">
+                                <span class="textIntro">CPU : Intel Core i5-750 2.6 GHz 或AMD Phenom Ⅱ X4 955 3.2GHz</span>
+                            </div>
+                            <div class="text">
+                                <span class="textIntro">内存 : 4G</span>
+                            </div>
+                            <div class="text">
+                                <span class="textIntro">输入设备 : 多媒体滚轮鼠标 104键标准键盘</span>
+                            </div>
+                            <div class="text">
+                                <span class="textIntro">显示设备 : 22寸显示器，分辨率1920*1080</span>
+                            </div>
+                            <div class="text">
+                                <span class="textIntro">操作系统 : Windows 7 SP1,Windows 8/8.1</span>
+                            </div>
+                            <div class="text" style="margin-bottom:20px">
+                                <span class="textIntro">浏览器 : 火狐浏览器 firefox 43.0.4或更高版本</span>
+                            </div>
+                            <div>
+                                <button class="am-btn am-btn-secondary" style="float:right;width:100px;margin-right:50px" type="button" onclick="location.href = '/admin/organizeTest/test/examArrangement';">
+                                    <span style="color:white;font-size:18px;font-family:'微软雅黑' ;">
+                                        符&nbsp;&nbsp;&nbsp;合
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

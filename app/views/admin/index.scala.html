@@ -1,0 +1,205 @@
+@(orgCode:Integer)
+@import security._
+@import be.objectify.deadbolt.core.utils.TemplateUtils._
+@import be.objectify.deadbolt.core.PatternType
+@import be.objectify.deadbolt.java.views.html._
+<!doctype html>
+<html>
+<head>
+    @views.html.common.admin.head()
+    <style>
+        .menu{
+            overflow: hidden;
+            position: fixed;
+            left: 0;
+            top: 52px;
+            bottom: 25px;
+        }
+        .right-content {
+            overflow: hidden;
+            position: fixed;
+            top: 52px;
+            right: 0;
+            bottom: 0px;
+            left: 260px;
+            width: auto;
+            height: auto;
+        }
+        .right-content iframe {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    @views.html.common.admin.upgradeBrowserInfo()
+
+<header class="am-topbar admin-header">
+    <div class="am-topbar-brand">
+        <strong>心理与认知测评系统</strong>
+    </div>
+
+    <button class="am-topbar-btn am-topbar-toggle am-btn am-btn-sm am-btn-success am-show-sm-only" data-am-collapse="{target: '#topbar-collapse'}"><span class="am-sr-only">导航切换</span> <span class="am-icon-bars"></span></button>
+
+    <div class="am-collapse am-topbar-collapse" id="topbar-collapse">
+
+        <ul class="am-nav am-nav-pills am-topbar-nav am-topbar-right admin-header-list">
+            <li class="am-hide-sm-only"><a href="/adminLogout"><span class="am-icon-power-off"></span> 退出</a></li>
+            <li class="am-hide-sm-only"><a href="javascript:;" id="admin-fullscreen"><span class="am-icon-arrows-alt"></span> <span class="admin-fullText">开启全屏</span></a></li>
+        </ul>
+    </div>
+</header>
+
+<div class="am-cf admin-main">
+    <!-- sidebar start -->
+    <div class="admin-sidebar am-offcanvas menu" id="admin-offcanvas">
+        <div class="am-offcanvas-bar admin-offcanvas-bar">
+            <ul class="am-list admin-sidebar-list">
+                <li><a href="#"><span class="am-icon-th-list"></span> 功能菜单</a></li>
+                    @*<li class="admin-parent">*@
+                    @*<a class="am-cf " data-am-collapse="{target: '#testResult-nav'}"><span class="am-icon-home"></span> 考试结果 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>*@
+                    @*<ul class="am-list am-collapse admin-sidebar-sub" id="testResult-nav">*@
+                    @*要到session取值/org/orgListUser/？？？？/1*@
+                    @*<li><a target="right" href="/org/orgListTest/1/1" class="am-cf"><span class="am-icon-search"></span> 考生排名<span class="am-icon-star am-fr am-margin-right admin-icon-yellow"></span></a></li>*@
+                    @*要到session取值/org/orgListUser/？？？？/1*@
+                    @*<li><a target="right" href="/org/orgListTest/1/1" ><span class="am-icon-plus"></span> 考生个人简要报告</a></li>*@
+                    @*</ul>*@
+                    @*</li>*@
+                @pattern("/admin/org/manage") {
+                    <li class="admin-parent">
+                        <a class="am-cf " data-am-collapse="{target: '#school-nav'}"><span class="am-icon-home"></span>
+                            招生学校管理 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>
+                        <ul class="am-list am-collapse admin-sidebar-sub" id="school-nav">
+                            <li><a target="right" href="/admin/org/listView" class="am-cf"><span class="am-icon-search"></span>
+                                查看学校<span class="am-icon-star am-fr am-margin-right admin-icon-yellow"></span></a></li>
+                            <li><a target="right" href="/org/addView"><span class="am-icon-plus"></span> 增加学校</a></li>
+                            <li><a target="right" href="/admin/org/audit/listView"><span class="am-icon-plus"></span> 审核学校</a></li>
+                            @*<li><a target="right" href="/orders/auditinglist/1"><span class="am-icon-plus"></span>*@
+                                @*审核订单</a></li>*@
+                        </ul>
+                    </li>
+                }
+                @pattern("/admin/user/manage") {
+                    <li class="admin-parent">
+                        <a class="am-cf " data-am-collapse="{target: '#user-nav'}"><span class="am-icon-users"></span>
+                            考生管理 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>
+                        <ul class="am-list am-collapse admin-sidebar-sub" id="user-nav">
+                            <li><a target="right" href="/admin/user/listView" class="am-cf"><span class="am-icon-search"></span>
+                                考生列表<span class="am-icon-star am-fr am-margin-right admin-icon-yellow"></span></a></li>
+                                <!--<li><a target="right" href="/user/upload"><span class="am-icon-user-plus"></span> 导入考生</a></li>-->
+                                <!--<li><a target="right" href="/user/reglist/1"><span class="am-icon-archive"></span>
+                            报名考生</a></li>-->
+                        </ul>
+                    </li>
+                }
+                @pattern("/admin/test/manage") {
+                    <li class="admin-parent">
+                        <a class="am-cf " data-am-collapse="{target: '#test-nav'}"><span class="am-icon-pencil-square-o"></span>
+                            考试管理 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>
+                        <ul class="am-list am-collapse admin-sidebar-sub" id="test-nav">
+                            <li><a target="right" href="/admin/test/listView" class="am-cf"><span class="am-icon-search"></span>
+                                考试列表<span class="am-icon-star am-fr am-margin-right admin-icon-yellow"></span></a></li>
+                            <li><a target="right" href="/admin/test/addView"><span class="am-icon-plus"></span> 新建考试</a></li>
+                        </ul>
+                    </li>
+                }
+                @pattern("/admin/testpaper/manage") {
+                    <li class="admin-parent">
+                        <a class="am-cf " data-am-collapse="{target: '#testpaper-nav'}"><span class="am-icon-pencil-square-o"></span>
+                            试卷管理 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>
+                        <ul class="am-list am-collapse admin-sidebar-sub" id="testpaper-nav">
+                            <li><a target="right" href="/admin/testpaper/listView" class="am-cf"><span class="am-icon-search"></span>
+                                试卷列表<span class="am-icon-star am-fr am-margin-right admin-icon-yellow"></span></a></li>
+                            <li><a target="right" href="/admin/questiontype/listView"><span class="am-icon-plus"></span>
+                                题型列表</a></li>
+                            <li><a target="right" href="/admin/question/listView"><span class="am-icon-plus"></span> 题库列表</a></li>
+                        </ul>
+                    </li>
+                }
+                @pattern("/admin/norm/manage") {
+                    <li class="admin-parent">
+                        <a class="am-cf " data-am-collapse="{target: '#testpaperNorm-nav'}"><span class="am-icon-pencil-square-o"></span>
+                            常模管理 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>
+                        <ul class="am-list am-collapse admin-sidebar-sub" id="testpaperNorm-nav">
+                            <li><a target="right" href="/admin/testpaperNorm/listView" class="am-cf"><span class="am-icon-search"></span>
+                                常模列表<span class="am-icon-star am-fr am-margin-right admin-icon-yellow"></span></a></li>
+                        </ul>
+                    </li>
+                }
+                @pattern("/admin/system/manage") {
+                    <li class="admin-parent">
+                        <a class="am-cf " data-am-collapse="{target: '#system-nav'}"><span class="am-icon-pencil-square-o"></span>
+                            系统管理 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>
+                        <ul class="am-list am-collapse admin-sidebar-sub" id="system-nav">
+                            <li><a target="right" href="/admin/system/user/listView" class="am-cf"><span class="am-icon-search"></span>
+                                用户管理<span class="am-icon-star am-fr am-margin-right admin-icon-yellow"></span></a></li>
+                            <li><a target="right" href="/admin/system/role/listView"><span class="am-icon-plus"></span>
+                                角色管理</a></li>
+                        </ul>
+                    </li>
+                }
+                @pattern("/org/orgListTest") {
+                    <li class="admin-parent">
+                        @*<a class="am-cf " data-am-collapse="{target: '#testManage-nav'}"><span class="am-icon-home"></span> 管理考试 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>*@
+                        <a target="right" href="/admin/test/listView"><span class="am-icon-plus"></span> 考试列表</a>
+                        <ul class="am-list am-collapse admin-sidebar-sub" id="testManage-nav">
+                            @*<li><a target="right" class="am-cf"><span class="am-icon-search"></span> 试卷管理<span class="am-icon-star am-fr am-margin-right admin-icon-yellow"></span></a></li>*@
+                            @*要到session取值/org/orgListUser/id/1*@
+                            @*<li><a target="right" href="/org/orgListTest/1/1"><span class="am-icon-plus"></span> 考试管理</a></li>*@
+                            @*要到session取值/org/orgListUser/id/1*@
+                            @*<li><a target="right" href="/org/orgListUser/1/1"><span class="am-icon-plus"></span> 考生管理</a></li>*@
+                            @*<li><a target="right"><span class="am-icon-plus"></span> 结果管理</a></li>*@
+                        </ul>
+                    </li>
+                }
+                @pattern("/admin/orders/manage") {
+                    <li class="admin-parent">
+                        <a class="am-cf " data-am-collapse="{target: '#orders-nav'}"><span class="am-icon-home"></span>
+                            订单管理 <span class="am-icon-angle-right am-fr am-margin-right"></span></a>
+                        <ul class="am-list am-collapse admin-sidebar-sub" id="orders-nav">
+                            <li><a target="right" href="/admin/orders/listView"><span class="am-icon-plus"></span>
+                                查看订单</a></li>
+                            <li><a target="right" href="/admin/orders/addView"><span class="am-icon-plus"></span>
+                                追加订单</a></li>
+                        </ul>
+                    </li>
+                }
+                @pattern("/admin/organizeTest/view") {
+                    <li class="admin-parent">
+                        <a target="right" href="/admin/organizeTest/configInstructions"><span class="am-icon-plus"></span>
+                            组织考试</a>
+                    </li>
+                }
+            </ul>
+
+            <div class="am-panel am-panel-default admin-sidebar-panel">
+                <div class="am-panel-bd">
+                    <p><span class="am-icon-bookmark"></span> 公告</p>
+                    <p>时光静好，与君语；细水流年，与君同。—— 欣润科技</p>
+                </div>
+            </div>
+
+            <div class="am-panel am-panel-default admin-sidebar-panel">
+                <div class="am-panel-bd">
+                    <p><span class="am-icon-tag"></span> User</p>
+                    <p>Welcome to the System User!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- sidebar end -->
+
+    <!-- content start -->
+    <div class="admin-content right-content">
+        <iframe name="right" @if(orgCode!=0){src="/admin/test/listView"}else{src="/admin/org/listView"} id="rightMain"  frameborder="no" scrolling="auto" width="100%" height="auto" allowtransparency="true"></iframe>
+    </div>
+    <!-- content end -->
+
+</div>
+
+<a href="#" class="am-show-sm-only admin-menu" data-am-offcanvas="{target: '#admin-offcanvas'}" style="margin-bottom: 0px">
+    <span class="am-icon-btn am-icon-th-list"></span>
+</a>
+
+</body>
+</html>

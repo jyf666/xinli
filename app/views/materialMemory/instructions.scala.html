@@ -1,0 +1,50 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]], size: java.lang.Long, timeMsg: String)
+<html lang="en" manifest="/materialMemory/instructionsManifest">
+    <head>
+    @views.html.common.instructions.head()
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4><p class="text-center" ><b>测试一：配对记忆部分</b></p></h4>
+                        </div>
+                        <div class="row" >
+                            <div style="width:86%;margin:0px auto;font-size:16px;line-height:30px;border-bottom:2px solid #D5D5D5;">
+                                本测试包含配对记忆和配对回忆两部分：
+                            </div>
+                            <div style="width:86%;margin:0px auto;font-size:16px;line-height:30px;text-indent: 2em;">
+                                配对记忆中，你需要在@(timeMsg)内尽可能多的记住@(size)对图片的对应关系，每对图片分别为实物图和抽象图，如下图所示：
+                            </div>
+
+                            <div style="width:86%;margin:0px auto;font-size:16px;line-height:30px;text-align:center;border-bottom:2px dotted #D5D5D5;">
+                                <img src="@routes.Assets.versioned("images/materialMemory/lizi/lizi1.jpg")" style="width: 150px;" />
+                                <div><span>实物图</span>&nbsp;<span style="margin-left: 40px;">抽象图</span></div>
+                            </div>
+
+                            <div style="width:86%;margin:0px auto;font-size:16px;line-height:30px;text-indent: 2em;">
+                                配对回忆部分将在记忆部分结束约半小时后进行。请根据你的记忆，选择正确答案。
+                            </div>
+
+                            <div style="width:86%;height:100px;margin:0px auto;font-size:16px;line-height:30px;text-indent: 2em;border-bottom:2px solid #D5D5D5;">
+                                <b>例</b>：正确答案为C。<img src="@routes.Assets.versioned("images/materialMemory/lizi/1gif.gif")" style="width: 400px"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                    onclick="location.replace('/materialMemory/test?tid=' + tid);" value="开始记忆"/></p>
+            </div>
+        </div>
+    </body>
+</html>
+

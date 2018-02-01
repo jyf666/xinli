@@ -1,0 +1,40 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/analogicReasoning/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4><p class="text-center"><b>类比推理测试</b></p></h4>
+                        </div>
+                        <div class="row" >
+                            <div class="col-sm-12" style="padding:10px 10px 10px 100px;font-size:16px;line-height:30px;">
+                                请通过观察&nbsp;&nbsp;“<b>=</b>”&nbsp;&nbsp;左侧两个图形的关系，推测&nbsp;&nbsp;“<b>?</b>”&nbsp;&nbsp;应填入哪个选项。
+                            </div>
+                            <div class="col-sm-12" style="padding:10px;font-size:16px;">
+                                <p class="text-center"> <img src="@routes.Assets.versioned("images/analogicReasoning/example.png")" style="width:400px;"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                    onclick="location.replace('/analogicReasoning/practice?tid=' + tid);" value="测试练习"/>
+                </p>
+            </div>
+        </div>
+
+    </body>
+</html>

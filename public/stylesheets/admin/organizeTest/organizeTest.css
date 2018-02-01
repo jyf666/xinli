@@ -1,0 +1,41 @@
+#content .biaoti{
+    margin-left: 40px;
+    font-size:15px;
+    font-weight:bold;
+    font-family:'微软雅黑';
+    color:#585858;
+}
+#content .zibiaoti{
+    margin-left: 133px;
+    font-size:15px;
+    font-weight:bold;
+    font-family:'微软雅黑';
+    color:#585858;
+
+}
+#content .textIntro{
+    margin-left: 133px;
+    font-size:15px;
+    font-family:'微软雅黑';
+    color:#585858;
+
+}
+#content .text{
+    margin-bottom: 3px;
+}
+
+.guide{
+    font-size: 16px;
+    font-family: "微软雅黑";
+    line-height: 50px;
+    color:#ababab;
+    margin-left: 50px;
+}
+.arrow {
+    margin-top: -5px;
+    margin-left: 50px;
+}
+.jiacu{
+    font-weight: bold;
+    color:#072a46;
+}

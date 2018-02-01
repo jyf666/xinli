@@ -1,0 +1,96 @@
+@(question:models.vo.QuestionVo)
+<!doctype html>
+<html>
+<head>
+    <title>综合素质测评系统</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/common/logo_xinli.png")">
+    <link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.min.css")" rel="stylesheet">
+    <link href="@routes.Assets.versioned("stylesheets/amazeUI/admin.css")" rel="stylesheet">
+
+    <script src="@routes.Assets.versioned("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/amazeUI/app.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/page.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+
+    <!--[if lt IE 9]>
+    <script src="http://cdn.staticfile.org/modernizr/2.8.3/modernizr.js"></script>
+    <script src="assets/javascripts/amazeUI/amazeui.ie8polyfill.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+    @views.html.common.admin.upgradeBrowserInfo()
+
+    <!-- content start -->
+    <div class="admin-content">
+        <div class="am-cf am-padding">
+            <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">修改试题</strong> / <small></small></div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-12" style="height: 1200px;">
+                <form class="am-form">
+                    <fieldset>
+                        <legend>添加试题</legend>
+                        <div class="am-form-group" id="subType">
+                            <input type="hidden" value="@question.getqType()" id="qType">
+                            <input type="hidden" value="@question.getId()" id="qid">
+                        </div>
+                        <div class="am-form-group">
+                            <label for="choice">选项：</label>
+                            <div class="am-form-group" id="choice">
+                                <div class="am-form-group">
+                                    <input type="radio" name="choice" value="A"  @if(question.getAnswer.equals("A")){checked} required>A.<textarea  minlength="10" maxlength="500" required>@question.getA</textarea>
+                                </div><br />
+                                <div class="am-form-group">
+                                    <input type="radio" name="choice" value="B" @if(question.getAnswer.equals("B")){checked} >B.<textarea  minlength="10" maxlength="500" required>@question.getB</textarea>
+                                </div><br />
+                            </div>
+                        </div>
+                        <button class="am-btn am-btn-secondary" type="button" onclick="editSubmit()">修改</button>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+        <div class="am-modal-dialog">
+            <div class="am-modal-bd">
+                修改成功！
+            </div>
+            <div class="am-modal-footer">
+                <span class="am-modal-btn" data-am-modal-confirm>确定</span>
+            </div>
+        </div>
+    </div>
+<!-- content end -->
+    <script type="text/javascript">
+        $(function() {
+            formValidator();
+        });
+        //提交数据
+        function editSubmit(){
+            if ($('.am-form').validator().data('amui.validator').isFormValid()) {
+                var json ={};
+                var choiceJson = {};
+                choiceJson ={
+                    "A":$("#choice").find("textarea").eq(0).val(),
+                    "B":$("#choice").find("textarea").eq(1).val()
+                }
+                json[0] = {
+                    "qid":$("#qid").val(),
+                    "qType":$("#qType").val(),
+                    "answer":$("#choice").find(":checked").val(),
+                    "choice":JSON.stringify(choiceJson)
+                }
+
+                addOrUpdataAjaxSubmit("post",JSON.stringify(json),"/question/edit","/admin/question/listView")
+            }
+        }
+    </script>
+</body>
+</html>

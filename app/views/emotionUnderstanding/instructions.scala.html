@@ -1,0 +1,94 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/emotionUnderstanding/instructionsManifest">
+<head>
+    @views.html.common.instructions.head()
+<style>
+    .optionBtn{
+        height:25px;
+        width:35px;
+        border:none;
+        font-size:18px;
+        background:#d2ede3;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+    @views.html.common.instructions.progress(questionTypeMap)
+        <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+            <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+            </div>
+            <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                <div class="panel-body">
+                    <div class="row">
+                        <h4><p class="text-center"><b>情绪智力测试</b></p></h4>
+                    </div>
+                    <div class="row" style="font-size: 16px;padding: 10px 50px 10px 50px">
+                            &nbsp;&nbsp;&nbsp;&nbsp;本测试中，你将看到两幅图片，图片下方有四个情绪选项。<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;你需要按照图片中的故事说明，回答图中主角所包含的情绪。从 1-5表示该情绪的强烈程度不断增<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;强， 1表示很弱，6表示很强。所有情绪分数总和为10点。<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;例：
+                    </div>
+                    <div class="row" style="font-size: 16px;" >
+                        <table align="center" width="800px">
+                            <tr>
+                                <td align="center" style="color: #49B992;font-size: 16px;">
+                                    <img style="float:left" width="200px" src="@routes.Assets.versioned("images/emotionUnderstanding/01_1.jpg")">
+                                    <img style="float:left" width="200px" src="@routes.Assets.versioned("images/emotionUnderstanding/01_2.jpg")">
+                                </td>
+                                <td align="left">
+                                    在此漫画中，<img width="40px" src="@routes.Assets.versioned("images/emotionUnderstanding/ask/1.png")" style="margin-left: 15px;">的情绪是：
+                                    <div style="margin-top: 15px;">
+                                        悲伤
+                                        <input type="button" class="optionBtn" value="1" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="2" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="3" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="4" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="5" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="6" style="cursor: auto;"/>
+                                    </div>
+                                    <div style="margin-top: 15px;">
+                                        愤怒
+                                        <input type="button" class="optionBtn" value="1" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="2" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="3" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="4" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="5" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="6" style="cursor: auto;"/>
+                                    </div>
+                                    <div style="margin-top: 15px;">
+                                        快乐
+                                        <input type="button" class="optionBtn" value="1" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="2" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="3" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="4" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="5" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="6" style="cursor: auto;"/>
+                                    </div>
+                                    <div style="margin-top: 15px;">
+                                        恐惧
+                                        <input type="button" class="optionBtn" value="1" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="2" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="3" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="4" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="5" style="cursor: auto;"/>
+                                        <input type="button" class="optionBtn" value="6" style="cursor: auto;"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+        </div>
+        <div class="row">
+            <p class="text-center" style="margin-top:10px;">
+                <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                onclick="location.replace('/emotionUnderstanding/practice?tid=' + tid);" value="测试练习"/>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

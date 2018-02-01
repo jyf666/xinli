@@ -1,0 +1,413 @@
+@(questiontypes:List[Questiontype],testpapers:List[Testpaper])
+@import utils.enums.QuestionTypeEnum
+<!doctype html>
+<html>
+<head>
+    @views.html.common.admin.head()
+    <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+
+    <link href="@routes.Assets.versioned("stylesheets/uploadifive.css")" rel="stylesheet">
+    <script src="@routes.Assets.versioned("javascripts/jquery.uploadifive.min.js")" type="text/javascript"></script>
+
+    <link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.datetimepicker.css")" rel="stylesheet">
+    <script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.datetimepicker.min.js")" type="text/javascript"></script>
+</head>
+<body>
+    @views.html.common.admin.upgradeBrowserInfo()
+    <!-- content start -->
+    <div class="admin-content">
+
+        <div class="am-cf am-padding">
+            <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">追加订单</strong></div>
+        </div>
+        <div class="am-panel-bd" id="orderInfo" style="width: 800px">
+            <form class="am-form" id="doc-vld-msg">
+                <fieldset>
+                    <div class="am-form-group">
+                        <label>试卷类型： </label>
+                        <label class="am-radio-inline">
+                            <input type="radio" name="paperType" data-am-ucheck checked onclick="showPaperSelectDiv()">
+                            成套试卷
+                        </label>
+                        <label class="am-radio-inline">
+                            <input type="radio" name="paperType" data-am-ucheck onclick="showQuestionTypeCheckBoxDiv()">
+                            单项测试
+                        </label>
+                    </div>
+                    <div class="am-form-group validate" id="paperSelect_div">
+                        <label class="am-form-label">成套试卷：</label>
+                        <div class="am-form-inline">
+                            <div class="am-form-group" style="width: 100%">
+                                <select id="testpaper" required>
+                                    <option value="">请选择</option>
+                                    @testpapers.map {item =>
+                                        <option value="@item.getId">@item.getName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="testpaper_name" class="am-form-group validate"></div>
+                    <div id="questiontype" class="am-form-group validate"></div>
+                    <div class="am-form-group">
+                        <label for="number">考试人数：</label>
+                        <input type="text" id="number" maxlength="5" placeholder="输入考试人数" pattern="^[1-9][0-9]*$"
+                            data-validation-message="考试人数需要为整数，大于0人，小于等于99999人" required/>
+                    </div>
+                    <div class="am-form-group">
+                        <label style="display: inline">测试年龄范围：</label>
+                        <div class="am-form-inline">
+                            <div class="am-form-group" style="width: 49%">
+                                <select id="ageLow"  required>
+                                    <option value="">请选择</option>
+                                    @for(i <- 5 to 20){
+                                        <option value="@i">@i 岁</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="am-form-group" style="width: 50%">
+                                <select id="ageUpp"   required>
+                                    <option value="">请选择</option>
+                                    @for(i <- 5 to 20){
+                                        <option value="@i">@i 岁</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="am-form-group">
+                        <label style="display: inline">订单生效时间：</label>
+                        <!--<div class="am-form-icon-right am-input-group am-datepicker-date" style="width:100%" data-am-datepicker="{format: 'yyyy-mm-dd'}">
+                            <input id="startTime" type="text" class="am-form-field am-input-group-btn am-datepicker-add-on am-btn" placeholder="生效时间"
+                            pattern="^\d{4}(\-)\d{2}(\-)\d{2}$" data-validation-message="日期格式为yyyy-mm-dd" required>
+                            <i class="am-icon-calendar am-datepicker-add-on" style="cursor: pointer;"></i>
+                        </div>-->
+                        <div class="am-form-icon-right am-input-group" style="width:100%">
+                            <input id="startTime" size="16" type="text" style="margin-top:0px;cursor: pointer;"
+                            data-validation-message="请选择订单生效时间" class="am-form-field datetimepicker" placeholder="生效时间" required>
+                            <i class="am-icon-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="am-form-group">
+                        <label style="display: inline">订单到期时间：</label>
+                        <div class="am-form-icon-right am-input-group" style="width:100%">
+                            <input id="endTime" size="16" type="text" style="margin-top:0px;cursor: pointer;"
+                            data-validation-message="请选择订单到期时间" class="am-form-field datetimepicker" placeholder="到期时间" required>
+                            <i class="am-icon-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="am-form-file" style="margin-bottom: 1.5rem;">
+                        <label style="display: inline">合作协议：<small style="color:red;">（合作协议签字版扫描文件，图片格式，大小不能超过65K）</small></label>
+                        <div id="agreementQueue" ></div>
+                        <input id="agreement_file_input" name="agreement" type="file" multiple>
+                    </div>
+                    <button class="am-btn am-btn-secondary" type="button" onclick="addSubmit()" style="float: right">提交</button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+            <div class="am-modal-dialog">
+                <div class="am-modal-bd">
+                    添加成功！
+                </div>
+                <div class="am-modal-footer">
+                    <span class="am-modal-btn" data-am-modal-confirm>确定</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="paperSelect_div_hide" style="display: none;">
+        <label class="am-form-label">成套试卷：</label>
+        <div class="am-form-inline">
+            <div class="am-form-group" style="width: 100%">
+                <select id="testpaper" required>
+                    <option value="">请选择</option>
+                    @testpapers.map {item =>
+                        <option value="@item.getId">@item.getName</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="questiontypeCheckbox_div_hide" style="display: none;">
+        <label class="am-form-label">单项测试：</label><br />
+        @for((item, index) <- questiontypes zipWithIndex) {
+            @if(item.getId != QuestionTypeEnum.MATERIAL_EXTRACT.getId){
+                <label class="am-checkbox-inline">
+                    <input type="checkbox" class="questiontype" value="@item.getId" name="questiontype" minchecked="4" data-am-ucheck required >@item.getName
+                </label>
+            }
+            @if((index + 1) % 7 == 0){
+                <br>
+            }
+        }
+    </div>
+    <div id="testpaper_name_div_hide" style="display: none;">
+        <label for="testpaperName">试卷名称：</label>
+        <input type="text" id="testpaperName" maxlength="15" placeholder="请为单项测试的试卷起个名字" required/>
+    </div>
+<!-- content end -->
+    <script type="text/javascript">
+        $(function() {
+            $('.am-form').validator({
+                onValid: function(validity) {
+                    $(validity.field).closest('.am-form-group').find('.am-alert').hide();
+                },
+                onInValid: function(validity) {
+                    var $field = $(validity.field);
+                    var $group = $field.closest('.am-form-group');
+                    var $alert = $group.find('.am-alert');
+                    var msg = $field.data('validationMessage') || this.getValidationMessage(validity);
+                    if (!$alert.length) {
+                        $alert = $('<div class="am-alert am-alert-danger"></div>').hide().appendTo($group);
+                    }
+                    $alert.html(msg).show();
+                },
+                validate: function(validity) {
+                    var ageLow = $("#ageLow").find("option:selected").val()
+                    var ageUpp = $("#ageUpp").find("option:selected").val()
+
+                    if ($(validity.field).is('#ageLow')) {
+                        if(ageUpp != ""){
+                            if(parseInt(ageLow) > parseInt(ageUpp)){
+                                $(validity.field).attr("data-validation-message","不得大于年龄范围上限")
+                                validity.valid = false
+                            } else{
+                                 validity.valid = true
+                                  $("#ageUpp").addClass("am-field-valid")
+                                  $("#ageUpp").removeClass("am-field-error")
+                                  $("#ageUpp").siblings("div").hide();
+                            }
+                        }
+                    } else if ($(validity.field).is('#ageUpp')) {
+                        if(ageLow != ""){
+                            if(parseInt(ageLow) > parseInt(ageUpp)){
+                                $(validity.field).attr("data-validation-message","不得低于年龄范围下限")
+                                validity.valid = false
+                            } else{
+                                 validity.valid = true
+                                 $("#ageLow").addClass("am-field-valid")
+                                 $("#ageLow").removeClass("am-field-error")
+                                 $("#ageLow").siblings("div").hide();
+                            }
+                        }
+                    }
+                    var v = $(validity.field).val();
+                    if ($(validity.field).is('#startTime')) {
+                        if(v == ""){
+                            $(validity.field).data('validationMessage', "请选择订单生效时间");
+                            return validity;
+                        }
+                        var startTime = getUnixTime(v);
+                        var endTime = 0;
+                        var endTimeStr = $("#endTime").val();
+                        if(endTimeStr != ""){
+                            endTime = getUnixTime(endTimeStr);
+                            if(endTime <= startTime){
+                                $(validity.field).data('validationMessage', "订单生效时间应小于订单到期时间");
+                                validity.valid = false;
+                                return validity;
+                            }
+                        }
+                    } else if ($(validity.field).is('#endTime')) {
+                        if(v == ""){
+                            $(validity.field).data('validationMessage', "请选择订单到期时间");
+                            return validity;
+                        }
+                        var endTime = getUnixTime(v);
+                        var startTime = 0;
+                        var startTimeStr = $("#startTime").val();
+                        if(startTimeStr != ""){
+                            startTime = getUnixTime(startTimeStr);
+                            if(endTime <= startTime){
+                                $(validity.field).data('validationMessage', "订单到期时间应大于订单生效时间");
+                                validity.valid = false;
+                                return validity;
+                            }
+                        }
+                    }
+                }
+            });
+
+            $("#agreement_file_input").uploadifive({
+                'uploadScript': "/admin/orders/add",
+                'fileType' : 'image/',
+                'fileObjName' : 'agreement_img',// 定义上传数据处理文件中接收数据使用的文件对象名。
+                'fileSizeLimit':"65535",// 上传文件大小限制。
+                'progressData':'all',// 设置显示在上传进度条中的数据类型，可选项时百分比（percentage）或速度（speed）。
+                'queueID': 'agreementQueue',// queueID选项允许你设置一个拥有唯一ID的DOM元素来作为显示上传队列的容器。
+//                'queueSizeLimit' : 1, // 上传队列中一次可容纳的最大条数。
+//                'uploadLimit' : 1, // 定义允许的最大上传数量。
+                'removeCompleted' : true,// 不设置该选项或者将其设置为false，将使上传队列中的项目始终显示于队列中，直到点击了关闭按钮或者队列被清空。
+                'auto': false,// 设置auto为true，当文件被添加至上传队列时，将会自动上传。
+                'buttonText': '<i class="am-icon-cloud-upload"></i> 选择要上传的文件',
+                'buttonClass': 'am-btn am-btn-secondary',// 为上传按钮添加类名。
+                'width':'140px',
+                'multi': false,// 设置值为false时，一次只能选中一个文件。
+                //上传组件选择文件之后触发
+                onSelect:function(){
+                    if($("#agreementQueue").find(".uploadifive-queue-item").length >1){
+                        $("#agreementQueue").find(".uploadifive-queue-item")[0].remove();
+                    }
+                },
+                'onSelectError' : function() {
+                    alert(file.name + '文件返回错误，没有添加到上传队列中.');
+                },
+                onUploadComplete:function(file,data,response){
+                    var responseDto = JSON.parse(data);
+                    var success = responseDto.success;
+                    if(Boolean(success)){
+                        $('#my-alert').modal({
+                            relatedTarget: this,
+                            closeViaDimmer: 0,
+                            onConfirm: function() {
+                                location.href = "/admin/orders/listView";
+                            }
+                        });
+                    } else {
+                        am_alert(responseDto.message);
+                    }
+                }
+            });
+            $("#uploadifive-agreement_file_input").removeClass("uploadifive-button");
+            $("#uploadifive-agreement_file_input").css({
+                'font': 'bold 12px Arial,Helvetica,sans-serif'
+            });
+
+            /** 配置日期时间组件 */
+            datatimepickerZn();
+            $('.datetimepicker').datetimepicker({
+                format:"yyyy-mm-dd hh:ii",
+                autoclose:true,
+                todayBtn:true,
+                todayHighlight:true,
+                language:"zh-CN",
+                startDate:new Date()
+            });
+        });
+
+        //提交数据
+        function addSubmit(){
+            if ($('#orderInfo>.am-form').validator().data('amui.validator').validateForm().valid) {
+                if($("#agreementQueue").find(".uploadifive-queue-item").length > 0){
+                    registWithImg();
+                } else {
+                    regist();
+                }
+            }
+//                var json ={};
+//                json[0] = {
+//                    "orgCode":$("#orgCode").val(),
+//                    "testpaper":$("#testpaper").find("option:selected").val(),
+//                    "questiontype":questiontypeStr,
+//                    "number":$("#number").val(),
+//                    "ageLow":$("#ageLow").find("option:selected").val(),
+//                    "ageUpp":$("#ageUpp").find("option:selected").val()
+//                }
+//                addOrUpdataAjaxSubmit("post",JSON.stringify(json),"/orders/add","/orders/list/"+$("#orgCode").val()+"/1")
+        }
+
+        function registWithImg(){
+            var questiontypeStr = "";
+            $("#orderInfo").find(":checkbox").each(function(){
+                if($(this).prop("checked") == true){
+                    if($(this).val() == @QuestionTypeEnum.MATERIAL_MEMORY.getId){
+                        questiontypeStr += $(this).val() + "," + @QuestionTypeEnum.MATERIAL_EXTRACT.getId + ",";
+                    } else {
+                        questiontypeStr += $(this).val() + ",";
+                    }
+                }
+            });
+            if(questiontypeStr.length > 0){
+                questiontypeStr = questiontypeStr.substring(1, questiontypeStr.length);
+            }
+            var data = {
+                "orgCode":session.orgCode,
+                "testpaper":$("#testpaper").find("option:selected").val(),
+                "questiontype":questiontypeStr,
+                "number":$("#number").val(),
+                "ageLow":$("#ageLow").find("option:selected").val(),
+                "ageUpp":$("#ageUpp").find("option:selected").val(),
+                "startTime":$("#startTime").val(),
+                "endTime":$("#endTime").val(),
+                "testpaperName":$("#testpaperName").val(),
+                "questiontypeStr":questiontypeStr
+            }
+            if(questiontypeStr.length > 0){
+                data.tpid = $("#testpaper").find("option:selected").val();
+            }
+
+            $('#agreement_file_input').data('uploadifive').settings.formData = data;
+            $('#agreement_file_input').uploadifive('upload');
+        }
+
+        function regist(){
+            var questiontypeArr = new Array();
+            $("#orderInfo").find(":checkbox").each(function(){
+                if($(this).prop("checked") == true){
+                    if($(this).val() == @QuestionTypeEnum.MATERIAL_MEMORY.getId){
+                        questiontypeArr.push($(this).val());
+                        questiontypeArr.push("@QuestionTypeEnum.MATERIAL_EXTRACT.getId");
+                    } else {
+                        questiontypeArr.push($(this).val());
+                    }
+                }
+            });
+
+            var order = {
+                "orgCode":session.orgCode,
+                "testNumber":$("#number").val(),
+                "remainNumber":$("#number").val(),
+                "ageLow":$("#ageLow").find("option:selected").val(),
+                "ageUpp":$("#ageUpp").find("option:selected").val(),
+                "startTime":$("#startTime").val(),
+                "endTime":$("#endTime").val()
+            }
+            if(questiontypeArr.length == 0){
+                order.tpid = $("#testpaper").find("option:selected").val();
+            }
+
+            var orderDto = {
+                "order":order,
+                "testpaperName":$("#testpaperName").val(),
+                "questiontypeList":questiontypeArr
+            }
+
+            $.ajax({
+                url:"/admin/orders/add",
+                type:"post",
+                contentType:"application/json",
+                data:JSON.stringify(orderDto),
+                success:function(responseDto) {
+                    var success = responseDto.success;
+                    if(Boolean(success)){
+                        $('#my-alert').modal({
+                            relatedTarget: this,
+                            closeViaDimmer: 0,
+                            onConfirm: function() {
+                                location.href = "/admin/orders/listView";
+                            }
+                        });
+                    } else {
+                        am_alert(responseDto.message);
+                    }
+                }
+            })
+        }
+
+        function showPaperSelectDiv(){
+            $('#paperSelect_div').html($('#paperSelect_div_hide').html());
+            $('#testpaper_name').html("");
+            $('#questiontype').html("");
+        }
+
+        function showQuestionTypeCheckBoxDiv(){
+            $('#testpaper_name').html($('#testpaper_name_div_hide').html());
+            $('#questiontype').html($('#questiontypeCheckbox_div_hide').html());
+            $('#paperSelect_div').html("");
+        }
+    </script>
+    @views.html.common.modal.alert()
+</body>
+</html>

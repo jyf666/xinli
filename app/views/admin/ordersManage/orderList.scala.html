@@ -1,0 +1,312 @@
+@import be.objectify.deadbolt.java.views.html._
+@import be.objectify.deadbolt.core.utils.TemplateUtils._
+<!doctype html>
+<html>
+    <head>
+        @views.html.common.admin.head()
+        <link rel="stylesheet" href="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.css")"/>
+        <script src="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/common/date.js")" type="text/javascript"></script>
+        <script type="text/javascript">
+            var orderTable;
+            var queryData = new Object();
+
+            $(function(){
+                if(session.orgCode != 0){
+                    queryData.search_EQ_orgCode = session.orgCode;
+                }
+                orderTable = darwTable(queryData);
+
+                $('#test_table tbody').on( 'click', 'tr', function () {
+                    if ($(this).hasClass('am-active')) {
+                        $(this).removeClass('am-active');
+
+                        $('#approved_btn').removeAttr("disabled");
+                        $('#refused_btn').removeAttr("disabled");
+                        $('#delete_btn').removeAttr("disabled");
+                    } else {
+                        orderTable.$('tr.am-active').removeClass('am-active');
+                        $(this).addClass('am-active');
+
+                        var order_status = orderTable.row('.am-active').data().status;
+                        if(order_status != "2"){
+                            $('#approved_btn').attr({"disabled":"disabled"});
+                            $('#refused_btn').attr({"disabled":"disabled"});
+                            $('#delete_btn').attr({"disabled":"disabled"});
+                        } else {
+                            $('#approved_btn').removeAttr("disabled");
+                            $('#refused_btn').removeAttr("disabled");
+                            $('#delete_btn').removeAttr("disabled");
+                        }
+                    }
+                });
+            @restrict(la(as("admin"))) {
+                $.getJSON("/admin/org/list", function(admissionsOrgs){
+                    if(admissionsOrgs){
+                        for(var i=0; i < admissionsOrgs.length; i++){
+                            var admissionsOrg = admissionsOrgs[i];
+                            $("#orgCode").append('<option value="' + admissionsOrg.id + '">' + admissionsOrg.orgName + '</option>');
+                        }
+                    }
+                });
+            }
+            });
+
+            function darwTable(queryData){
+                var table = $('#test_table').DataTable({
+                    ajax: {
+                        url: "/admin/orders/page",
+                        data:queryData
+                    },
+                    scrollCollapse: false,
+                    serverSide: true,
+                    pagingType: "full_numbers",
+                    processing: true,
+                    columns: [
+                        {"data": null},
+                        {"data": "id"},
+                        {"data": "testpaperName"},
+                        {"data": "dateCreated"},
+                        {"data": "testNumber"},
+                        {"data": "remainNumber"},
+                        {"data": "status"},
+                        {"data": "tpid"},
+                        {"data": "startTime"},
+                        {"data": "endTime"},
+                        {"data": "ageLow"},
+                        {"data": "ageUpp"}
+                    ],
+                    "columnDefs": [{
+                        "targets": [0],
+                        "searchable": false,
+                        "orderable": false
+                    },{
+                        "targets": [1],
+                        "visible": false,
+                        "searchable": false
+                    },{
+                        "targets" : 3,
+                        "render":function(data,type,row){
+                            return formatDateTime(data);
+                        }
+                    },{
+                        "targets":6,
+                        "render":function(data,type,row){
+                            if (data=="1"){
+                                 return "通过";
+                            } else if (data=="2"){
+                                return "审核中";
+                            } else if (data=="3"){
+                                return "已拒绝";
+                            } else {
+                                return "";
+                            }
+                        }
+                    },{
+                        "targets": [7,8,9,10,11],
+                        "visible": false,
+                        "searchable": false
+                    }],
+                    "order": [[1, 'asc']],
+                    "language": {
+                        "sProcessing": "正在加载...",
+                        "lengthMenu": "每页_MENU_ 条记录",
+                        "zeroRecords": "没有找到记录",
+                        "info": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 )",
+                        "infoEmpty": "无记录",
+                        "infoFiltered": "(从 _MAX_ 条记录过滤)",
+                        "paginate": {
+                            "previous": "上一页",
+                            "next": "下一页"
+                        }
+                    },
+                    "dom": 'rt<"am-g am-datatable-footer"<"am-u-sm-5"i><"am-u-sm-7"p>>'
+                });
+                table.on('order.dt search.dt',function() {
+                    table.column(0, {
+                        search: 'applied',
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1;
+                    });
+                });
+                return table;
+            }
+
+            // 搜索
+            function searchOrder(){
+                if($("#testpaperName").val()){
+                    queryData.search_LIKE_testpaperName = $("#testpaperName").val() + "%";
+                }
+                if(session.orgCode == 0){
+                    queryData.search_EQ_orgCode = $("#orgCode").val()==0?"":$("#orgCode").val();
+                }
+                var status = $("#status").val();
+                if(status == "0"){
+                    queryData.search_EQ_status = "";
+                } else {
+                    queryData.search_EQ_status = status;
+                }
+                orderTable.destroy();
+                orderTable=darwTable(queryData);
+            }
+
+            // 审核通过
+            function approved(){ 
+                if(orderTable.row('.am-active').data() == undefined){
+                    alert("请选择一个订单");
+                    return;
+                }
+                var orderId = orderTable.row('.am-active').data().id;
+                $('#approved-confirm').modal({
+                    onConfirm: function() {
+                        $('#my-modal-loading').modal('open')
+                        $.ajax({
+                            url:"/admin/orders/approved/" + orderId,
+                            timeout: 1000,
+                            async:false,
+                            type:"GET",
+                            success:function(result){
+                                $('#my-modal-loading').modal('close')
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 拒绝审核
+            function refused(){
+                if(orderTable.row('.am-active').data() == undefined){
+                    alert("请选择一个订单");
+                    return;
+                }
+                var orderId = orderTable.row('.am-active').data().id;
+                $('#refused-confirm').modal({
+                    onConfirm: function() {
+                        $('#my-modal-loading').modal('open')
+                        $.ajax({
+                            url:"/admin/orders/refused/"+orderId,
+                            timeout: 1000,
+                            async:false,
+                            type:"GET",
+                            success:function(result){
+                                $('#my-modal-loading').modal('close')
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 删除订单
+            function deleteOrder(){
+                if(orderTable.row('.am-active').data() == undefined){
+                    alert("请选择一个订单");
+                    return;
+                }
+                var orderId = orderTable.row('.am-active').data().id;
+                $('#my-confirm').modal({ 
+                    onConfirm: function() { 
+                        $.ajax({
+                            type:"post",
+                            url:"/admin/orders/delete/" + orderId + "?t=" + (new Date()).valueOf(),
+                            success:function(data) {
+                                if(data == "1"){
+                                    alert("删除成功");
+                                    orderTable.ajax.reload();
+                                } else if(data == "0"){
+                                    alert("删除失败");
+                                }
+                            },
+                            error:function() {
+                                alert("删除失败");
+                            }
+                        });
+                    } 
+                }); 
+            }
+        </script>
+    </head>
+    <body>
+        @views.html.common.admin.upgradeBrowserInfo()
+        <!-- content start -->
+        <div class="admin-content">
+
+            <div class="am-cf am-padding">
+                <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">订单列表</strong> / <small>Order List</small></div>
+            </div>
+            <div class="am-cf am-padding am-form-inline">
+            @restrict(la(as("admin"))) {
+                <div class="am-form-group"> 
+                    <select data-am-selected="{searchBox: 1}" name="orgCode" id="orgCode">
+                        <option value="0">请选择招生机构</option>
+                    </select>
+                </div> 
+            }
+                <div class="am-form-group">
+                    <input type="text" id="testpaperName" class="am-form-field" placeholder="测评方案名称">
+                </div>
+                <div class="am-form-group">
+                    <select id="status" placeholder="审核状态" data-am-selected>
+                        <option value="0" selected >请选择审核状态</option>
+                        <option value="1">通过</option>
+                        <option value="2">审核中</option>
+                        <option value="3">已拒绝</option>
+                    </select>
+                </div>
+
+                <span class="am-input-group-btn am-form-group"> 
+                    <button class="am-btn am-btn-default" type="button" onclick="searchOrder()">搜索</button> 
+                </span> 
+            </div>
+            <div class="am-g am-text-right am-u-sm-12">
+            @restrict(la(as("admin"))) {
+                <button id="approved_btn" class="am-btn am-btn-xs am-text-secondary" style="background-color : #fff" onclick="approved()" type="button">
+                    <span class="am-icon-thumbs-o-up"></span> 通过审核
+                </button>
+                <button id="refused_btn" class="am-btn am-btn-xs am-text-secondary" style="background-color : #fff" onclick="refused()" type="button">
+                    <span class="am-icon-thumbs-o-down"></span> 拒绝审核
+                </button>
+            }
+                <button class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="showOrder()" type="button">
+                    <span class="am-icon-info-circle"></span> 查看
+                </button>
+                <button id="delete_btn" class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="deleteOrder()" type="button">
+                    <span class="am-icon-trash-o"></span> 删除
+                </button>
+            </div>
+            <div class="am-g am-u-sm-12 am-scrollable-horizontal">
+                <table width="100%" class="am-table am-table-striped am-table-bordered am-table-radius am-table-compact am-text-nowrap am-table-centered am-table-hover"
+                id="test_table">
+                    <thead>
+                        <tr>
+                            <th class="table-id">序号</th>
+                            <th>ID</th>
+                            <th class="table-author am-hide-sm-only">测评方案名称</th>
+                            <th class="table-author am-hide-sm-only">提交订单时间</th>
+                            <th class="table-author am-hide-sm-only">考试人数</th>
+                            <th class="table-author am-hide-sm-only">剩余人数</th>
+                            @*<th class="table-author am-hide-sm-only">生效时间</th>
+                            <th class="table-author am-hide-sm-only">到期时间</th>
+                            <th class="table-author am-hide-sm-only">测试年龄范围/岁</th>
+                            <th class="table-author am-hide-sm-only"></th>*@
+                            <th class="table-author am-hide-sm-only">审核状态</th>
+                            <th class="table-author am-hide-sm-only">tpid</th>
+                            <th class="table-author am-hide-sm-only">startTime</th>
+                            <th class="table-author am-hide-sm-only">endTime</th>
+                            <th class="table-author am-hide-sm-only">ageLow</th>
+                            <th class="table-author am-hide-sm-only">ageUpp</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        @views.html.common.modal.confirm("my-confirm", "你确定要删除这条记录吗？")
+        @views.html.common.modal.confirm("approved-confirm", "你确定通过该机构吗？")
+        @views.html.common.modal.confirm("refused-confirm", "你确定拒绝该机构吗？")
+        @views.html.admin.ordersManage.orderInfo()
+        <!-- content end -->
+    </body>
+</html>

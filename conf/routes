@@ -1,0 +1,498 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET         /                                                                 @controllers.LoginController.showUserLoginPage()
+GET         /admissioninfo                                                    @controllers.LoginController.showAdmissionInfo()
+
+POST        /userLogin                                                        @controllers.LoginController.userLogin()
+#POST        /userLogin                                                        @controllers.LoginController.userLoginShow()
+
+GET         /admin                                                            @controllers.LoginController.showAdminLoginPage()
+POST        /adminLogin                                                       @controllers.LoginController.adminLogin()
+GET         /adminLogout                                                      @controllers.LoginController.adminlogout()
+GET         /userLogout                                                       @controllers.LoginController.userlogout()
+
+GET         /index/forwardTest/:qType                                         @controllers.IndexController.forwardTest(qType: Integer)
+##################################################################             管理系统              ######################################################################################################################
+
+#############################     考生管理     ###############################
+#考生列表
+GET         /admin/user/listView                                              @controllers.UserController.listView()
+GET         /admin/user/page                                                  @controllers.UserController.page()
+GET         /admin/user/userInfo/:uid                                         @controllers.UserController.userInfoView(uid:Integer)
+GET         /admin/user/editView/:uid                                         @controllers.UserController.editView(uid:Integer)
+POST        /admin/user/edit                                                  @controllers.UserController.edit()
+POST        /admin/user/delete                                                @controllers.UserController.delete()
+
+#############################     常模管理     ###############################
+#考生列表
+GET         /admin/testpaperNorm/listView                                     @controllers.TestpaperNormController.listView()
+GET         /admin/testpaperNorm/page                                         @controllers.TestpaperNormController.page()
+GET         /admin/testpaperNorm/data/:tpnid                                  @controllers.TestpaperNormController.data(tpnid:Integer)
+GET         /admin/testpaperNorm/editView/:tpnid                              @controllers.TestpaperNormController.editView(tpnid:Integer)
+POST        /admin/testpaperNorm/edit/:tpnid                                  @controllers.TestpaperNormController.edit(tpnid:Integer)
+GET         /admin/testpaperNorm/getAll                                       @controllers.TestpaperNormController.getAll()
+
+#############################     组织考试     ###############################
+#配置确认
+GET         /admin/organizeTest/configInstructions                            @controllers.OrganizeTestController.configInstructions()
+#考试安排
+GET         /admin/organizeTest/test/examArrangement                          @controllers.OrganizeTestController.examArrangement()
+POST        /admin/organizeTest/test/upload                                   @controllers.OrganizeTestController.uploadTest()
+#考生导入
+GET         /admin/organizeTest/user/importView                               @controllers.OrganizeTestController.importUserView()
+POST        /admin/organizeTest/user/validateExcel                            @controllers.OrganizeTestController.validateUserExcel()
+POST        /admin/organizeTest/user/exportByData                             @controllers.OrganizeTestController.exportUserByData()
+POST        /admin/organizeTest/user/upload                                   @controllers.OrganizeTestController.uploadUser()
+#题型列表
+GET         /admin/questionType/list/:tpid                                    @controllers.QuestionTypeController.list(tpid:Integer)
+#############################     考试管理     ###############################
+#考试列表
+GET         /admin/test/listView                                              @controllers.TestController.listView()
+GET         /admin/test/page                                                  @controllers.TestController.page()
+#考试列表--修改考试时间
+GET         /org/editTestView/:tid                                            @controllers.AdmissionsOrgController.orgEditTestView(tid:Integer)
+#考试列表(普通用户)
+GET         /admin/test/user/addView/:tid/:orgCode                            @controllers.UserController.addView(tid:Integer,orgCode:Integer)
+POST        /admin/test/user/add                                              @controllers.UserController.add()
+GET         /admin/test/user/uploadView/:tid/:orgCode                         @controllers.TestController.uploadUserView(tid:Integer,orgCode:Integer)
+POST        /admin/test/user/upload                                           @controllers.TestController.uploadUser()
+#验证考试名称
+GET         /admin/test/validateName/:name                                    @controllers.TestController.validateName(name:String)
+#添加考试
+GET         /admin/test/addView                                               @controllers.TestController.addView()
+POST        /admin/test/add                                                   @controllers.TestController.addTest()
+
+#############################     招生机构管理     ###############################
+#招生机构列表
+GET         /admin/org/listView                                               @controllers.AdmissionsOrgController.listView()
+GET         /admin/org/page                                                   @controllers.AdmissionsOrgController.page()
+#机构审核列表
+GET         /admin/org/audit/listView                                         @controllers.AdmissionsOrgController.auditListView()
+GET         /admin/org/audit/page                                             @controllers.AdmissionsOrgController.auditPage()
+#通过审核
+GET         /admin/org/approved/:orgCode/:adminId                             @controllers.AdmissionsOrgController.approved(orgCode:Integer,adminId:Integer)
+#拒绝审核
+GET         /admin/org/refused/:orgCode/:adminId                              @controllers.AdmissionsOrgController.refused(orgCode:Integer,adminId:Integer)
+#修改招生机构信息
+GET         /admin/org/editView/:orgId                                        @controllers.AdmissionsOrgController.editView(orgId:Integer)
+POST        /admin/org/edit                                                   @controllers.AdmissionsOrgController.edit()
+
+#注册招生机构
+GET         /public/admin/org/registView                                      @controllers.AdmissionsOrgController.registView()
+POST        /public/admin/org/regist                                          @controllers.AdmissionsOrgController.regist()
+#验证机构名称
+GET         /public/admin/org/validateOrgName/:orgName                        @controllers.AdmissionsOrgController.validateOrgName(orgName:String)
+#验证登录名
+GET         /public/admin/admin/validateLoginName/:loginName                  @controllers.AdminController.validateLoginName(loginName:String)
+
+#############################     订单管理     ###############################
+GET         /admin/orders/addView                                             @controllers.OrdersController.addView()
+#获取订单人数
+GET         /admin/orders/findOne/:tpid                                       @controllers.OrdersController.getRemainNumber(tpid:Integer)
+#订单列表
+GET         /admin/orders/listView                                            @controllers.OrdersController.listView()
+GET         /admin/orders/page                                                @controllers.OrdersController.page()
+#审核通过
+GET         /admin/orders/approved/:orderId                                   @controllers.OrdersController.approved(orderId:Integer)
+#拒绝审核
+GET         /admin/orders/refused/:orderId                                    @controllers.OrdersController.refused(orderId:Integer)
+#删除订单
+POST        /admin/orders/delete/:orderId                                     @controllers.OrdersController.delete(orderId:Integer)
+
+#追加订单
+POST        /admin/orders/add                                                 @controllers.OrdersController.add()
+
+#后台用户操作
+#GET         /user/reglist/:page                                               @controllers.UserController.applyListView(page:Integer)
+#GET         /user/recUser/:uid                                                @controllers.UserController.receiveApplyUser(uid:Integer)
+#GET         /user/rejUser/:uid                                                @controllers.UserController.rejectApplyUser(uid:Integer)
+
+#考生管理--导入考生  未使用
+#GET         /user/upload                                                      @controllers.UserController.uploadView()
+#POST        /user/addByExcel/:tid/:orgCode                                    @controllers.UserController.addByExcel(tid:Integer,orgCode:Integer)
+# 考生列表查看考试和机构列表查看考试 待修改  TODO /user/userTest/:uid/:page  /user/orgListTest/:orgId
+#GET         /user/userTest/:uid/:page                                         @controllers.UserController.userTestView(uid:Integer,page:Integer)
+#GET         /user/orgListTest/:orgId                                          @controllers.UserController.orgListTest(orgId:Integer)
+#考试列表，查看考生，查看成绩
+GET         /user/answerListView/:tid/:uid                                    @controllers.AnswerController.answerListView(tid:Integer,uid:Integer)
+
+GET         /user/listPDF/:orgCode/:tid/:uid                                  @controllers.UserController.listPDF(orgCode:Integer,tid:Integer,uid:Integer)
+GET         /user/showPDF/:orgCode/:tid/:uid                                  @controllers.UserController.showUserPDF(orgCode:Integer,tid:Integer,uid:Integer)
+GET         /user/showAbstract/:orgCode/:tid/:uid                             @controllers.UserController.showUserAbstract(orgCode:Integer,tid:Integer,uid:Integer)
+GET         /user/generatePDF/:orgCode                                        @controllers.UserController.generatePDF(orgCode:Integer)
+POST        /user/PDF/:orgCode                                                @controllers.UserController.PDF(orgCode:Integer)
+POST        /user/localStorageUser/:pageNum                                   @controllers.UserController.localStorageUser(pageNum:Integer)
+#用户分数
+GET         /user/score/:tid/:uid                                             @controllers.ScoreController.showScoreView(tid:Integer,uid:Integer)
+GET         /test/calculateScore/:orgCode/:tpnid                              @controllers.ScoreController.calculateScore(orgCode:Integer,tpnid:Integer)
+GET         /score/output/:orgCode                                            @controllers.ScoreController.outputScore(orgCode:Integer)
+GET         /score/outputNormalScore/:orgCode                                 @controllers.ScoreController.outputNormalScore(orgCode:Integer)
+#后台招生机构操作
+GET         /org/testIntro                                                    @controllers.AdmissionsOrgController.testIntro()
+POST        /org/add                                                          @controllers.AdmissionsOrgController.addOrg()
+GET         /org/addView                                                      @controllers.AdmissionsOrgController.addView()
+GET         /org/addTestView/:orgCode                                         @controllers.AdmissionsOrgController.orgAddTestView(orgCode:Integer)
+GET         /org/delete/:orgCode                                              @controllers.AdmissionsOrgController.deleteOrg(orgCode:Integer)
+GET         /org/orgListUser/:orgId/:page                                     @controllers.AdmissionsOrgController.orgListUser(orgId:Integer,page:Integer)
+GET         /org/searchUser/:orgCode/:name/:account/:email/:page              @controllers.AdmissionsOrgController.searchUser(orgCode:Integer,name:String,account:String,email:String,page:Integer)
+GET         /org/outputPDF/:orgCode                                           @controllers.AdmissionsOrgController.outputUserPDF(orgCode:Integer)
+GET         /org/orgReportPDF/:orgCode                                        @controllers.AdmissionsOrgController.orgReportPDF(orgCode:Integer)
+
+#后台试卷操作
+GET         /admin/testpaper/listView                                         @controllers.TestPaperController.listView()
+GET         /admin/testpaper/page                                             @controllers.TestPaperController.page()
+GET         /admin/testpaper/addView                                          @controllers.TestPaperController.addView()
+POST        /admin/testpaper/edit                                             @controllers.TestPaperController.editTestpaper()
+POST        /admin/testpaper/export/:tpid                                     @controllers.TestPaperController.export(tpid: Integer)
+GET         /admin/testpaper/importPaper                                      @controllers.TestPaperController.importPaperView()
+POST        /admin/testpaper/importPaper                                      @controllers.TestPaperController.importPaper()
+POST        /admin/testpaper/validatejson                                     @controllers.TestPaperController.importPaperValidator()
+GET         /testpaper/testpaperQuestionView/:tpid                            @controllers.TestPaperController.testpaperQuestionView(tpid:Integer)
+GET         /testpaper/delete/:tpid                                           @controllers.TestPaperController.deleteTestpaper(tpid:Integer)
+GET         /admin/testpaper/editView/:tpid                                   @controllers.TestPaperController.editView(tpid:Integer)
+GET         /admin/testpaper/makeView/:qTypeStr                               @controllers.TestPaperController.makeView(qTypeStr:String)
+POST        /testpaper/make                                                   @controllers.TestPaperController.makeTestpaper()
+GET         /admin/testpaper/quetiontyeList                                   @controllers.TestPaperController.quetionTypeList()
+GET         /testpaper/addQuestionView/:tpid                                  @controllers.TestPaperController.addQuestionToTestpaperView(tpid:Integer)
+POST        /testpaper/addQuestion/:tpid                                      @controllers.TestPaperController.addQuestionToTestpaper(tpid:Integer)
+POST        /testpaper/deleteQuestion/:tpid/:qid                              @controllers.TestPaperController.deleteQuestion(tpid:Integer,qid:String)
+GET         /testpaper/questiontype/:tpid                                     @controllers.TestPaperController.testpaperQuestiontype(tpid:Integer)
+POST        /testpaper/deleteQuestiontype/:tpid/:qType                        @controllers.TestPaperController.deleteQuestiontype(tpid:Integer,qType:Integer)
+GET         /testpaper/addQuestiontypeView/:tpid                              @controllers.TestPaperController.addQuestiontypeView(tpid:Integer)
+POST        /testpaper/addQuestiontype                                        @controllers.TestPaperController.addQuestiontype()
+POST        /admin/testpaper/:tpid/updateOrder                                @controllers.TestPaperController.updateOrder(tpid: Integer)
+POST        /admin/testpaper/:tpid/updateLimitTime                            @controllers.TestPaperController.updateLimitTime(tpid: Integer)
+GET         /testpaper/set/:tpid                                              @controllers.TestPaperController.set(tpid:Integer)
+#后台题库操作
+GET         /admin/question/listView                                          @controllers.QuestionController.listView()
+GET         /admin/question/page                                              @controllers.QuestionController.page()
+POST        /admin/question/upload                                            @controllers.QuestionController.upload()
+GET         /admin/question/questionType/:qType                               @controllers.QuestionController.listQuestionByType(qType: Integer)
+POST        /admin/question/addToTestpaper/:tpid                              @controllers.QuestionController.addToTestpaper(tpid:Integer)
+GET         /admin/question/generateView                                      @controllers.QuestionController.generateView()
+POST        /admin/question/generate                                          @controllers.QuestionController.generate()
+GET         /question/delete/:qid                                             @controllers.QuestionController.deleteQuestion(qid:String)
+GET         /question/addView/:qType                                          @controllers.QuestionController.addView(qType:Integer)
+POST        /question/add                                                     @controllers.QuestionController.add()
+GET         /question/editView/:qid                                           @controllers.QuestionController.editView(qid:String)
+POST        /question/edit                                                    @controllers.QuestionController.edit()
+
+#后台题型操作
+GET         /admin/questiontype/listView                                      @controllers.QuestionTypeController.listView()
+GET         /admin/questionType/page                                          @controllers.QuestionTypeController.page()
+GET         /questiontype/addView                                             @controllers.QuestionController.addQuestionTypeView()
+GET         /questiontype/editView/:qtId                                      @controllers.QuestionController.editQuestionTypeView(qtId:Integer)
+POST        /questiontype/add                                                 @controllers.QuestionController.addQuestionType()
+POST        /questiontype/edit                                                @controllers.QuestionController.editQuestionType()
+GET         /questiontype/delete/:qType                                       @controllers.QuestionController.deleteQuestionType(qType:Integer)
+#后台考试操作
+GET         /test/testUser/:tid/:orgCode/:page                                @controllers.TestController.testUser(tid:Integer,orgCode:Integer,page:Integer)
+GET         /admin/test/user/listView/:tid                                    @controllers.TestController.userListView(tid:Integer)
+GET         /admin/test/user/page                                             @controllers.TestController.userPage()
+
+GET         /test/noAnswerUser/:tid/:orgCode/:page                            @controllers.TestController.noAnswerUser(tid:Integer,orgCode:Integer,page:Integer)
+GET         /test/editView/:tid                                               @controllers.TestController.editView(tid:Integer)
+POST        /test/edit                                                        @controllers.TestController.editTest()
+POST        /test/editOrgTest                                                 @controllers.TestController.editOrgTest()
+GET         /test/delete/:tid                                                 @controllers.TestController.deleteTest(tid:Integer)
+GET         /test/questionType/:tpid                                          @controllers.TestController.questionType(tpid:Integer)
+GET         /test/searchUser/:pid/:orgCode/:name/:account/:email/:page        @controllers.TestController.searchUser(pid:Integer,orgCode:Integer,name:String,account:String,email:String,page:Integer)
+POST        /test/deleteUser/:tid/:uid                                        @controllers.TestController.deleteUser(tid:Integer,uid:Integer)
+GET         /test/addUserView/:tid/:orgCode                                   @controllers.TestController.addUserView(tid:Integer,orgCode:Integer)
+POST        /test/addUser                                                     @controllers.TestController.addUser()
+GET         /test/downloadTestExcel                                           @controllers.TestController.downloadExcelDemo()
+POST        /test/orgTestpaper/:orgCode                                       @controllers.TestController.orgTestpaper(orgCode:Integer)
+
+#后台管理者操作
+POST        /manager/edit                                                     @controllers.AdminController.edit()
+
+##################################################################             系统管理              ######################################################################################################################
+#用户管理
+GET         /admin/system/user/listView                                       @controllers.AdminController.listView()
+GET         /admin/system/user/page                                           @controllers.AdminController.page()
+GET         /admin/system/user/edit/:id                                       @controllers.AdminController.editView(id:Integer)
+POST        /admin/system/user/edit                                           @controllers.AdminController.edit()
+#角色管理
+GET         /admin/system/role/listView                                       @controllers.RoleController.listView()
+GET         /admin/system/role/list                                           @controllers.RoleController.list()
+GET         /admin/system/role/page                                           @controllers.RoleController.page()
+POST        /admin/system/role/add                                            @controllers.RoleController.add()
+POST        /admin/system/role/edit                                           @controllers.RoleController.edit()
+POST        /admin/system/role/delete                                         @controllers.RoleController.delete()
+POST        /admin/system/role/savePermission                                 @controllers.RoleController.savePermission()
+#权限管理
+GET         /admin/system/permission/treeView                                 @controllers.PermissionController.treeView()
+GET         /admin/system/permission/tree                                     @controllers.PermissionController.tree()
+
+#招生机构管理
+GET         /admin/org/list                                                   @controllers.AdmissionsOrgController.list()
+
+##################################################################             考试系统              ######################################################################################################################
+GET         /exam/adminssionCard                                              @controllers.IndexController.adminssionCard()
+# 测试系统整体介绍页面
+GET         /instructions/index/:isOffLine                                    @controllers.InstructionsController.index(isOffLine: String)
+GET         /instructions/instructions                                        @controllers.InstructionsController.instructions()
+# 测试系统整体介绍页面Manifest缓存
+GET         /instructions/indexManifest                                       @controllers.InstructionsController.indexManifest()
+GET         /instructions/instructionsManifest                                @controllers.InstructionsController.instructionsManifest()
+
+POST        /answerReport/add/:qtype                                          @controllers.AnswerReportController.add(qtype: Int)
+POST        /answerReport/upload                                              @controllers.AnswerReportController.upload()
+
+# 符号运算
+GET         /symbolicOperation/instructions                                   @controllers.exam.SymbolicOperationController.instructions()
+GET         /symbolicOperation/practice                                       @controllers.exam.SymbolicOperationController.practice()
+GET         /symbolicOperation/practiceEnd                                    @controllers.exam.SymbolicOperationController.practiceEnd()
+GET         /symbolicOperation/test                                           @controllers.exam.SymbolicOperationController.test()
+GET         /symbolicOperation/endTime                                        @controllers.exam.SymbolicOperationController.endTime()
+POST        /symbolicOperation/submitAnswer                                   @controllers.exam.SymbolicOperationController.submitAnswer()
+# 符号运算Manifest缓存
+GET         /symbolicOperation/instructionsManifest                           @controllers.exam.SymbolicOperationController.instructionsManifest()
+GET         /symbolicOperation/practiceManifest                               @controllers.exam.SymbolicOperationController.practiceManifest()
+GET         /symbolicOperation/practiceEndManifest                            @controllers.exam.SymbolicOperationController.practiceEndManifest()
+GET         /symbolicOperation/testManifest                                   @controllers.exam.SymbolicOperationController.testManifest()
+GET         /symbolicOperation/endTimeManifest                                @controllers.exam.SymbolicOperationController.endTimeManifest()
+
+# 图形搜索
+GET         /grapfSearch/instructions                                         @controllers.GrapfSearchController.instructions()
+GET         /grapfSearch/practice                                             @controllers.GrapfSearchController.practice()
+GET         /grapfSearch/practiceEnd                                          @controllers.GrapfSearchController.practiceEnd()
+GET         /grapfSearch/test                                                 @controllers.GrapfSearchController.test()
+GET         /grapfSearch/endTime                                              @controllers.GrapfSearchController.endTime()
+POST        /grapfSearch/submitAnswer                                         @controllers.GrapfSearchController.submitAnswer()
+# 图形搜索Manifest缓存
+GET         /grapfSearch/instructionsManifest                                 @controllers.GrapfSearchController.instructionsManifest()
+GET         /grapfSearch/practiceManifest                                     @controllers.GrapfSearchController.practiceManifest()
+GET         /grapfSearch/practiceEndManifest                                  @controllers.GrapfSearchController.practiceEndManifest()
+GET         /grapfSearch/testManifest                                         @controllers.GrapfSearchController.testManifest()
+GET         /grapfSearch/endTimeManifest                                      @controllers.GrapfSearchController.endTimeManifest()
+
+#配对记忆
+GET         /materialMemory/instructions                                      @controllers.MaterialMemoryController.instructions(qtype : Integer = 1)
+GET         /materialMemory/test                                              @controllers.MaterialMemoryController.test(qtype : Integer = 1)
+GET         /materialMemory/endTime                                           @controllers.MaterialMemoryController.endTime(qtype : Integer = 1)
+# 配对记忆Manifest缓存
+GET         /materialMemory/instructionsManifest                              @controllers.MaterialMemoryController.instructionsManifest(qtype : Integer = 1)
+GET         /materialMemory/testManifest                                      @controllers.MaterialMemoryController.testManifest(qtype : Integer = 1)
+GET         /materialMemory/endTimeManifest                                   @controllers.MaterialMemoryController.endTimeManifest(qtype : Integer = 1)
+
+#配对回忆
+GET         /memoryExtract/instructions                                       @controllers.MaterialMemoryController.instructions(qtype : Integer = 7)
+GET         /memoryExtract/test                                               @controllers.MaterialMemoryController.test(qtype : Integer = 7)
+GET         /memoryExtract/mark                                               @controllers.MaterialMemoryController.mark()
+GET         /memoryExtract/endTime                                            @controllers.MaterialMemoryController.endTime(qtype : Integer = 7)
+POST        /memoryExtract/submitAnswer                                       @controllers.MaterialMemoryController.submitAnswer()
+# 配对回忆Manifest缓存
+GET         /memoryExtract/instructionsManifest                               @controllers.MaterialMemoryController.instructionsManifest(qtype : Integer = 7)
+GET         /memoryExtract/testManifest                                       @controllers.MaterialMemoryController.testManifest(qtype : Integer = 7)
+GET         /memoryExtract/markManifest                                       @controllers.MaterialMemoryController.markManifest()
+GET         /memoryExtract/endTimeManifest                                    @controllers.MaterialMemoryController.endTimeManifest(qtype : Integer = 7)
+
+#顺序记忆
+GET         /spatialMemory/instructions                                       @controllers.SpatialMemoryController.instructions()
+GET         /spatialMemory/practice                                           @controllers.SpatialMemoryController.practice()
+GET         /spatialMemory/practiceEnd                                        @controllers.SpatialMemoryController.practiceEnd()
+GET         /spatialMemory/test                                               @controllers.SpatialMemoryController.test()
+GET         /spatialMemory/endTime                                            @controllers.SpatialMemoryController.endTime()
+POST        /spatialMemory/submitAnswer                                       @controllers.SpatialMemoryController.submitAnswer()
+# 顺序记忆Manifest缓存
+GET         /spatialMemory/instructionsManifest                               @controllers.SpatialMemoryController.instructionsManifest()
+GET         /spatialMemory/practiceManifest                                   @controllers.SpatialMemoryController.practiceManifest()
+GET         /spatialMemory/practiceEndManifest                                @controllers.SpatialMemoryController.practiceEndManifest()
+GET         /spatialMemory/testManifest                                       @controllers.SpatialMemoryController.testManifest()
+GET         /spatialMemory/endTimeManifest                                    @controllers.SpatialMemoryController.endTimeManifest()
+
+#图形连线
+GET         /shapelinking/instructions                                        @controllers.ShapeLinkingController.instructions()
+GET         /shapelinking/practice                                            @controllers.ShapeLinkingController.practice()
+GET         /shapelinking/practiceEnd                                         @controllers.ShapeLinkingController.practiceEnd()
+GET         /shapelinking/test                                                @controllers.ShapeLinkingController.test()
+GET         /shapelinking/endTime                                             @controllers.ShapeLinkingController.endTime()
+POST        /shapelinking/submitAnswer                                        @controllers.ShapeLinkingController.submitAnswer()
+# 图形连线Manifest缓存
+GET         /shapelinking/instructionsManifest                                @controllers.ShapeLinkingController.instructionsManifest()
+GET         /shapelinking/practiceManifest                                    @controllers.ShapeLinkingController.practiceManifest()
+GET         /shapelinking/practiceEndManifest                                 @controllers.ShapeLinkingController.practiceEndManifest()
+GET         /shapelinking/testManifest                                        @controllers.ShapeLinkingController.testManifest()
+GET         /shapelinking/endTimeManifest                                     @controllers.ShapeLinkingController.endTimeManifest()
+
+# 类比推理
+GET         /analogicReasoning/instructions                                   @controllers.AnalogicReasoningController.instructions()
+GET         /analogicReasoning/practice                                       @controllers.AnalogicReasoningController.practice()
+GET         /analogicReasoning/practiceEnd                                    @controllers.AnalogicReasoningController.practiceEnd()
+GET         /analogicReasoning/test                                           @controllers.AnalogicReasoningController.test()
+GET         /analogicReasoning/mark                                           @controllers.AnalogicReasoningController.mark()
+GET         /analogicReasoning/endTime                                        @controllers.AnalogicReasoningController.endTime()
+POST        /analogicReasoning/submitAnswer                                   @controllers.AnalogicReasoningController.submitAnswer()
+# 类比推理Manifest缓存
+GET         /analogicReasoning/instructionsManifest                           @controllers.AnalogicReasoningController.instructionsManifest()
+GET         /analogicReasoning/practiceManifest                               @controllers.AnalogicReasoningController.practiceManifest()
+GET         /analogicReasoning/practiceEndManifest                            @controllers.AnalogicReasoningController.practiceEndManifest()
+GET         /analogicReasoning/testManifest                                   @controllers.AnalogicReasoningController.testManifest()
+GET         /analogicReasoning/markManifest                                   @controllers.AnalogicReasoningController.markManifest()
+GET         /analogicReasoning/endTimeManifest                                @controllers.AnalogicReasoningController.endTimeManifest()
+
+# 段落推理
+GET         /paragraphReasoning/instructions                                  @controllers.ParagraphReasoningController.instructions()
+GET         /paragraphReasoning/practice                                      @controllers.ParagraphReasoningController.practice()
+GET         /paragraphReasoning/practiceEnd                                   @controllers.ParagraphReasoningController.practiceEnd()
+GET         /paragraphReasoning/test                                          @controllers.ParagraphReasoningController.test()
+GET         /paragraphReasoning/mark                                          @controllers.ParagraphReasoningController.mark()
+GET         /paragraphReasoning/endTime                                       @controllers.ParagraphReasoningController.endTime()
+POST        /paragraphReasoning/submitAnswer                                  @controllers.ParagraphReasoningController.submitAnswer()
+# 段落推理Manifest缓存
+GET         /paragraphReasoning/instructionsManifest                          @controllers.ParagraphReasoningController.instructionsManifest()
+GET         /paragraphReasoning/practiceManifest                              @controllers.ParagraphReasoningController.practiceManifest()
+GET         /paragraphReasoning/practiceEndManifest                           @controllers.ParagraphReasoningController.practiceEndManifest()
+GET         /paragraphReasoning/testManifest                                  @controllers.ParagraphReasoningController.testManifest()
+GET         /paragraphReasoning/markManifest                                  @controllers.ParagraphReasoningController.markManifest()
+GET         /paragraphReasoning/endTimeManifest                               @controllers.ParagraphReasoningController.endTimeManifest()
+
+# 矩阵推理
+GET         /matrixReasoning/instructions                                     @controllers.MatrixReasoningController.instructions()
+GET         /matrixReasoning/practice                                         @controllers.MatrixReasoningController.practice()
+GET         /matrixReasoning/practiceEnd                                      @controllers.MatrixReasoningController.practiceEnd()
+GET         /matrixReasoning/test                                             @controllers.MatrixReasoningController.test()
+GET         /matrixReasoning/mark                                             @controllers.MatrixReasoningController.mark()
+GET         /matrixReasoning/endTime                                          @controllers.MatrixReasoningController.endTime()
+POST        /matrixReasoning/submitAnswer                                     @controllers.MatrixReasoningController.submitAnswer()
+# 矩阵推理Manifest缓存
+GET         /matrixReasoning/instructionsManifest                             @controllers.MatrixReasoningController.instructionsManifest()
+GET         /matrixReasoning/practiceManifest                                 @controllers.MatrixReasoningController.practiceManifest()
+GET         /matrixReasoning/practiceEndManifest                              @controllers.MatrixReasoningController.practiceEndManifest()
+GET         /matrixReasoning/testManifest                                     @controllers.MatrixReasoningController.testManifest()
+GET         /matrixReasoning/markManifest                                     @controllers.MatrixReasoningController.markManifest()
+GET         /matrixReasoning/endTimeManifest                                  @controllers.MatrixReasoningController.endTimeManifest()
+
+# 空间旋转
+GET         /spaceRotation/instructions                                       @controllers.SpaceRotationController.instructions()
+GET         /spaceRotation/practice                                           @controllers.SpaceRotationController.practice()
+GET         /spaceRotation/practiceEnd                                        @controllers.SpaceRotationController.practiceEnd()
+GET         /spaceRotation/test                                               @controllers.SpaceRotationController.test()
+GET         /spaceRotation/mark                                               @controllers.SpaceRotationController.mark()
+GET         /spaceRotation/endTime                                            @controllers.SpaceRotationController.endTime()
+POST        /spaceRotation/submitAnswer                                       @controllers.SpaceRotationController.submitAnswer()
+# 空间旋转Manifest缓存
+GET         /spaceRotation/instructionsManifest                               @controllers.SpaceRotationController.instructionsManifest()
+GET         /spaceRotation/practiceManifest                                   @controllers.SpaceRotationController.practiceManifest()
+GET         /spaceRotation/practiceEndManifest                                @controllers.SpaceRotationController.practiceEndManifest()
+GET         /spaceRotation/testManifest                                       @controllers.SpaceRotationController.testManifest()
+GET         /spaceRotation/markManifest                                       @controllers.SpaceRotationController.markManifest()
+GET         /spaceRotation/endTimeManifest                                    @controllers.SpaceRotationController.endTimeManifest()
+
+# 人格测试
+GET         /personality/instructions                                         @controllers.PersonalityController.instructions()
+GET         /personality/practiceEnd                                          @controllers.PersonalityController.practiceEnd()
+GET         /personality/test                                                 @controllers.PersonalityController.test()
+GET         /personality/mark                                                 @controllers.PersonalityController.mark()
+GET         /personality/endTime                                              @controllers.PersonalityController.endTime()
+POST        /personality/submitAnswer                                         @controllers.PersonalityController.submitAnswer()
+# 人格测试Manifest缓存
+GET         /personality/instructionsManifest                                 @controllers.PersonalityController.instructionsManifest()
+GET         /personality/practiceEndManifest                                  @controllers.PersonalityController.practiceEndManifest()
+GET         /personality/testManifest                                         @controllers.PersonalityController.testManifest()
+GET         /personality/markManifest                                         @controllers.PersonalityController.markManifest()
+GET         /personality/endTimeManifest                                      @controllers.PersonalityController.endTimeManifest()
+
+# 家庭问卷
+GET         /familyQuestionnaire/instructions                                 @controllers.FamilyQuestionnaireController.instructions()
+GET         /familyQuestionnaire/practiceEnd                                  @controllers.FamilyQuestionnaireController.practiceEnd()
+GET         /familyQuestionnaire/test                                         @controllers.FamilyQuestionnaireController.test()
+GET         /familyQuestionnaire/mark                                         @controllers.FamilyQuestionnaireController.mark()
+GET         /familyQuestionnaire/endTime                                      @controllers.FamilyQuestionnaireController.endTime()
+POST        /familyQuestionnaire/submitAnswer                                 @controllers.FamilyQuestionnaireController.submitAnswer()
+# 家庭问卷Manifest缓存
+GET         /familyQuestionnaire/instructionsManifest                         @controllers.FamilyQuestionnaireController.instructionsManifest()
+GET         /familyQuestionnaire/practiceEndManifest                          @controllers.FamilyQuestionnaireController.practiceEndManifest()
+GET         /familyQuestionnaire/testManifest                                 @controllers.FamilyQuestionnaireController.testManifest()
+GET         /familyQuestionnaire/markManifest                                 @controllers.FamilyQuestionnaireController.markManifest()
+GET         /familyQuestionnaire/endTimeManifest                              @controllers.FamilyQuestionnaireController.endTimeManifest()
+
+# 情绪识别
+GET         /emotionRecognition/instructions                                  @controllers.EmotionRecognitionController.instructions()
+GET         /emotionRecognition/practice                                      @controllers.EmotionRecognitionController.practice()
+GET         /emotionRecognition/practiceEnd                                   @controllers.EmotionRecognitionController.practiceEnd()
+GET         /emotionRecognition/test                                          @controllers.EmotionRecognitionController.test()
+GET         /emotionRecognition/endTime                                       @controllers.EmotionRecognitionController.endTime()
+POST        /emotionRecognition/submitAnswer                                  @controllers.EmotionRecognitionController.submitAnswer()
+# 情绪识别Manifest缓存
+GET         /emotionRecognition/instructionsManifest                          @controllers.EmotionRecognitionController.instructionsManifest()
+GET         /emotionRecognition/practiceManifest                              @controllers.EmotionRecognitionController.practiceManifest()
+GET         /emotionRecognition/practiceEndManifest                           @controllers.EmotionRecognitionController.practiceEndManifest()
+GET         /emotionRecognition/testManifest                                  @controllers.EmotionRecognitionController.testManifest()
+GET         /emotionRecognition/endTimeManifest                               @controllers.EmotionRecognitionController.endTimeManifest()
+
+# 情绪理解
+GET         /emotionUnderstanding/instructions                                @controllers.EmotionUnderstandingController.instructions()
+GET         /emotionUnderstanding/practice                                    @controllers.EmotionUnderstandingController.practice()
+GET         /emotionUnderstanding/practiceEnd                                 @controllers.EmotionUnderstandingController.practiceEnd()
+GET         /emotionUnderstanding/test                                        @controllers.EmotionUnderstandingController.test()
+GET         /emotionUnderstanding/endTime                                     @controllers.EmotionUnderstandingController.endTime()
+POST        /emotionUnderstanding/submitAnswer                                @controllers.EmotionUnderstandingController.submitAnswer()
+# 情绪理解Manifest缓存
+GET         /emotionUnderstanding/instructionsManifest                        @controllers.EmotionUnderstandingController.instructionsManifest()
+GET         /emotionUnderstanding/practiceManifest                            @controllers.EmotionUnderstandingController.practiceManifest()
+GET         /emotionUnderstanding/practiceEndManifest                         @controllers.EmotionUnderstandingController.practiceEndManifest()
+GET         /emotionUnderstanding/testManifest                                @controllers.EmotionUnderstandingController.testManifest()
+GET         /emotionUnderstanding/endTimeManifest                             @controllers.EmotionUnderstandingController.endTimeManifest()
+
+# 远距离联想
+GET         /remoteAssociation/instructions                                   @controllers.RemoteAssociationController.instructions()
+GET         /remoteAssociation/practice                                       @controllers.RemoteAssociationController.practice()
+GET         /remoteAssociation/practiceEnd                                    @controllers.RemoteAssociationController.practiceEnd()
+GET         /remoteAssociation/test                                           @controllers.RemoteAssociationController.test()
+GET         /remoteAssociation/mark                                           @controllers.RemoteAssociationController.mark()
+GET         /remoteAssociation/endTime                                        @controllers.RemoteAssociationController.endTime()
+POST        /remoteAssociation/submitAnswer                                   @controllers.RemoteAssociationController.submitAnswer()
+# 远距离联想Manifest缓存
+GET         /remoteAssociation/instructionsManifest                           @controllers.RemoteAssociationController.instructionsManifest()
+GET         /remoteAssociation/practiceManifest                               @controllers.RemoteAssociationController.practiceManifest()
+GET         /remoteAssociation/practiceEndManifest                            @controllers.RemoteAssociationController.practiceEndManifest()
+GET         /remoteAssociation/testManifest                                   @controllers.RemoteAssociationController.testManifest()
+GET         /remoteAssociation/endTimeManifest                                @controllers.RemoteAssociationController.endTimeManifest()
+
+# 批判性思维-能力
+GET         /criticalThinking/ability/:subType/instructions                   @controllers.exam.criticalThinking.AbilityController.instructions(subType: String)
+GET         /criticalThinking/ability/practiceEnd                             @controllers.exam.criticalThinking.AbilityController.practiceEnd()
+GET         /criticalThinking/ability/:subType/practice                       @controllers.exam.criticalThinking.AbilityController.practice(subType: String)
+GET         /criticalThinking/ability/:subType/test                           @controllers.exam.criticalThinking.AbilityController.test(subType: String)
+GET         /criticalThinking/ability/mark                                    @controllers.exam.criticalThinking.AbilityController.mark()
+GET         /criticalThinking/ability/endTime                                 @controllers.exam.criticalThinking.AbilityController.endTime()
+POST        /criticalThinking/ability/submitAnswer                            @controllers.exam.criticalThinking.AbilityController.submitAnswer()
+# 批判性思维-能力Manifest缓存
+GET         /criticalThinking/ability/instructionsManifest                    @controllers.exam.criticalThinking.AbilityController.instructionsManifest()
+GET         /criticalThinking/ability/practiceEndManifest                     @controllers.exam.criticalThinking.AbilityController.practiceEndManifest()
+GET         /criticalThinking/ability/practiceManifest                        @controllers.exam.criticalThinking.AbilityController.practiceManifest()
+GET         /criticalThinking/ability/testManifest                            @controllers.exam.criticalThinking.AbilityController.testManifest()
+GET         /criticalThinking/ability/markManifest                            @controllers.exam.criticalThinking.AbilityController.markManifest()
+GET         /criticalThinking/ability/endTimeManifest                         @controllers.exam.criticalThinking.AbilityController.endTimeManifest()
+
+# 批判性思维-倾向
+GET         /criticalThinking/tendency/instructions                           @controllers.exam.criticalThinking.TendencyController.instructions()
+GET         /criticalThinking/tendency/practiceEnd                            @controllers.exam.criticalThinking.TendencyController.practiceEnd()
+GET         /criticalThinking/tendency/test                                   @controllers.exam.criticalThinking.TendencyController.test()
+GET         /criticalThinking/tendency/mark                                   @controllers.exam.criticalThinking.TendencyController.mark()
+GET         /criticalThinking/tendency/endTime                                @controllers.exam.criticalThinking.TendencyController.endTime()
+POST        /criticalThinking/tendency/submitAnswer                           @controllers.exam.criticalThinking.TendencyController.submitAnswer()
+# 批判性思维-倾向Manifest缓存
+GET         /criticalThinking/tendency/instructionsManifest                   @controllers.exam.criticalThinking.TendencyController.instructionsManifest()
+GET         /criticalThinking/tendency/practiceEndManifest                    @controllers.exam.criticalThinking.TendencyController.practiceEndManifest()
+GET         /criticalThinking/tendency/testManifest                           @controllers.exam.criticalThinking.TendencyController.testManifest()
+GET         /criticalThinking/tendency/markManifest                           @controllers.exam.criticalThinking.TendencyController.markManifest()
+GET         /criticalThinking/tendency/endTimeManifest                        @controllers.exam.criticalThinking.TendencyController.endTimeManifest()
+
+## 离线缓存答案了得名单页##
+GET         /showOffLineAnswer                                                @controllers.OffLineSubmitAnswerController.showOffLineAnswer()
+POST        /answer/upload                                                    @controllers.AnswerController.upload()
+
+##系统信息查看页面##
+GET         /system/info                                                      @controllers.SystemController.info()
+##导出当天的系统错误日志##
+GET         /system/exportErrorLog                                            @controllers.SystemController.exportErrorLog()
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                                                     controllers.Assets.versioned(path="/public", file)
+
+

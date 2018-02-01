@@ -1,0 +1,171 @@
+@(loginmessage:String)
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>综合素质测评系统</title>
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/common/logo_xinli.png")">
+        <link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.min.css")" rel="stylesheet">
+        <script src="@routes.Assets.versioned("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.min.js")" type="text/javascript"></script>
+        <style type="text/css">
+            body {
+                background:url("@routes.Assets.versioned("images/common/background.jpg")");
+                background-size:cover;
+                -webkit-text-size-adjust:100%;
+            }
+
+            input:-webkit-autofill {
+                -webkit-box-shadow: 0 0 0px 1000px white inset;
+            }
+
+            .submitButton {
+                background:none;
+                background-image:url("@routes.Assets.versioned("images/common/login_button.png")");
+                background-color:transparent;
+                background-size:100% 100%;
+                border:none;
+                width:69%;
+                height:41px;
+                outline:none;
+            }
+
+            .accountInput {
+                background:none;
+                background-image:url("@routes.Assets.versioned("images/common/account.png")");
+                background-color:transparent;
+                background-size:100% 100%;
+                border:none;
+                width:69%;
+                height:49px;
+                outline:none;
+                padding-left:15%;
+            }
+
+            .passwordInput {
+                background:none;
+                background-image:url("@routes.Assets.versioned("images/common/password.png")");
+                background-color:transparent;
+                background-size:100% 100%;
+                border:none;
+                width:69%;
+                height:49px;
+                outline:none;
+                padding-left:15%;
+            }
+            .title{
+                font:bold 57px/2.5em "Microsoft YaHei";
+                color: white;
+                -webkit-text-shadow:#919191 1px 0 0,#919191 0 1px 0,#919191 -1px 0 0,#919191 0 -1px 0;
+                -moz-text-shadow:#919191 1px 0 0,#919191 0 1px 0,#919191 -1px 0 0,#919191 0 -1px 0;
+                text-shadow:#919191 1px 0 0,#919191 0 1px 0,#919191 -1px 0 0,#919191 0 -1px 0;
+                *filter: Glow(Color=#919191, Strength=1);
+            }
+
+            footer{
+                position:absolute;
+                bottom: 100px;
+                left:0px;
+                width: 100%;
+                text-align: center;
+            }
+        </style>
+
+        <script tpye="text/javascript">
+            $(function(){
+                $("#userinfo").load("/admissioninfo");
+            });
+        </script>
+    </head>
+    <body>
+        <form method="post" name="login" action="/userLogin" style="z-index: 10;">
+            <div class="am-g">
+                <div class="am-u-sm-6 am-u-sm-centered am-text-center title" style="margin-top:13vh">综合素质测评系统</div>
+
+                <div class="am-u-sm-6 am-u-sm-centered am-text-center">
+                    <div class="am-g">
+                        <div class="am-u-sm-6 am-text-center">
+                            <img src="@routes.Assets.versioned("images/common/logo_xinli.png")" style="max-width: 100%;">
+                        </div>
+                        <div class="am-u-sm-6">
+                            <div class="am-g">
+                                <input class="accountInput" type="text" name="account" style="margin-top:40px;">
+                                <input class="passwordInput" type="password" name="password" style="margin-top:10px;">
+                                <input class="submitButton" type="submit" value="登&nbsp;&nbsp;&nbsp;&nbsp;录" style="color: white;margin-top:10px;">
+                            </div>
+                            <div class="am-g">
+                                <div class="am-u-sm-12" style="margin-top: 20px;">
+                                    <span style="color:red;font-size: 14px;">@loginmessage</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           @* <table align="center" style="margin-top:8%" width="700px">
+                <tr height="43px">
+                    <td class="title" colspan="2" align="center">
+                        综合素质测评系统
+                    </td>
+                </tr>
+                <tr height="220px">
+                    <td>
+                        <img src="@routes.Assets.versioned("images/common/logo_xinli.png")">
+                    </td>
+                    <td align="right">
+                        <table width="298px" style="border-collapse:separate;border-spacing:10px;">
+                            <tr height="43px">
+                                *@@*<td style="border:3px solid #CCCCCC;" width="90px" align="center">
+                                    帐 号
+                                </td>
+                                <td style="border-bottom:3px solid #CCCCCC;">*@@*
+                                <td>
+                                    <input class="accountInput" type="text" name="account">
+                                </td>
+                            </tr>
+                            *@@*<tr height="32px"><td></td><td></td></tr>*@@*
+                            <tr height="43px">
+                                *@@*<td style="border:3px solid #CCCCCC;" width="90px" align="center">
+                                    密 码
+                                </td>
+                                <td style="border-bottom:3px solid #CCCCCC;">*@@*
+                                <td>
+                                    <input class="passwordInput" type="password" name="password">
+                                </td>
+                            </tr>
+                            <tr height="43px">
+                                <td>
+                                    <input class="submitButton" type="submit" value="登&nbsp;&nbsp;&nbsp;&nbsp;录" style="color: white;">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr height="50px">
+                    <td colspan="2" align="right">
+                        <span style="color:red;font-size: 14px;">@loginmessage</span>
+                        *@@*<input class="submitButton" type="submit" value="提 交">*@@*
+                        *@@*<input class="submitButton" type="submit" value="提 交" style="height:36px;border:none; font-size:18px; width:86px; background:#D9D9D9;">*@@*
+                    </td>
+                </tr>
+            </table>*@
+        </form>
+        <div id="userinfo" style="z-index: 10000;"></div>
+        <div class="am-g" style="margin-top: 5vh;">
+            <div class="am-u-sm-6 am-u-sm-centered" >
+                <div class="am-g" style="margin-top: 100px;">
+                    <div class="am-u-sm-6 am-text-center" >
+                        <img src="@routes.Assets.versioned("images/common/logo_school.png")" height="60px" style="max-width: 100%;">
+                    </div>
+                    <div class="am-u-sm-6 am-text-center" >
+                        <img src="@routes.Assets.versioned("images/common/logo_xinrun.png")" height="60px" style="max-width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+       @*<footer>
+            <img src="@routes.Assets.versioned("images/common/logo_school.png")" height="60px" >
+            <img src="@routes.Assets.versioned("images/common/logo_xinrun.png")" height="60px" style="margin-left: 200px;">
+        </footer>*@
+    </body>
+</html>

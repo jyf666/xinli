@@ -1,0 +1,68 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/criticalThinking/ability/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    <style>
+        .btn-imitation{
+            height:40px;
+            font-size:18px;
+            width:150px;
+            margin-left: 20px;
+            border:2px solid #6ACB9A;
+            background:#d2ede3;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4><p class="text-center"><b>批判性思维能力测验</b></p></h4>
+                        </div>
+                        <div class="row" style="font-size: 16px;padding: 10px 50px 10px 50px">
+                            <p style="text-indent:2em;">本测验包含五项分测验，可测量你的逻辑和分析能力。每项分测验都有不同的指导语，请你仔细阅读并作答。</p>
+                        </div>
+                        <div class="row" style="font-size: 16px;padding: 10px 50px 10px 50px;margin-top: 40px;">
+                            <div class="col-md-4" style="padding: 0;">
+                                <span>测验1</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;" value="推理"/>
+                            </div>
+                            <div class="col-md-4" style="padding: 0;">
+                                <span>测验2</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;" value="假设辨认"/>
+                            </div>
+                            <div class="col-md-4" style="padding: 0;">
+                                <span>测验3</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;" value="演绎推理"/>
+                            </div>
+                        </div>
+                        <div class="row" style="font-size: 16px;padding: 10px 50px 10px 50px">
+                            <div class="col-md-4" style="padding: 0;">
+                                <span>测验4</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;" value="解释"/>
+                            </div>
+                            <div class="col-md-4" style="padding: 0;">
+                                <span>测验5</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;" value="评估论证过程"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-test btn-default"
+                    onclick="location.replace('/criticalThinking/ability/practiceEnd?tid=' + tid);" value="测试须知"/>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

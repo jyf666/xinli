@@ -1,0 +1,197 @@
+@(test:Test,testpapers:List[Testpaper])
+@import utils.StringUtils
+<!doctype html>
+<html>
+<head>
+    <title>中小学生综合素质测评系统</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/common/logo_xinli.png")">
+    <link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.min.css")" rel="stylesheet">
+    <link href="@routes.Assets.versioned("stylesheets/amazeUI/admin.css")" rel="stylesheet">
+    <link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.datetimepicker.css")" rel="stylesheet">
+
+    <script src="@routes.Assets.versioned("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/amazeUI/app.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.datetimepicker.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+    <!--[if lt IE 9]>
+    <script src="http://cdn.staticfile.org/modernizr/2.8.3/modernizr.js"></script>
+    <script src="assets/javascripts/amazeUI/amazeui.ie8polyfill.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+<!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器，Amaze UI 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>
+    以获得更好的体验！</p>
+<![endif]-->
+
+
+    <!-- content start -->
+    <div class="admin-content">
+        <section class="am-panel am-panel-default">
+            <header class="am-panel-hd">
+                <h3 class="am-panel-title">修改考试</h3>
+            </header>
+            <div class="am-panel-bd" id="container" style="width: 800px">
+                <form class="am-form" id="doc-vld-msg">
+                    <fieldset>
+                        <legend>修改考试</legend>
+                        <div class="am-form-group">
+                            <input type="hidden" value="@test.getId" id="tid"/>
+                            <input type="hidden" value="@test.getOrgCode" id="orgCode"/>
+                        </div>
+                        @*<div class="am-form-group">*@
+                            @*<label for="testName">考试名称：</label>*@
+                            @*<input type="text" id="testName" minlength="2" value="@test.getName" placeholder="输入考试名称（至少 2 个字符）" required/>*@
+                        @*</div>*@
+                        <div class="am-form-group">
+                            <label for="testTurn">考试轮次：</label>
+                            <input type="text" id="testTurn" minlength="2" maxlength="5" value="@StringUtils.numberToString(test.getTurn)" placeholder="输入考试轮次（示例 第XX轮 XX为大写）" readonly/>
+                        </div>
+                        <div class="am-form-group">
+                            <label for="testPopulation">考试人数：</label>
+                            <input type="text" id="testPopulation" minlength="1" value="@test.getPopulation"  placeholder="输入考试人数（示例 100 ）" readonly/>
+                        </div>
+                        @*<div class="am-form-group" id="testReport">*@
+                            @*报告内容：<input type="checkbox" @if(test.getReport.equals("1") || test.getReport.equals("3")){checked} value="1">排名*@
+                            @*<input type="checkbox"  @if(test.getReport.equals("2") || test.getReport.equals("3")){checked}  value="2">个人报告*@
+                        @*</div>*@
+                        @*<div class="am-form-group" id="testPaper">
+//                            <label for="doc-select-1-2">试卷：</label>
+//                            <select   id="doc-select-1-2" data-validation-message="请选择试卷" onchange="addNorm()"  required>
+//                                <option value="">请选择试卷</option>
+//                                @testpapers.map { item =>
+//                                    <option value="@item.getId" @if(item.getId==test.getPid){selected}>@item.getId</option>
+//                                }
+//                            </select>
+//                            <span class="am-form-caret"></span>
+//                        </div>*@
+                        <div class="am-form-group">
+                            <label for="datetimepicker">考试时间：</label>
+                            <div class="am-input-group date" id="datetimepicker">
+                                <input size="16" type="text" minlength="16" value="@test.getStartTime().toString.substring(0,16)" id="testTime" data-validation-message="请选择考试时间" class="am-form-field" readonly>
+                                <span class="am-input-group-label add-on"><i class="icon-th am-icon-calendar"></i></span>
+                            </div>
+
+                        </div>
+                       @*<div class="am-form-group">
+//                            <label for="testNorm">常模：</label>
+//                            <table class="am-table am-table-bordered am-table-radius am-table-striped" id="testNorm" >
+//                                <thead>
+//                                    <tr>
+//                                        <th>题目类型</th>
+//                                        <th>平均数</th>
+//                                        <th>标准差</th>
+//                                    </tr>play run
+//                                </thead>
+//                                <tbody id="tbody">
+//                                @normVos.map {item=>
+//                                    <tr class='remove'>
+//                                        <td>@item.getQtypeName</td>
+//                                        <td><input type='text' minlength='1' placeholder='输入平均数'value="@item.getAverage" data-validation-message='输入平均数' required/></td>
+//                                        <td><input type='text' minlength='1' placeholder='输入标准差'value="@item.getStandard" data-validation-message='输入标准差' required/></td>
+//                                    </tr>
+//                                }
+//                                </tbody>
+//                            </table>
+//                        </div>*@
+                        <button class="am-btn am-btn-secondary" type="button" onclick="addSubmit()">修改</button>
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+        <div class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+            <div class="am-modal-dialog">
+                <div class="am-modal-bd">
+                    修改成功！
+                </div>
+                <div class="am-modal-footer">
+                    <span class="am-modal-btn" data-am-modal-confirm>确定</span>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- content end -->
+    <script type="text/javascript">
+        $(function() {
+            formValidator();
+            datatimepickerZn()
+            //日期插件初始化
+            $('#datetimepicker').datetimepicker({
+                format:"yyyy-mm-dd hh:ii",
+                autoclose:true,
+                todayBtn:true,
+                todayHighlight:true,
+                language:"zh-CN"
+            })
+        });
+        //提交数据
+        function addSubmit(){
+            if ($('.am-form').validator().data('amui.validator').isFormValid()) {
+                //获取常模数据
+                var testNorm = [];
+                var testNormJson = {};
+                 $("#testNorm").find("tbody").find("tr").each(function(index){
+                    testNormJson[index] = {
+                        "qType":$(this).find("td").html(),
+                        "average":$(this).find("td").eq(1).find("input:first").val(),
+                        "standard":$(this).find("td").eq(2).find("input:first").val()
+                    }
+                    testNorm.push(testNormJson[index]);
+                 })
+                //获取选中的报告内容
+                var reportStr = "";
+                $("#testReport").find(":checkbox").each(function(){
+                    if($(this).prop("checked")==true)
+                        reportStr += $(this).val() + ",";
+                })
+                //提交的数据
+                var json ={};
+                json[0] = {
+                    "tid":$("#tid").val(),
+//                   "testName":$("#testName").val(),
+//                   "tpid":$("#testPaper").find("option:selected").val(),
+                    "testTime":$("#testTime").val()
+//                    "testReport":reportStr.substring(0,reportStr.length-1),
+//                    "testNormJsonStr":JSON.stringify(testNorm)
+                }
+                addOrUpdataAjaxSubmit("post",JSON.stringify(json),"/test/editOrgTest","/admin/test/listView")
+            }
+        }
+         @*//根据下拉框选取的试卷id显示对应试卷的题型*@
+        @*function addNorm(){*@
+            @*var tpid = $("#testPaper").find("option:selected").val();*@
+            @*$(".remove").remove();*@
+            @*//如果选取的修改时的试卷，显示原值*@
+            @*if(tpid == @test.getPid){*@
+//@*//                @normVos.map {item=>*@
+                    @*$("#testNorm").find("tbody").append("<tr class='remove'><td>@item.getQtypeName</td>" +*@
+                             @*"<td><input type='text'  minlength='1' placeholder='输入平均数' value='@item.getAverage' data-validation-message='输入平均数' required/></td>" +*@
+                              @*"<td><input type='text'  minlength='1' placeholder='输入标准差' value='@item.getStandard' data-validation-message='输入标准差' required/></td>" +*@
+                               @*"</tr>");*@
+                @*}*@
+            @*}else{*@
+                @*//获取对应考试的题型*@
+                @*$.ajax({*@
+                    @*type:"get",*@
+                    @*url:"/test/questionType/"+ tpid,*@
+                    @*success:function(data) {*@
+                        @*for(var i =0;i<data.length;i++){*@
+                            @*var questionType = data[i];*@
+                            @*$("#testNorm").find("tbody").append("<tr class='remove'><td data='"+questionType.id+"'>"+questionType.name +"</td>" +*@
+                             @*"<td><input type='text'  minlength='1' placeholder='输入平均数' data-validation-message='输入平均数' required/></td>" +*@
+                              @*"<td><input type='text'  minlength='1' placeholder='输入标准差' data-validation-message='输入标准差' required/></td>" +*@
+                               @*"</tr>");*@
+                        @*}*@
+                    @*}*@
+                @*})*@
+            @*}*@
+        @*}*@
+    </script>
+</body>
+</html>

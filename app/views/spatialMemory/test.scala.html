@@ -1,0 +1,105 @@
+@(questionsString:String,qidsString:String,questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])
+@import utils.enums.QuestionTypeEnum
+<html lang="en" manifest="/spatialMemory/testManifest">
+    <head>
+        @views.html.common.test.head()
+        <script>
+            var qtype = @QuestionTypeEnum.SPATIAL_MEMORY.getId();
+		    var qtypeName = "@QuestionTypeEnum.SPATIAL_MEMORY.getName()";
+
+		    var questionsStr = "@questionsString";
+            var qidsStr = "@qidsString";
+            var isTest = true;
+            var millisecond = 4800;// 4800毫秒后开始
+        </script>
+        <script src="@routes.Assets.versioned("javascripts/question/test.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/question/spatialMemory.js")"></script>
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            #stable{
+                border:solid #92572C 5px;
+                font-size:34px;
+                color:white;
+                text-align:center;
+                font-family:Arial;
+                margin-top:80px;
+            }
+            .square{
+                width:55px;
+                height:55px;
+                border:solid #92572C 5px;
+                background:#A6A6A6;
+                cursor: pointer;
+            }
+        </style>
+        <script>
+            function initPage(){
+	  			if(maxtime && maxtime>0){
+                    countBackwards();// 倒数321
+                }
+                saveAnswerDetailByLocalStorage("", "1");// 记录呈现题目的时间
+	  		}
+            /**
+             * 3，2，1倒数结束
+             */
+			function finish321(){
+                $("#countBackwards").remove();// 删除321组件
+                $("#content-index > div:first").css("display", "block");// 显示第一道题
+			}
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px;">
+                <!-- 问号提示 start -->
+                <div class=" col-sm-offset-1 col-sm-1">
+                    <div class="bg" style="background-color:#7d7d7d;" ></div>
+                    <div class="wenhao" onclick="showReminder()">?</div>
+                    <div id="wenhao"  class="wenhao_reminder" style="padding-top:13px">
+                        <span >
+                            请记住方块点亮的位置和顺序，在方块熄灭之后，按照同样的顺序将这些方块重新点亮。
+                        </span>
+                    </div>
+                </div>
+                <!-- 问号提示 end -->
+            </div>
+            <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;"></div>
+
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div id = "countBackwards" class="panel-body">
+                        <div style="width:200px;height:200px;border-radius:200px;position:absolute;left:337.5px;top:122.5px;background-color:#d2ede3;"> </div>
+                        <div class="num_cart"></div>
+                    </div>
+                    <div style="display: none">
+                        <img id="error" src="@routes.Assets.versioned("images/common/wrong.png")" width="46px" height="44px" style="display: none"/>
+                        <img id="right" src="@routes.Assets.versioned("images/common/right.png")" width="46px" height="44px" style="display: none"/>
+                        <table id="stable" align="center">
+                        @for(i <- 1 to 5){
+                            <tr>
+                            @for(j <- 1 to 5){
+                                <td class="square"></td>
+                            }
+                            </tr>
+                        }
+                        </table>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+
+                </p>
+                @*<p class="text-center" style="margin-top:10px;font-size:16px;display: block;" >
+                    <input type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;" value="跳过" onclick="submitAnswer();"/>
+                </p>*@
+            </div>
+        </div>
+    </body>
+</html>
+

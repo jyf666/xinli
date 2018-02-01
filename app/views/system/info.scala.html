@@ -1,0 +1,250 @@
+@(boneCPConfig:com.jolbox.bonecp.BoneCPConfig)(dbActive: Int)(dbIdle:Int)(dbUnuse:Int)(mInuse: Long)(mFree:Long)(mUnuse:Long)(dsMap:java.util.Map[String, String])
+@import org.apache.commons.lang3.time.DateFormatUtils
+@import java.util.Calendar
+@import utils.FileUtils
+@import utils.SystemConstant
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>system info</title>
+    <style type="text/css">
+    .box { border: 1px solid black; float: left; margin-right: 4px; position: relative; width: 10px; height: 10px;}
+    .logo { display: block; margin: 2px 0 0 2px; width: 400px; height: 40px; }
+    .info { float: left; margin: 2px; padding: 0px; white-space: nowrap; position: relative; width: 25%; height: 12px; color: black; font-size: 11px; font-family: tahoma,arial,helvetica,sans-serif;}
+    table.data {font-size: 90%; border-collapse: collapse; border: 1px solid black;}
+    table.data th {background: #bddeff; width: 10em; text-align: left; padding-right: 8px; font-weight: normal; border: 1px solid black;}
+    table.data td {background: #ffffff; vertical-align: top; padding: 0px 2px 0px 2px; border: 1px solid black;}
+    </style>
+    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/gauge.js")"></script>
+    <script type="text/javascript">
+		Date.prototype.format = function (fmt) {
+			var o = {
+				"M+": this.getMonth() + 1, //月份
+				"d+": this.getDate(), //日
+				"H+": this.getHours(), //小时
+				"m+": this.getMinutes(), //分
+				"s+": this.getSeconds(), //秒
+				"q+": Math.floor((this.getMonth() + 3) / 3), //季度
+				"S": this.getMilliseconds() //毫秒
+			};
+			if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+			for (var k in o)
+				if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+			return fmt;
+		}
+		if(typeof $=='undefined') {function $(v) {return(document.getElementById(v));}}
+		window.onload = function () {
+			gauge.add($("dbStat"),{width:400, height:50, radius:0.5, values:[@dbActive, @dbIdle, @dbUnuse], colors:['#FF0000','#00FF00','#64A8E5']});
+			gauge.add($("mStat"),{width:400, height:50, radius:0.5, values:[@mInuse, @mFree, @mUnuse], colors:['#FF0000','#00FF00','#64A8E5']});
+
+			var sd = new Date(@SystemConstant.startup_date).format("yyyy-MM-dd HH:mm:ss.S");
+			$('startupDate').innerHTML = sd;
+		}
+		if(!Array.indexOf){Array.prototype.indexOf=function(obj){for(var i=0;i<this.length;i++){if(this[i]==obj){return i;}}return -1;}}
+		function showInfo(infoId){
+			var infoIds = ['dbInfo', 'systemProperties', 'systemEnv'];
+			var infoIndex = infoIds.indexOf(infoId);
+			if (infoIndex > -1) {
+				infoIds.splice(infoIndex, 1);
+			}
+			for(var i = 0; i < infoIds.length; i ++){
+				if($(infoIds[i]).style.display != 'none'){
+					$(infoIds[i]).style.display = "none";
+				}
+			}
+			if($(infoId).style.display == 'none'){
+				$(infoId).style.display = "table";
+			}
+		}
+	</script>
+  </head>
+  <body>
+    <div>
+      <table class="data" id="dbInfo">
+        <tr>
+          <th>数据库连接池当前状态</th>
+          <td>
+            <div class="logo">
+              <div id="dbStat"></div>
+              <div class="info" style="width:27%;">
+                <div class="box" style="background: #FF0000"></div>
+                <span>active&nbsp;<strong>@dbActive</strong></span>
+              </div>
+              <div class="info" style="width:25%;">
+                <div class="box" style="background: #00FF00"></div>
+                <span>idle&nbsp;<strong>@dbIdle</strong></span>
+              </div>
+              <div class="info" style="width:25%;">
+                <div class="box" style="background: #64A8E5"></div>
+                <span>unuse&nbsp;<strong>@dbUnuse</strong></span>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>系统内存当前状态</th>
+          <td>
+            <div class="logo">
+              <div id="mStat"></div>
+              <div class="info" style="width:27%;">
+                <div class="box" style="background: #FF0000"></div>
+                <span>used&nbsp;<strong>@FileUtils.byteCountToDisplaySize(mInuse)</strong></span>
+              </div>
+              <div class="info" style="width:25%;">
+                <div class="box" style="background: #00FF00"></div>
+                <span>free&nbsp;<strong>@FileUtils.byteCountToDisplaySize(mFree)</strong></span>
+              </div>
+              <div class="info" style="width:25%;">
+                <div class="box" style="background: #64A8E5"></div>
+                <span>unuse&nbsp;<strong>@FileUtils.byteCountToDisplaySize(mUnuse)</strong></span>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>系统启动时间：</th>
+          <td id="startupDate"></td>
+        </tr>
+        <tr>
+          <th>当前系统时间：</th>
+          <td>@DateFormatUtils.format(Calendar.getInstance(), "yyyy-MM-dd HH:mm:ss.SSS")</td>
+        </tr>
+        <tr>
+          <th>jdbcUrl:</th>
+          <td>@boneCPConfig.getJdbcUrl();</td>
+        </tr>
+        <tr>
+          <th>username:</th>
+          <td>@boneCPConfig.getUsername()</td>
+        </tr>
+        <tr>
+          <th>password:</th>
+          <td>******</td>
+        </tr>
+        <tr>
+          <th>poolName:</th>
+          <td>@boneCPConfig.getPoolName();</td>
+        </tr>
+        <tr>
+          <th>initSQL:</th>
+          <td>@dsMap.get("initSQL");</td>
+        </tr>
+        <tr>
+          <th>totalLeased:</th>
+          <td>@dsMap.get("totalLeased");</td>
+        </tr>
+
+        <tr>
+          <th>acquireIncrement:</th>
+          <td>@dsMap.get("acquireIncrement");</td>
+        </tr>
+        <tr>
+          <th>acquireRetryAttempts:</th>
+          <td>@dsMap.get("acquireRetryAttempts");</td>
+        </tr>
+        <tr>
+          <th>acquireRetryDelay:</th>
+          <td>@dsMap.get("acquireRetryDelay");</td>
+        </tr>
+        <tr>
+          <th>acquireRetryDelayInMs:</th>
+          <td>@dsMap.get("acquireRetryDelayInMs");</td>
+        </tr>
+        <tr>
+          <th>closeConnectionWatchTimeoutInMs:</th>
+          <td>@dsMap.get("closeConnectionWatchTimeoutInMs");</td>
+        </tr>
+        <tr>
+          <th>closeConnectionWatchTimeout:</th>
+          <td>@dsMap.get("closeConnectionWatchTimeout");</td>
+        </tr>
+        <tr>
+          <th>connectionTimeoutInMs:</th>
+          <td>@dsMap.get("connectionTimeoutInMs");</td>
+        </tr>
+        <tr>
+          <th>connectionTimeout:</th>
+          <td>@dsMap.get("connectionTimeout");</td>
+        </tr>
+        <tr>
+          <th>idleConnectionTestPeriod:</th>
+          <td>@dsMap.get("idleConnectionTestPeriod");</td>
+        </tr>
+        <tr>
+          <th>idleConnectionTestPeriodInMinutes:</th>
+          <td>@dsMap.get("idleConnectionTestPeriodInMinutes");</td>
+        </tr>
+        <tr>
+          <th>idleMaxAgeInMinutes:</th>
+          <td>@dsMap.get("idleMaxAgeInMinutes");</td>
+        </tr>
+        <tr>
+          <th>idleMaxAge:</th>
+          <td>@dsMap.get("idleMaxAge");</td>
+        </tr>
+        <tr>
+          <th>maxConnectionAgeInSeconds:</th>
+          <td>@dsMap.get("maxConnectionAgeInSeconds");</td>
+        </tr>
+        <tr>
+          <th>maxConnectionAge:</th>
+          <td>@dsMap.get("maxConnectionAge");</td>
+        </tr>
+        <tr>
+          <th>maxConnectionsPerPartition:</th>
+          <td>@dsMap.get("maxConnectionsPerPartition");</td>
+        </tr>
+        <tr>
+          <th>minConnectionsPerPartition:</th>
+          <td>@dsMap.get("minConnectionsPerPartition");</td>
+        </tr>
+
+        <tr>
+          <th>partitionCount:</th>
+          <td>@dsMap.get("partitionCount");</td>
+        </tr>
+        <tr>
+          <th>poolAvailabilityThreshold:</th>
+          <td>@dsMap.get("poolAvailabilityThreshold");</td>
+        </tr>
+        <tr>
+          <th>queryExecuteTimeLimit:</th>
+          <td>@dsMap.get("queryExecuteTimeLimit");</td>
+        </tr>
+        <tr>
+          <th>queryExecuteTimeLimitInMs:</th>
+          <td>@dsMap.get("queryExecuteTimeLimitInMs");</td>
+        </tr>
+        <tr>
+          <th>statementsCacheSize:</th>
+          <td>@dsMap.get("statementsCacheSize");</td>
+        </tr>
+        <tr>
+          <th>preparedStatementCacheSize:</th>
+          <td>@dsMap.get("preparedStatementCacheSize");</td>
+        </tr>
+        <tr>
+          <th>preparedStatementsCacheSize:</th>
+          <td>@dsMap.get("preparedStatementsCacheSize");</td>
+        </tr>
+        <tr>
+          <th>releaseHelperThreads:</th>
+          <td>@dsMap.get("releaseHelperThreads");</td>
+        </tr>
+        <tr>
+          <th>statementCacheSize:</th>
+          <td>@dsMap.get("statementCacheSize");</td>
+        </tr>
+        <tr>
+          <th>statementReleaseHelperThreads:</th>
+          <td>@dsMap.get("statementReleaseHelperThreads");</td>
+        </tr>
+        <tr>
+          <th>statementsCachedPerConnection:</th>
+          <td>@dsMap.get("statementsCachedPerConnection");</td>
+        </tr>
+      </table>
+
+    </div>
+  </body>
+</html>

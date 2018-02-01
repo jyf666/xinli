@@ -1,0 +1,35 @@
+CACHE MANIFEST
+# 2015-07-29 10:27
+
+/assets/javascripts/jquery-1.9.0.min.js
+/assets/javascripts/layer.min.js
+/assets/javascripts/question/question.js
+https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js
+https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js
+
+/assets/stylesheets/bootstrap.min.css
+
+# 图片
+/assets/images/common/logo_xinli.png
+/assets/images/common/questiontype/b_1.png
+/assets/images/common/questiontype/dati.png
+/assets/images/common/questiontype/a_3.png
+/assets/images/common/questiontype/a_4.png
+/assets/images/common/questiontype/a_5.png
+/assets/images/common/questiontype/a_6.png
+/assets/images/common/questiontype/a_7.png
+
+/assets/images/symbolicOperation/answer/answer0.png
+/assets/images/symbolicOperation/answer/answer1.png
+/assets/images/symbolicOperation/answer/answer2.png
+/assets/images/symbolicOperation/answer/answer3.png
+/assets/images/symbolicOperation/answer/answer4.png
+/assets/images/symbolicOperation/answer/answer5.png
+/assets/images/symbolicOperation/answer/answer6.png
+/assets/images/symbolicOperation/answer/answer7.png
+/assets/images/symbolicOperation/answer/answer8.png
+/assets/images/symbolicOperation/answer/answer9.png
+/assets/images/common/rightbutton.png
+/assets/images/symbolicOperation/reminder.png
+/assets/images/common/right.png
+/assets/images/common/wrong.png

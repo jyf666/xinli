@@ -1,0 +1,37 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/criticalThinking/tendency/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4><p class="text-center"><b>批判性思维倾向</b></p></h4>
+                        </div>
+                        <div class="row" style="font-size: 16px;padding: 30px 50px 10px 50px">
+                            <div class="col-md-12">
+                                <p style="text-indent:2em;">本问卷主要描述你的个人思维倾向，每个题目都由六个选项构成，描述你对该倾向特征的赞同程度。请你判断其中哪一个程度更符合你。务必依据你的真实情形从中选择最符合你的选项。</p>
+                                <p style="text-indent:2em;">任何答案都无所谓对错。你所作的选择如果能最真实地反映你自己，那就是最佳选择。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-test btn-default"
+                    onclick="location.replace('/criticalThinking/tendency/practiceEnd?tid=' + tid);" value="测试须知"/>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

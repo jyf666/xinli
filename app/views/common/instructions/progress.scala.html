@@ -1,0 +1,61 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<div class="row" style="height: 100px; padding-top: 10px; padding-left: 50px; padding-right: 50px;">
+    <div class="col-sm-1">
+        <div style="float : right">
+            <img src="@routes.Assets.versioned("images/common/logo_xinli.png")" alt="..." class="img-circle" style="width: 80px; height: 80px;">
+        </div>
+
+    </div>
+    <div class="col-sm-11">
+        <ul class=" list-inline" id="">
+        @defining(questionTypeMap.get("questiontypes")) { questiontypes =>
+            @defining(questiontypes.size()) { questiontypesSize =>
+                @if(questiontypesSize > 7) {
+                    @defining(questionTypeMap.get("index").asInstanceOf[Int]) { current =>
+                        @if(current > 3 && (questiontypesSize - 1 - current) > 3) {
+                            @for(index <- current - 3 to current + 3) {
+                                @views.html.common.instructions.number(questiontypes, index, current, current + 3)
+                            }
+                        }
+                        @if(current > 3 && (questiontypesSize - 1 - current) <= 3) {
+                            @for(index <- questiontypesSize - 7 to questiontypesSize - 1) {
+                                @views.html.common.instructions.number(questiontypes, index, current, questiontypesSize - 1)
+                            }
+                        }
+                        @if(current <= 3) {
+                            @for(index <- 0 to 6) {
+                                @views.html.common.instructions.number(questiontypes, index, current, 6)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    @if(questionTypeMap.get("questiontypes").size()<=7){
+        @for((questiontype, index) <- questionTypeMap.get("questiontypes") zipWithIndex) {
+            <li>
+                <label style="font-size:12px;color:#4f68c7; ">@questiontype.getName</label>
+                <br />
+                @defining(questionTypeMap.get("index").asInstanceOf[Int]){current =>
+                    @if(index < current) {
+                        <div name="circle" class="progress-num progress-num-finished">@(index + 1)</div>
+                    }
+                    @if(index == current) {
+                        <div name="circle" class="progress-arrow-right-testing">&nbsp;
+                            <div class="progress-arrow-right"></div>
+                        </div>
+                    }
+                    @if(index > current) {
+                        <div name="circle" class="progress-num progress-num-waiting">@(index + 1)</div>
+                    }
+                }
+            </li>
+            @if((index + 1)!=questionTypeMap.get("questiontypes").size){
+                <li style="width:60px;height:5px;background:#4f68c7;"></li>
+            }
+        }
+    }
+        </ul>
+    </div>
+</div>

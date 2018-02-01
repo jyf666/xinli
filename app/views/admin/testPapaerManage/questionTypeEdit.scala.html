@@ -1,0 +1,74 @@
+@(questiontype:Questiontype)
+<!doctype html>
+<html>
+<head>
+    @views.html.common.admin.head()
+    <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+</head>
+<body>
+    @views.html.common.admin.upgradeBrowserInfo()
+    <!-- content start -->
+    <div class="admin-content">
+        <div class="am-cf am-padding">
+            <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">修改题型</strong></div>
+        </div>
+        <div class="am-panel-bd" id="container">
+            <form class="am-form" id="doc-vld-msg">
+                <fieldset>
+                    <legend>修改题型</legend>
+                    <div class="am-form-group">
+                        <input type="hidden" id="qtId" value="@questiontype.getId"/>
+                    </div>
+                    <div class="am-form-group">
+                        <label for="qTypeName">题型名称：</label>
+                        <input type="text" id="qTypeName" minlength="1" value="@questiontype.getName" data-validation-message="请输入题型名称" placeholder="输入题型名称（至少 1 个字符）" required/>
+                    </div>
+                    <div class="am-form-group">
+                        <label for="introduce">题型介绍：</label>
+                        <input type="text" id="introduce" minlength="1" value="@questiontype.getIntroduce" data-validation-message="请输入题型介绍" placeholder="输入题型介绍（至少 1 个字符）" required/>
+                    </div>
+                    <div class="am-form-group">
+                        <label for="answerTime">答题时间：</label>
+                        <input type="text" id="answerTime" minlength="1"  value="@questiontype.getLimitTime" data-validation-message="请输入答题时间" placeholder="输入答题时间（单位/S 如无限制请输入0）" required/>
+                    </div>
+                    <div class="am-form-group">
+                        <label for="scoring">计分方式：</label>
+                        <input type="text" id="scoring" minlength="1"  value="@questiontype.getScoringFormula" data-validation-message="请输入计分方式" placeholder="输入计分方式" required/>
+                    </div>
+                    <button class="am-btn am-btn-secondary" type="button" onclick="editSubmit()">提交</button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+            <div class="am-modal-dialog">
+                <div class="am-modal-bd">
+                    修改成功！
+                </div>
+                <div class="am-modal-footer">
+                    <span class="am-modal-btn" data-am-modal-confirm>确定</span>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- content end -->
+    <script type="text/javascript">
+        $(function() {
+            formValidator();
+        });
+        //提交数据
+        function editSubmit(){
+            if ($('.am-form').validator().data('amui.validator').isFormValid()) {
+                var json ={};
+                json[0] = {
+                    "qtId":$("#qtId").val(),
+                    "qTypeName":$("#qTypeName").val(),
+                    "introduce":$("#introduce").val(),
+                    "answerTime":$("#answerTime").val(),
+                    "scoring":$("#scoring").val()
+                }
+                addOrUpdataAjaxSubmit("post",JSON.stringify(json),"/questiontype/edit","/admin/questiontype/listView")
+            }
+        }
+    </script>
+</body>
+</html>

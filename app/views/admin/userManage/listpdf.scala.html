@@ -1,0 +1,1538 @@
+@(orgCode:Integer,userVo:models.vo.UserVo,pdfData:Map[String,Object])
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Document</title>
+		<script src="@routes.Assets.versioned("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+		<script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.min.js")" type="text/javascript"></script>
+		<script type="text/javascript" src="@routes.Assets.versioned("javascripts/jspdf.min.js")"></script>
+		<script type="text/javascript" src="@routes.Assets.versioned("javascripts/fsapi.js")" onerror="alert('Error: failed to load ' + this.src)">
+		<script src="http://html2canvas.hertzen.com/build/html2canvas.js"></script>
+		<script type="text/javascript" src="@routes.Assets.versioned("javascripts/echarts-all.js")"></script>
+		<style type="text/css">
+		.container{
+		width: 1024px;
+		margin: 0 auto;
+		}
+		.page{
+		width : 900px;
+		height: 1400px;
+		margin: 0 auto;
+		display: none;
+		}
+		.context_container{
+		width:900px;
+		height: 1240px;;
+		margin:0 auto;
+		}
+		.block {
+		display: block;
+		}
+		.first_level{
+		color:#203B70;
+		margin-left: 90px;
+		}
+		.first_level_style{
+		font-size:45px;
+		font-family: "黑体";
+		color:#203B70;
+		text-align:center;
+		margin-bottom: 30px;
+		}
+		.second_level_style{
+		font-size:30px;
+		font-family: "黑体";
+		color:#203B70;
+		display: block;
+		}
+		.second_level{
+		color:#203B70;
+		margin-left: 130px;
+		}
+		.third_level{
+		color:#203B70;
+		margin-left: 160px;
+		}
+		.context{
+		font-size:22px;
+		font-family:'微软雅黑';
+		color: #1A3B6E;
+		text-indent: 2em;
+		}
+		.category {
+		font-size:20px;
+		font-family:'黑体';
+		}
+		#ruler {
+		visibility: hidden;
+		white-space: nowrap;
+		}
+		.header{
+		border-bottom: 10px solid #203B70;
+		width:900px;
+		height: 40px;
+		margin-bottom : 20px ;
+		}
+		.header .header_context {
+		font-size:28px;
+		color:#203B70;
+		font-family: '微软雅黑';
+		font-weight: bold;
+		}
+		.header .header_page {
+		font-size:28px;
+		color:white;
+		font-family: '微软雅黑';
+		font-weight: bold;
+		text-align: center;
+		}
+		.footer{
+		border-top: 4px solid #203B70;
+		width:900px;
+		height: 40px;
+		margin-top : 20px ;
+		}
+		.footer .company{
+		font-size:22px;
+		color:#203B70;
+		font-family: '微软雅黑';
+		font-weight:600;
+		}
+
+		</style>
+	</head>
+	<script type="text/javascript">
+		$(function(){
+			setTimeout("start()",10*1000)
+		})
+		function start(){
+			pageGunDong = setInterval("openScreenshot(true)",1 * 1000);//1000为1秒钟
+		}
+
+		function openScreenshot(mode){
+			var pageSize = $(".page").size();
+			var currentPage = null;
+			$(".page").each(function(index){
+				if($(this).css("display") == "block")
+					currentPage = index;
+			})
+			$(".pdf_image").append("<input type='text' data='"+ parseInt(currentPage)+1 +"' value='"+ FireShotAPI.base64EncodePage(mode) +"' />")
+			if(currentPage+1 !=pageSize){
+				$(".page").eq(currentPage).css("display","none");
+				$(".page").eq(currentPage+1).css("display","block");
+			}else{
+				clearInterval(pageGunDong);
+				getRun();
+			}
+		}
+		function getRun(){
+			var json={};
+			$(".pdf_image").find("input").each(function(index){
+				json[index] = {
+					"tupian":$(this).val(),
+					"index":$(this).attr("data")
+				}
+			})
+			$.ajax({
+				type:'post',
+				url:'/user/PDF/@orgCode',
+				data:JSON.stringify(json),
+				contentType:"application/json",
+				success:function(data) {
+					if(data == "success"){
+						location.href="/org/outputPDF/@orgCode"
+					}else{
+						var tid = data.split(",")[0]
+						var nextUser = data.split(",")[1]
+						location.href="/user/listPDF/@orgCode/"+ tid +"/" + nextUser
+					}
+				}
+			})
+
+		}
+	</script>
+	<body>
+		<span id="ruler"></span>
+		<div class="container">
+			<div class="page" id="page" style="background-image: url('@routes.Assets.versioned("images/admin/covers .png")');background-size: 100% 100%;display:block">
+				<div style="text-align: center;padding-top:250px;">
+					<span  style="font-size:60px;font-family:'隶书';margin-top:400px;text-align:center;color: #1A3B6E">综合素质测评报告</span><br/>
+					<span  style="font-family:'微软雅黑';font-size:30px;font-weight:bold;text-align:center;color: #1A3B6E">(个人版)</span><br/>
+				</div>
+				<table style="margin-top:400px;font-family:'微软雅黑';margin-left:330px;line-height:50px;color: white;font-size:22px;">
+					<tr>
+						<td>姓名:</td>
+						<td>&nbsp;@userVo.getName</td>
+					</tr>
+					<tr>
+						<td>性别:</td>
+						<td>&nbsp;@userVo.getSex</td>
+					</tr>
+					<tr>
+						<td>年龄:</td>
+						<td>&nbsp;@userVo.getAge</td>
+					</tr>
+					<tr>
+						<td>学校:</td>
+						<td>&nbsp;@userVo.getSchoolName</td>
+					</tr>
+					<tr>
+						<td>班级:</td>
+						<td>&nbsp;@{userVo.getGrade + userVo.getClass_}</td>
+					</tr>
+				</table>
+				<span class='block' style="margin-top:150px;font-family:'微软雅黑';text-align:center;color: white">北京欣润科技有限公司 出品</span>
+			</div>
+			<div class="page category_page" id="category">
+				<div class="header">
+					<div style="float:left">
+						<span class="header_context">目录</span>
+					</div>
+				</div>
+				<span class='block' style="font-size:50px;font-family:'黑体';text-align:center;margin-bottom:50px;color:#203B70;">目录</span><br />
+				<div class="context_container" style="height:1110px;"></div>
+				<div class="footer">
+					<center><span  class="company">北京欣润科技有限公司出品</span></center>
+				</div>
+			</div>
+			<div class="page">
+				<div class="header">
+					<div style="float:left">
+						<span class="header_context">测试简介</span>
+					</div>
+					<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">
+						<center><span class="header_page">1</span></center>
+					</div>
+				</div>
+				<div class="context_container" style="clear:both">
+					<span class="block first_level_style chapter">第一章  测试简介</span><br />
+					<p class='context'>
+						欢迎使用中国心理与认知测评系统，本系统是由国内著名学府北京师范大学心理学院的数名教授领衔，结合心理学、教育学、社会学、统计学等专业精英共同研发而成。本测验系统的诊断结果可用于教育质量评测、认知能力普查、自主招生选拔、超常儿童鉴定、自我鉴定与提升、专业匹配等诸多领域。<br />
+					</p>
+					<p class='context'>
+						目前中国心理与认知测评系统已有十余家全国知名重点中学和高校使用，使用人数逾万人。
+					</p>
+					<p class='context'>
+						开发团队参考国内外现有的关于认知测评的各种文献以及实证研究，将测评内容分为5个方面：基础认知能力、高等认知能力、情绪智力、人格特征、成长环境。
+					</p>
+					<center><img   src="@routes.Assets.versioned("images/admin/test_info.png")" width="800px" /></center>
+				</div>
+				<div class="footer">
+					<center><span  class="company">北京欣润科技有限公司出品</span></center>
+				</div>
+			</div>
+			@defining(pdfData.get("sectionsTwo").asInstanceOf[Map[String,Object]]){sectionsTwo=>
+				@defining(sectionsTwo.get("ability").asInstanceOf[Map[String,Object]]) { ability=>
+					<div class="page">
+						<div class="header">
+							<div style="float:left">
+								<span class="header_context">总体表现</span>
+							</div>
+							<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">
+								<center><span class="header_page">2</span></center>
+							</div>
+						</div>
+						<div class="context_container">
+							<span class="block first_level_style chapter">第二章 总体表现</span><br />
+							<span class="second_level_style section chapter_2">1.	认知能力描述</span><br />
+							<p class='context'>
+								下图为你的整体能力描述，包括个体认知总能力和单项能力的得分。
+							</p>
+							<p class='context'>
+								各项能力按照得分共分为偏低、合格、中等、优秀和超常，5个等级。在图形中离圆心越远得分越高，不同的等级显示不同的颜色。下表为具体的等级分类表。
+							</p>
+							<div style="text-align: center">
+								<canvas class="can"></canvas>
+							</div>
+							<center><span style="line-height: 40px;">表1 等级分类表</span></center>
+							<table style="border: 1px solid #FDFDFD;width:600px;margin: 0 auto;border-collapse:collapse;text-align: center;color:#203B70;background-color:#F3F3F3;line-height:28px">
+								<tr style="background-color:#E7E7E7 ">
+									<th>等级</th>
+									<th width="15%">偏低</th>
+									<th width="15%">合格</th>
+									<th width="15%">中等</th>
+									<th width="15%">优秀</th>
+									<th width="15%">超常</th>
+								</tr>
+								<tr style="border: 1px solid #FDFDFD;">
+									<td>范围</td>
+									<td>≤69</td>
+									<td>70~89</td>
+									<td>90-109</td>
+									<td>110-129</td>
+									<td>≥130</td>
+								</tr>
+								<tr style="border: 1px solid #FDFDFD;">
+									<td>人群比例（%）</td>
+									<td>2.2</td>
+									<td>22.8</td>
+									<td>50</td>
+									<td>22.8</td>
+									<td>2.2</td>
+								</tr>
+								<tr style="border: 1px solid #FDFDFD;">
+									<td>代表颜色</td>
+									<td><div style="width:20px;height:20px;background-color: #C5C5C5;margin:0 auto"></div></td>
+									<td><div style="width:20px;height:20px;background-color: #FEEF70;margin:0 auto"></div></td>
+									<td><div style="width:20px;height:20px;background-color: #FCBA6C;margin:0 auto"></div></td>
+									<td><div style="width:20px;height:20px;background-color: #FC9757;margin:0 auto"></div></td>
+									<td><div style="width:20px;height:20px;background-color: #FC5E45;margin:0 auto"></div></td>
+								</tr>
+							</table>
+							<p class="context">
+								@ability.get("explain")
+							</p>
+						</div>
+						<div class="footer">
+							<center><span  class="company">北京欣润科技有限公司出品</span></center>
+						</div>
+					</div>
+				}
+			}
+			<script type="text/javascript">
+
+
+			</script>
+			@defining(pdfData.get("sectionsThree").asInstanceOf[Map[String,Object]]){sectionThree=>
+				@defining(sectionThree.get("nonIntelligence").asInstanceOf[Map[String,Map[String,String]]]) { personailtyData=>
+					@defining(personailtyData.get("personailty").asInstanceOf[Map[String,String]]) { personailty=>
+						<div class="page">
+							<div class="header">
+								<div style="float:left">
+									<span class="header_context">总体表现</span>
+								</div>
+								<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">
+									<center><span class="header_page">2</span></center>
+								</div>
+							</div>
+							<div class="context_container">
+								<span class="second_level_style section chapter_2">2.    @personailty.get("name")</span><br />
+								<div id="main" style="width: 900px;height: 750px;">
+								</div>
+								<div>
+									<p class="context">@personailty.get("explainLowDimension")</p>
+									<p class="context">@personailty.get("explainHighDimension")</p>
+									<p class="context">本问卷结果只说明个人行为倾向，而非诊断性结果，得分偏低并不代表存在人格或情绪方面的障碍。如要获得诊断性结果，请接受医师的专业测评。</p>
+								</div>
+							</div>
+							<div class="footer">
+								<center><span  class="company">北京欣润科技有限公司出品</span></center>
+							</div>
+						</div>
+						<div class="page">
+							<div class="header">
+								<div style="float:left">
+									<span class="header_context">总体表现</span>
+								</div>
+								<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">
+									<center><span class="header_page">2</span></center>
+								</div>
+							</div>
+							<div class="context_container">
+								<div>
+								@personailty.get("explainSecond").split(";").toList.map { texts=>
+									@defining(texts.split(":")) {text=>
+										<p style="font-size:22px;font-family:'微软雅黑';color: #1A3B6E;">@text(0)</p>
+										<p class="context" style="color:black">@text(1)</p>
+									}
+								}
+								</div>
+							</div>
+							<div class="footer">
+								<center><span  class="company">北京欣润科技有限公司出品</span></center>
+							</div>
+						</div>
+					}
+				}
+			}
+			@defining(pdfData.get("sectionsTwo").asInstanceOf[Map[String,Object]]){sectionsTwo=>
+				@defining(sectionsTwo.get("intelligenceAge").asInstanceOf[Map[String,String]]) { intelligenceAge=>
+					<div class="page">
+						<div class="header">
+							<div style="float:left">
+								<span class="header_context">总体表现</span>
+							</div>
+							<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">
+								<center><span class="header_page">2</span></center>
+							</div>
+						</div>
+						<div class="context_container">
+							<span class="second_level_style section chapter_2">@{intelligenceAge.get("index") + "."} @intelligenceAge.get("name")</span><br />
+							<div id="intelligence" style="width: 900px;height: 500px;">
+							</div>
+							<div>
+								<p class="context">@intelligenceAge.get("introduce")</p>
+							</div>
+
+							<div style="margin-left:50px;">
+									<!--<div style="margin-bottom :-7px;margin-left:@{intelligenceAge.get("userPosition").asInstanceOf[Double]}px;width:200px;">
+								<div style="margin-bottom: 5px;">
+									<span>你在这个位置</span>
+								</div>
+								<div>
+									<div style="border: 11px solid transparent;border-top:20px solid @{intelligenceAge.get("userColor")};width: 0;height: 0;margin-left:30px;"></div>
+								</div>
+							</div>-->
+							<div>
+								@intelligenceAge.get("percentage").asInstanceOf[List[Map[String,String]]].map{ percentage=>
+								<div style="float:left;">
+									<div style="height:@{400 - Double.parseDouble(percentage.get("height"))}px;width:@{intelligenceAge.get("width")}px;background-color:white;text-align: center"></div>
+								<div style="height:@{percentage.get("height")}px;width:@{intelligenceAge.get("width")}px;background-color: @{percentage.get("color")};text-align: center"><span style="font-size:20px;color:white;line-height: @{percentage.get("height")}px;">@{percentage.get("age")},@{percentage.get("percentage")}</span></div>
+						</div>
+						}
+					</div>
+				</div>
+
+		<div style="clear:both; padding-top:10px">
+			<p class="context">@intelligenceAge.get("percentageIntro")</p>
+		</div>
+		</div>
+		<div class="footer">
+			<center><span  class="company">北京欣润科技有限公司出品</span></center>
+		</div>
+		</div>
+		}
+		}
+		@defining(pdfData.get("sectionsTwo").asInstanceOf[Map[String,Object]]){sectionsTwo=>
+			@sectionsTwo.get("sort").asInstanceOf[List[Map[String,Object]]].map{ section =>
+		<div class="page" id="page_2_@section.get("index")">
+			<script type="text/javascript">
+						$(function(){
+							var array=[];//存放第二章的百分比
+							var categoryArray = []; //存放第二章百分比所对应的说明项
+							@section.get("data").asInstanceOf[List[Map[String,String]]].map { item=>
+								array.push("@item.get("percentage")")
+								categoryArray.push("@item.get("name")")
+							}
+							$("#page_2_@section.get("index")").find(".percentage").each(function(index) {
+								var percentageNum = array[index].substring(0,array[index].length-1);
+								var fullImageNum = parseInt(percentageNum/100 * 14);
+								var remianImageNum = 13-fullImageNum;
+								var percentage = percentageNum/100 * 14 - parseInt(percentageNum/100 * 14);
+
+								var fullImageSrc = "";
+								var remianImageSrc = "";
+								var height = "61px";
+								if(categoryArray[index].indexOf("男") > 0){
+									fullImageSrc = "@routes.Assets.versioned("images/admin/male_blue.png")";
+									remianImageSrc = "@routes.Assets.versioned("images/admin/male_gray.png")";
+								}else if(categoryArray[index].indexOf("女") > 0){
+									fullImageSrc = "@routes.Assets.versioned("images/admin/female_blue.png")";
+									remianImageSrc = "@routes.Assets.versioned("images/admin/female_gray.png")";
+									height = "50px";
+								}else{
+									fullImageSrc = "@routes.Assets.versioned("images/admin/neutral_blue.png")";
+									remianImageSrc = "@routes.Assets.versioned("images/admin/neutral_gray.png")";
+								}
+
+								for(var i=0;i<fullImageNum;i++){
+									$(this).find(".full_image").append('<img src="'+ fullImageSrc +'"  width="42">');
+								}
+								for(var i=0;i<remianImageNum;i++){
+									$(this).find(".remian_image").append('<img src="'+ remianImageSrc +'"  width="42">');
+								}
+								$(this).find('.percentage_image').css({
+									"background-image":"url('"+remianImageSrc+"')",
+									"height":height
+								});
+								$(this).find('.percentage_image').find('img').css({
+									position: 'absolute',
+									clip: 'rect(0px '+ percentage*42 +'px 61px 0px)'
+								}).attr('src',fullImageSrc);
+
+								$(this).find('.percentage_image').find('div').css("left",-24 + percentage*42+"px" )
+
+
+								$(this).find('.legend').find('img').eq(1).attr("src",remianImageSrc);
+								$(this).find('.legend').find('img').eq(0).attr("src",fullImageSrc);
+								if(fullImageNum == 14){
+									$(this).find('.percentage_image').css("background-image","");
+									$(this).find("div").css("left","-26px");
+								}else{
+									if(percentage == 0){
+										$(this).find("div").css("left","-26px");
+									}
+								}
+							});
+						})
+					</script>
+			<div class="header">
+				<div style="float:left">
+					<span class="header_context">总体表现</span>
+				</div>
+				<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">
+					<center><span class="header_page">2</span></center>
+				</div>
+			</div>
+			<div class="context_container">
+				<div>
+					<span class="second_level_style section chapter_2">@{section.get("index")+"."}	  @section.get("name")</span><br />
+					@section.get("data").asInstanceOf[List[Map[String,String]]].map { item=>
+					<div style="clear:both;" class="percentage">
+						<div class="student_level" style="margin-top:10px;">
+							<p class="context">@item.get("evaluate")</p><br /><br /><br /><br />
+						</div>
+						<div style="float:left;margin-right:20px" class="left_text">
+							<p  class="context">@item.get("name")</p>
+						</div>
+						<div style="float:left;margin-top:-20px;width: 1px;height: 85px; background: #000;margin-right:20px"></div>
+						<div style="float:left" class="full_image">
+										</div>
+						<div style="width:42px;float:left" class="percentage_image">
+							<img >
+							<div style="position:relative;top:-72px;text-align: center;background-image:url('@routes.Assets.versioned("images/admin/bubble_icon.png")');width: 50px;height: 70px;background-size: 100% 100%">
+								<span style="line-height: 50px;color:white">@item.get("percentage")</span>
+		</div>
+		</div>
+			<div style="float:left" class="remian_image">
+			</div>
+			<div style="clear:both;padding-top:10px;margin-left:200px;" class="legend">
+				<img  height="25">
+				<span style="line-height: 25px;margin-right:200px;">比你低的人</span>
+				<img  height="25">
+				<span style="line-height: 25px;">比你高的人</span>
+			</div>
+		</div>
+			<br />
+			}
+		</div>
+		</div>
+			<div class="footer">
+				<center><span  class="company">北京欣润科技有限公司出品</span></center>
+			</div>
+		</div>
+			}
+		}
+		@defining(pdfData.get("sectionsTwo").asInstanceOf[Map[String,Object]]){sectionsTwo=>
+			@defining(sectionsTwo.get("developmentEquilibrium").asInstanceOf[Map[String,Object]]){ developmentEquilibrium =>
+				<div class="page">
+					<div class="header">
+						<div style="float:left">
+							<span class="header_context">总体表现</span>
+						</div>
+						<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">
+							<center><span class="header_page">2</span></center>
+						</div>
+					</div>
+					<div class="context_container">
+						<span class="second_level_style section chapter_2">@{developmentEquilibrium.get("index")+"."} @developmentEquilibrium.get("name")</span><br />
+						<div>
+							<p class="context">为了科学准确的评估个体的能力发展均衡性，我们使用了基尼系数来衡量能力发展的均衡值。</p>
+						</div>
+						<div>
+							<p class="context">均衡性系数反映了个体各项能力之间的发展是否均衡，其值在0~1之间，越接近0表示发展越不均衡，即各项能力水平之间的差别很大；越接近1表示发展越均衡，即个体各项能力水平之间的差别很小。</p>
+						</div>
+						<div>
+							<p class="context">根据现有的理论研究，均衡性系数低于0.7为发展较不均衡，需要引起注意，重点提对能力弱项进行提升训练；均衡性系数高于0.8为发展较为均衡，大部分个体都属于此部分。</p>
+						</div>
+						<div style="clear:both">
+							<p class="context">@developmentEquilibrium.get("explain")</p>
+						</div>
+						<div style="width:900px;height:200px;text-align: center;margin-top:80px;">
+							<div style="position:absolute;z-index:2;padding-left:5px;">
+								<span style="line-height:180px">均衡性系数</span>
+							</div>
+							<div style="float:left;padding-left:50px;margin-top:-20px">
+								<span style="font-weight:bold">发展均衡</span>
+							</div>
+							<div style="float:right;padding-right:80px;margin-top:-20px">
+								<span style="font-weight:bold">发展不均衡</span>
+							</div>
+							<div style="width:710px;height:150px;margin-top:25px;margin-left:90px;">
+								<div style="position:absolute;z-index:2;width:800px">
+									@developmentEquilibrium.get("percentageDiv").asInstanceOf[List[Map[String,String]]].map {percentage=>
+									<div style="width:@{percentage.get("width")}px;height:100px;margin-top:25px;background-color:@percentage.get("color");float:left"></div>
+								}
+							</div>
+							<div style="position:absolute;z-index:3;">
+								<div style="width:8px;height:130px;margin-top:12px;background-color:#FFC115;border-radius:15px;margin-left:@{developmentEquilibrium.get("gradePosition")}px;"><div style="width:100px;"><span style="position:relative;top:-20px;left:-40px;color:#464646">班级平均分</span></div></div>
+							</div>
+							<div style="position:absolute;z-index:1;width:800px">
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">0.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">10.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">20.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">30.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">40.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">50.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">60.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">70.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">80.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">90.0%</span></div>
+								<div style="width:70px;height:150px;float:left;border-left:1px solid #E5E5E5"><span style="position:relative;left:-32px;top:150px;color:#858585">100.0%</span></div>
+							</div>
+						</div>
+						<div style="clear:both;text-align:center;padding-top:40px">
+							<span><div style="width:13px;height:13px;background-color:#93D9FA;display:inline-block"></div></span>
+							<span>比你低的人&nbsp;&nbsp;</span>
+							<span><div style="width:13px;height:13px;background-color:#5DC8F5;display:inline-block"></div></span>
+							<span>等于你低的人&nbsp;&nbsp;</span>
+							<span><div style="width:13px;height:13px;background-color:#2EBAF7;display:inline-block"></div></span>
+							<span>比你高的人</span>
+						</div>
+					</div>
+					<div>
+						<p class="context">@developmentEquilibrium.get("percentage")</p>
+					</div>
+				</div>
+				<div class="footer">
+					<center><span  class="company">北京欣润科技有限公司出品</span></center>
+				</div>
+			</div>
+			}
+		}
+		<script type="text/javascript">
+				var thirdSectionPercentageArray = [];
+			</script>
+		@defining(pdfData.get("sectionsThree").asInstanceOf[Map[String,Object]]){sectionThree=>
+			@sectionThree.get("intelligence").asInstanceOf[List[Map[String,Object]]].map{ section=>
+			@section.get("data").asInstanceOf[List[Map[String,String]]].map { data=>
+		<script type="text/javascript">
+									thirdSectionPercentageArray.push("@data.get("percentage")")
+							</script>
+		<div class="page page_3">
+			<div class="header">
+				<div style="float:left">
+					<span class="header_context">单项能力结果</span>
+				</div>
+				<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">
+					<center><span class="header_page">2</span></center>
+				</div>
+			</div>
+			<div class="context_container">
+				@if(section.get("index").equals("1") && data.get("index").equals("1") ){<span class="block first_level_style chapter">第三章 单项能力结果</span>}
+				@if(data.get("index").equals("1")){<div><span class="second_level_style section chapter_3">@{section.get("index")+"."}	@section.get("name")</span><br /><br /></div>}
+			<span class="section_@{section.get("index")} chapter_3 second_level_style small_section">（@{data.get("index")}）	@data.get("name")</span><br /><br />
+			<div style="margin-left:100px;">
+				<div style="clear:both;margin-bottom:20px;">
+					<div style="float:left;margin-right:70px" class="left_text">
+						<span style="font-size:20px;">&nbsp;&nbsp;&nbsp@data.get("scoreStr")</span>
+						<span style="font-size:20px;">&nbsp;&nbsp;@data.get("score") </span>
+					</div>
+
+					<div style="float:left">
+						<div style="width:514px;height:30px;background-color:#EAEAEA;position:absolute;z-index:-1;border-radius: 10px;"></div>
+						<div style="width:@{data.get("lineWidth")}px;height:30px;background-color:@section.get("color");border-radius: 10px;"></div>
+					<div style="float:left;margin-top:-45px;width: 1px;height: 85px;margin-left:70px;border-right:1px dashed #C5C5C5">
+						<div style="position : relative ;top:55px;left:-60px;width: 40px;"><span>偏低</span></div>
+						<div style="position : relative ;top:-38px;left:-7px;width: 40px;"><span>70</span></div>
+					</div>
+					<div style="float:left;margin-top:-45px;width: 1px;height: 85px;margin-left:110px;border-right:1px dashed #C5C5C5">
+						<div style="position : relative ;top:55px;left:-70px;width: 40px;"><span>合格</span></div>
+						<div style="position : relative ;top:-38px;left:-7px;width: 40px;"><span>90</span></div>
+					</div>
+					<div style="float:left;margin-top:-45px;width: 1px;height: 85px;margin-left:110px;border-right:1px dashed #C5C5C5">
+						<div style="position : relative ;top:55px;left:-70px;width: 40px;"><span>中等</span></div>
+						<div style="position : relative ;top:-38px;left:-11px;width: 40px;"><span>110</span></div>
+					</div>
+					<div style="float:left;margin-top:-45px;width: 1px;height: 85px;margin-left:110px;border-right:1px dashed #C5C5C5">
+						<div style="position : relative ;top:55px;left:-70px;width: 40px;"><span>优秀</span></div>
+						<div style="position : relative ;top:33px;left:30px;width: 40px;"><span>超常</span></div>
+						<div style="position : relative ;top:-60px;left:-11px;width: 40px;"><span>130</span></div>
+					</div>
+				</div>
+			</div>
+			<div style="clear:both;margin-bottom:25px;padding-top:55px;" class="percentage">
+				<div style="float:left;margin-right:20px" class="left_text">
+					<span style="line-height:50px;font-size:20px;">&nbsp;&nbsp;&nbsp;@data.get("sortStr")</span>
+				</div>
+				<div style="float:left;margin-top:-20px;width: 1px;height: 85px; background: #000;margin-right:20px"></div>
+				<div style="float:left" class="full_image">
+											</div>
+				<div style="width:42px;height:61px;background-image:url('@routes.Assets.versioned("images/admin/neutral_gray.png")');float:left" class="percentage_image">
+					<img src="@routes.Assets.versioned("images/admin/neutral_gray.png")" style="position:absolute;clip:rect(0px 42px 61px 0px)">
+					<div style="position:relative;top:-50px;text-align: center;background-image:url('@routes.Assets.versioned("images/admin/bubble_icon.png")');width: 35px;height: 50px;background-size: 100% 100%">
+						<span  style="line-height: 40px;font-size:12px;color:white">@data.get("percentage")</span>
+					</div>
+
+				</div>
+				<div style="float:left" class="remian_image">
+											</div>
+				<div style="clear:both;padding-top:10px;margin-left:200px;">
+					<img src="@routes.Assets.versioned("images/admin/neutral_blue.png")" height="25">
+					<span style="line-height: 25px;margin-right:100px;">比你低的人</span>
+					<img src="@routes.Assets.versioned("images/admin/neutral_gray.png")" height="25">
+					<span style="line-height: 25px;">比你高的人</span>
+				</div>
+			</div>
+			</div>
+			<div style="height: 450px">
+				<div style="margin-bottom: 5px;height: 30px;">
+					<div style="float:left;margin-right: 15px;">
+						<div style="border-radius: 50%;width: 30px;height: 30px;background-color:#223A66 ">
+							<div style="border-radius: 50%;width: 20px;height: 20px;background-color:white;position:relative;top:5px;left:5px;">
+								<div style="border-radius: 50%;width: 14px;height: 14px;background-color:#223A66;position:relative;top:3px;left:3px;">
+
+												</div>
+							</div>
+						</div>
+					</div>
+					<div  style="float:left;">
+						<span style="font-size: 28px;font-family: '黑体';color: #1A3B6E;line-height: 30px;">具体解释</span>
+					</div>
+				</div>
+				<div  style="clear:both">
+				@data.get("explain").split(";").toList.map { text=>
+					<p class="context">@text</p>
+				}
+				</div>
+			</div>
+			<div style="height: 450px">
+				<div style="margin-bottom: 5px;height: 30px;">
+					<div style="float:left;margin-right: 15px;">
+						<div style="border-radius: 50%;width: 30px;height: 30px;background-color:#223A66 ">
+							<div style="border-radius: 50%;width: 20px;height: 20px;background-color:white;position:relative;top:5px;left:5px;">
+								<div style="border-radius: 50%;width: 14px;height: 14px;background-color:#223A66;position:relative;top:3px;left:3px;">
+
+												</div>
+							</div>
+						</div>
+					</div>
+					<div  style="float:left;">
+						<span style="font-size: 28px;font-family: '黑体';color: #1A3B6E;line-height: 30px;">提升建议</span>
+					</div>
+				</div>
+				<div  style="clear:both">
+				@data.get("suggestions").split(";").toList.map { text=>
+					@if(text != data.get("suggestions").split(";").toList.head) {
+						<p class="context"><b>@text.asInstanceOf[String].substring(0,text.asInstanceOf[String].indexOf("：")+1)</b>@text.asInstanceOf[String].substring(text.asInstanceOf[String].indexOf("：")+1,text.asInstanceOf[String].length)</p>
+					}else{
+						<p class="context">@text</p>
+					}
+				}
+		</div>
+		</div>
+		</div>
+			<div class="footer">
+				<center><span  class="company">北京欣润科技有限公司出品</span></center>
+			</div>
+		</div>
+			}
+			}
+		}
+		<script type="text/javascript">
+				$(function(){
+					$(".page_3").find(".percentage").each(function(index) {
+						var percentageNum = thirdSectionPercentageArray[index].substring(0,thirdSectionPercentageArray[index].length-1);
+						var fullImageNum = parseInt(percentageNum/100 * 14);
+						var remianImageNum = 13-fullImageNum;
+						var percentage = percentageNum/100 * 14 - parseInt(percentageNum/100 * 14);
+						for(var i=0;i<fullImageNum;i++){
+							$(this).find(".full_image").append('<img src="@routes.Assets.versioned("images/admin/neutral_blue.png")" width="42">')
+						}
+						for(var i=0;i<remianImageNum;i++){
+							$(this).find(".remian_image").append('<img src="@routes.Assets.versioned("images/admin/neutral_gray.png")" width="42">')
+						}
+						$(this).find('.percentage_image').find('img').css({
+							position: 'absolute',
+							clip: 'rect(0px '+ percentage*42 +'px 61px 0px)'
+						}).attr('src', '@routes.Assets.versioned("images/admin/neutral_blue.png")');
+
+						$(this).find('.percentage_image').find('div').css("left",-16 + percentage*42+"px" )
+
+						if(fullImageNum == 14){
+							$(this).find('.percentage_image').css("background-image","");
+							$(this).find("div").css("left","-26px")
+						}else{
+							if(percentage == 0){
+								$(this).find("div").css("left","-26px")
+							}
+						}
+					});
+				})
+			</script>
+		@defining(pdfData.get("sectionsFour").asInstanceOf[Map[String,Object]]){sectionFour=>
+			@defining(sectionFour.get("familyEnvironment").asInstanceOf[Map[String,String]]) {familyEnvironment=>
+				<div class="page">
+					<div class="header">
+						<div style="float:left">
+							<span class="header_context">学习环境整体现状</span>
+						</div>
+						<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 20%;border-top-right-radius: 20% ">
+							<center><span class="header_page">2</span></center>
+						</div>
+					</div>
+					<div class="context_container">
+						<span class="block first_level_style chapter">第四章 学习环境整体现状</span><br />
+						<span class="second_level_style section chapter_4">@{familyEnvironment.get("index")+ "."}	@familyEnvironment.get("name")</span><br />
+						<div style="width:404px;height:400px;background-image:url('@routes.Assets.versioned("images/admin/axis.png")');background-size:100% 100%;margin:0 auto">
+							<div style="position:relative;top:@{familyEnvironment.get("fathertop")}px;left:@{familyEnvironment.get("fatherleft")}px;">
+							<div style="border: 8px solid transparent;border-bottom:15px solid #42977A;width: 0;height: 0;position:relative;"></div>
+							<span style="position:relative;top:-20px;left:30px">父亲(@familyEnvironment.get("fatherCareScore"),@familyEnvironment.get("fatherOverProtectionScore"))</span>
+						</div>
+						<div  style="position:relative;top:@{familyEnvironment.get("mothertop")}px;left:@{familyEnvironment.get("motherleft")}px;">
+						<div style="border: 8px solid transparent;border-bottom:15px solid #E42828;width: 0;height: 0;position:relative;"></div>
+						<span style="position:relative;top:-20px;left:30px">母亲(@familyEnvironment.get("motherCareScore"),@familyEnvironment.get("motherOverProtectionScore"))</span>
+					</div>
+				</div>
+				<div style="height: 350px;clear:both">
+					<div style="margin-bottom: 5px;height: 30px;margin-top:30px">
+						<div style="float:left;margin-right: 15px;">
+							<div style="border-radius: 50%;width: 30px;height: 30px;background-color:#223A66 ">
+								<div style="border-radius: 50%;width: 20px;height: 20px;background-color:white;position:relative;top:5px;left:5px;">
+									<div style="border-radius: 50%;width: 14px;height: 14px;background-color:#223A66;position:relative;top:3px;left:3px;">
+
+									</div>
+								</div>
+							</div>
+						</div>
+						<div  style="float:left;">
+							<span style="font-size: 28px;font-family: '黑体';color: #1A3B6E;line-height: 30px;">具体解释</span>
+						</div>
+					</div>
+					<div style="clear:both">
+					@familyEnvironment.get("explain").split(";").toList.map {text=>
+						<p class="context">@text</p>
+					}
+					</div>
+				</div>
+				<div style="height: 400px">
+					<div style="margin-bottom: 5px;height: 30px;">
+						<div style="float:left;margin-right: 15px;">
+							<div style="border-radius: 50%;width: 30px;height: 30px;background-color:#223A66 ">
+								<div style="border-radius: 50%;width: 20px;height: 20px;background-color:white;position:relative;top:5px;left:5px;">
+									<div style="border-radius: 50%;width: 14px;height: 14px;background-color:#223A66;position:relative;top:3px;left:3px;">
+
+									</div>
+								</div>
+							</div>
+						</div>
+						<div  style="float:left;">
+							<span style="font-size: 28px;font-family: '黑体';color: #1A3B6E;line-height: 30px;">提升建议</span>
+						</div>
+					</div>
+					<div  style="clear:both">
+					@familyEnvironment.get("suggestion").split(";").toList.map {text=>
+						<p class="context"><b>@text.asInstanceOf[String].substring(0,text.asInstanceOf[String].indexOf("：")+1)</b>@text.asInstanceOf[String].substring(text.asInstanceOf[String].indexOf("：")+1,text.asInstanceOf[String].length)</p>
+					}
+					</div>
+				</div>
+			</div>
+				<div class="footer">
+					<center><span  class="company">北京欣润科技有限公司出品</span></center>
+				</div>
+			</div>
+			}
+		}
+		@defining(pdfData.get("sectionsFour").asInstanceOf[Map[String,Object]]){sectionFour=>
+			@sectionFour.get("environments").asInstanceOf[List[Map[String,Object]]].map{  environment=>
+		<div class="page">
+			<div class="header">
+				<div style="float:left">
+					<span class="header_context">学习环境整体现状</span>
+				</div>
+				<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 20%;border-top-right-radius: 20% ">
+					<center><span class="header_page">2</span></center>
+				</div>
+			</div>
+			<div class="context_container">
+				<span class="second_level_style section chapter_4">@{environment.get("index")+"."}	@environment.get("name")</span><br />
+				<span> 	@environment.get("intro")</span><br />
+				<div style="margin-left:50px;">
+					<div style="margin-bottom :-7px;margin-left:@{(environment.get("userPercentage"))}px;">
+						<div style="margin-bottom: 5px;width:200px">
+							<span>你的位置</span>
+						</div>
+						<div>
+							<div style="border: 11px solid transparent;border-top:20px solid #203B70;width: 0;height: 0;margin-left:30px;"></div>
+						</div>
+					</div>
+					@environment.get("percentage").asInstanceOf[List[Map[String,String]]].map{ percentage=>
+
+					<div style="float:left;width:@percentage.get("width")px;height:40px;background-color:@percentage.get("color");text-align:center"><span style="line-height:40px">@percentage.get("level") @percentage.get("percentage")</span></div>
+				}
+				<div id="chart_@environment.get("index")" style="width:900px;height:500px;margin-left:-50px;padding-top:80px">
+								</div>
+			</div>
+			<p class='context'>@environment.get("explain")</p>
+		</div>
+			<div class="footer">
+				<center><span  class="company">北京欣润科技有限公司出品</span></center>
+			</div>
+		</div>
+			}
+		}
+
+
+		@*<div class="page">*@
+		@*<div class="header">*@
+		@*<div style="float:left">*@
+		@*<span class="header_context">纵向比较</span>*@
+		@*</div>*@
+		@*<div style="border: 3px solid #203B70;height: 40px;width:34px;float:right;margin-right:20px;background-color:#203B70;border-top-left-radius: 10%;border-top-right-radius: 10% ">*@
+		@*<center><span class="header_page">2</span></center>*@
+		@*</div>*@
+		@*</div>*@
+		@*<div class="context_container">*@
+		@*<span class="block first_level_style chapter">第五章 纵向比较</span><br />*@
+		@*<span class="second_level_style section chapter_5">1.	历年能力发展比较</span><br />*@
+		@*<div id="main3" style="width:900px;height:500px;margin-left: -45px;">*@
+		@*</div>*@
+		@*<span class="second_level_style section chapter_5">2.	历年班级排名变化</span><br />*@
+		@*<div id="main4" style="width:900px;height:500px;margin-left: -45px;">*@
+		@*</div>*@
+		@*</div>*@
+		@*<div class="footer">*@
+		@*<center><span  class="company">北京欣润科技有限公司出品</span></center>*@
+		@*</div>*@
+		@*</div>*@
+		@*<div class="page">*@
+		@*<div class="context_container">*@
+		@*<span class="second_level_style section chapter_5">3.	历年全校排名变化</span><br />*@
+		@*<div id="main5" style="width:900px;height:500px;margin-left: -50px;">*@
+		@*</div>*@
+		@*</div>*@
+		@*<div class="footer">*@
+		@*<center><span  class="company">北京欣润科技有限公司出品</span></center>*@
+		@*</div>*@
+		@*</div>*@
+		@*			<div class="page">
+		<div class="context_container">
+		<span class="block first_level_style">第六章 总体建议</span><br />
+		</div>
+		</div>*@
+		</div>
+		<div style="display: none" class="pdf_image">
+		</div>
+		<div style="display: block" class="pdf_src">
+		</div>
+	</body>
+</html>
+<script type="text/javascript">
+
+				$(function(){
+					var myChart = echarts.init(document.getElementById('main'));
+//					var myChart3 = echarts.init(document.getElementById('main3'));
+//					var myChart4 = echarts.init(document.getElementById('main4'));
+//					var myChart5 = echarts.init(document.getElementById('main5'));
+					var intelligenceChart = echarts.init(document.getElementById('intelligence'));
+
+					var personailtyIndicator =[];
+					@defining(pdfData.get("sectionsThree").asInstanceOf[Map[String,Object]]){sectionThree=>
+	@defining(sectionThree.get("nonIntelligence").asInstanceOf[Map[String,Map[String,String]]]) { personailtyData=>
+		@defining(personailtyData.get("personailty").asInstanceOf[Map[String,String]]) { personailty=>
+								var option = {
+									polar : [
+										{
+										    splitNumber: 5,
+										    name :{
+												textStyle: {
+													fontSize:16,
+													fontFamily:"微软雅黑"
+												}
+										    },
+										    indicator : [
+										    	@personailty.get("dimname").asInstanceOf[String].split(",").toList.map { dimenname=>
+													{ text: '@dimenname', max: 150,min:50},
+											    }
+										    ],
+											splitArea : {
+												show : true,
+												areaStyle : {
+													color:['#FC5E45','#FC9757','#FCBA6C','#FEEF70','#C5C5C5']
+												}
+											}
+										}
+									],
+									series : [
+										{
+											type: 'radar',
+											data : [
+												{
+													value : [@personailty.get("score")]
+												}
+											],
+											itemStyle: {
+												normal: {
+													color:'#735E4D'
+												}
+											}
+										}
+									]
+								}
+							}
+	}
+}
+
+				var myChart2 = null;
+				var environmentCategoryStr ="";
+				var legendStr ="";
+				var option2={};
+				@defining(pdfData.get("sectionsFour").asInstanceOf[Map[String,Object]]){sectionFour=>
+	@sectionFour.get("environments").asInstanceOf[List[Map[String,Object]]].map{  environment=>
+						myChart2 = echarts.init(document.getElementById('chart_@environment.get("index")'));
+						environmentCategoryStr = "@environment.get("questiontypeNameStr")";
+						legendStr = "@environment.get("legend")"
+						option2 = {
+							legend: {
+								data:legendStr.split(",")
+							},
+							xAxis : [
+								{
+									type : 'category',
+									data : environmentCategoryStr.split(","),
+									splitLine: {
+										show:false
+									}
+								}
+							],
+							yAxis : [
+								{
+									type : 'value',
+									splitLine: {
+										show:true
+									},
+									axisLine: {
+										show:false
+									}
+								}
+							],
+							series : [
+								{
+									name:legendStr.split(",")[0],
+									type:'bar',
+									barCategoryGap: '55%',
+									barGap:0,
+									data:[@environment.get("classAvageScore")],
+									itemStyle : {
+										normal: {
+											color:function(params){
+												return "#FBC034";
+											},
+											label : {
+												show: true,
+												position: 'top'
+												}
+										}
+									}
+								},
+								{
+									name:legendStr.split(",")[1],
+									type:'bar',
+									data:[@environment.get("schoolAvageScore")],
+									itemStyle : {
+										normal: {
+											color:function(params){
+												return "#85D4F9";
+											},
+											label : {
+												show: true,
+												position: 'top'
+												}
+										}
+									}
+								}
+							]
+						};
+						myChart2.setOption(option2);
+					}
+				}
+//					var option3 = {
+//						tooltip : {
+//							trigger: 'axis'
+//						},
+//						legend: {
+//							x : 'center',
+//							y : 'bottom',
+//							data:['2014','2015']
+//						},
+//						calculable : true,
+//						xAxis : [
+//							{
+//								type : 'category',
+//								data : ['注意转移','视觉搜索','长时记忆','操作记忆','空间工作记忆','空间能力','言语推理','类比推理','矩阵推理','总分'],
+//								splitLine: {
+//									show:false
+//								}
+//							}
+//						],
+//						yAxis : [
+//							{
+//								type : 'value',
+//								splitLine: {
+//									show:true
+//								},
+//								axisLine: {
+//									show:false
+//								}
+//							}
+//						],
+//						series : [
+//							{
+//								name:'2014',
+//								type:'bar',
+//								barCategoryGap: '55%',
+//								barGap:0,
+//								data:[98, 83, 97, 114, 109, 103, 97, 132, 92, 127],
+//								itemStyle : {
+//									normal: {
+//										color:function(params){
+//											return "#FBC034";
+//										},
+//										label : {
+//											show: true,
+//											position: 'top'
+//											}
+//									}
+//								}
+//							},
+//							{
+//								name:'2015',
+//								type:'bar',
+//								data:[98, 97, 78, 114, 83, 97, 90, 98, 92, 115],
+//								itemStyle : {
+//									normal: {
+//										color:function(params){
+//											return "#85D4F9";
+//										},
+//										label : {
+//											show: true,
+//											position: 'top'
+//											}
+//									}
+//								}
+//							}
+//						]
+//					};
+//					var option4 = {
+//						tooltip : {
+//							trigger: 'axis'
+//						},
+//						legend: {
+//							x : 'center',
+//							y : 'bottom',
+//							data:['2014','2015']
+//						},
+//						calculable : true,
+//						xAxis : [
+//							{
+//								type : 'category',
+//								data : ['注意转移','视觉搜索','长时记忆','操作记忆','空间工作记忆','空间能力','言语推理','类比推理','矩阵推理','总分'],
+//								splitLine: {
+//									show:false
+//								}
+//							}
+//						],
+//						yAxis : [
+//							{
+//								type : 'value',
+//								splitLine: {
+//									show:true
+//								},
+//								axisLine: {
+//									show:false
+//								},
+//								axisLabel: {           // 坐标轴文本标签，详见axis.axisLabel
+//									show: true,
+//									formatter:function(params) {
+//										return params +"%";
+//									}
+//								}
+//							}
+//						],
+//						series : [
+//							{
+//								name:'2014',
+//								type:'bar',
+//								barGap:0,
+//								barCategoryGap: '55%',
+//								data:[98, 83, 97, 114, 109, 103, 97, 132, 92, 127],
+//								itemStyle : {
+//									normal: {
+//										label : {
+//											show: true,
+//											formatter:function(params) {
+//												return params.data +"%";
+//											},
+//											position: 'top'
+//										}
+//									}
+//								}
+//							},
+//							{
+//								name:'2015',
+//								type:'bar',
+//								data:[98, 97, 78, 114, 83, 97, 90, 98, 92, 115],
+//								itemStyle : {
+//									normal: {
+//										label : {
+//											show: true,
+//											formatter:function(params) {
+//												return params.data +"%";
+//											},
+//											position: 'top'
+//										}
+//									}
+//								}
+//							}
+//						]
+//					};
+
+					var intelligenceAgeOptionCategoryArray = [];
+					@defining(pdfData.get("sectionsTwo").asInstanceOf[Map[String,Object]]){sectionsTwo=>
+	@sectionsTwo.get("intelligenceAge").asInstanceOf[Map[String,String]].get("category").asInstanceOf[String].split(",").toList.map { text=>
+							intelligenceAgeOptionCategoryArray.push("@text")
+						}
+					}
+					var intelligenceAgeOption = {
+						calculable : false,
+						xAxis : [
+							{
+								type : 'category',
+								data : intelligenceAgeOptionCategoryArray,
+								axisLine: {
+									show:false
+								},
+								splitLine: {
+									show:false
+								}
+							}
+						],
+						yAxis : [
+							{
+								type : 'value',
+								min:0,
+								max:1,
+								splitLine: {
+									show:true
+								},
+								axisLine: {
+									show:false
+								},
+								axisLabel: {           // 坐标轴文本标签，详见axis.axisLabel
+									show: true,
+									formatter:function(params) {
+										return params;
+									}
+								}
+							}
+						],
+						series : [
+							{
+								type:'bar',
+								barGap:0,
+								barCategoryGap: '75%',
+								data:[@defining(pdfData.get("sectionsTwo").asInstanceOf[Map[String,Object]]){sectionsTwo=>@sectionsTwo.get("intelligenceAge").asInstanceOf[Map[String,String]].get("ageData")}],
+								itemStyle : {
+									normal: {
+										color:function(params){
+											if(params.dataIndex == 0 )
+												return '#FED045';
+											else if(params.dataIndex == 1)
+												return "#B3E5FD";
+											else if(params.dataIndex == 2)
+												return "#81D4FB";
+											else if(params.dataIndex == 3)
+												return "#50C4F7";
+											else if(params.dataIndex == 4)
+												return "#2AB7F7";
+											else if(params.dataIndex == 5)
+												return "#03AAF5";
+											else if(params.dataIndex == 6)
+												return "#0294D5";
+											else if(params.dataIndex == 7)
+												return "#0087C3";
+											else if(params.dataIndex == 8)
+												return "#0170A2";
+										},
+										label : {
+											show: true,
+											formatter:function(params) {
+												return params.data;
+											},
+											position: 'top'
+										}
+									}
+								}
+							}
+						]
+					};
+
+			        myChart.setOption(option);
+//					myChart3.setOption(option3);
+//					myChart4.setOption(option4);
+//					myChart5.setOption(option4);
+					intelligenceChart.setOption(intelligenceAgeOption)
+
+
+				})
+</script>
+<script type="text/javascript">
+	String.prototype.visualLength = function() {
+		var ruler = $("#ruler");
+		ruler.text(this);
+		return ruler[0].offsetWidth;
+	}
+	$(function(){
+		createCategory(getCategoryNumber());
+		createPageNum();
+	})
+	function getCategoryNumber(){
+		var categoryListSize = $(".chapter").size() + $(".section").size() + $(".small_section").size();
+		if(categoryListSize%21 == 0 )
+			return parseInt(categoryListSize/21)
+		else
+			return parseInt(categoryListSize/21)+1
+	}
+	//生成目录
+	function createCategory(categoryNumber){
+		if(categoryNumber > 1 ){
+			$("#category").after("<div class='page category_page' id='category_1'><div class='header'><div style='float:left'><span class='header_context'>目录</span></div></div><div class='context_container' style='height: 1240px'></div><div class='footer'><center><span  class='company'>北京欣润科技有限公司出品</span></center></div></div>")
+		}
+		var chapterNumber = 0;
+		$(".page").each(function(index){
+			if($(this).find(".chapter").size()==1){
+				chapterNumber++;
+				var sectionNumber = 0 ;
+				if($("#category").find("span").size()-1>22){
+					$("#category_1").find('.context_container').append("<span class='block first_level category'>"+$(this).find(".chapter").text() +getPointStr(576,$(this).find(".chapter").text(),(index-categoryNumber))+(index-categoryNumber)+"</span><br />")
+				}else{
+					$("#category").find('.context_container').append("<span class='block first_level category'>"+$(this).find(".chapter").text() +getPointStr(576,$(this).find(".chapter").text(),(index-categoryNumber))+(index-categoryNumber)+"</span><br />")
+				}
+
+				$(".page").each(function(i){
+					if($(this).find(".section.chapter_"+chapterNumber).size() > 0){
+						sectionNumber++;
+						$(this).find(".section.chapter_"+chapterNumber).each(function(){
+							if($("#category").find("span").size()-1>22){
+								$("#category_1").find('.context_container').append("<span class='block second_level category'>"+$(this).text() +getPointStr(544,$(this).text(),(i-categoryNumber))+(i-categoryNumber)+"</span><br />")
+
+							}else{
+								$("#category").find('.context_container').append("<span class='block second_level category'>"+$(this).text() +getPointStr(544,$(this).text(),(i-categoryNumber))+(i-categoryNumber)+"</span><br />")
+							}
+							$(".page").each(function(j){
+								if($(this).find(".small_section.chapter_"+chapterNumber +".section_"+sectionNumber).size() > 0){
+									$(this).find(".small_section.chapter_"+chapterNumber +".section_"+sectionNumber).each(function(){
+										if($("#category").find("span").size()-1>22){
+											$("#category_1").find('.context_container').append("<span class='block third_level category'>"+$(this).text() +getPointStr(524,$(this).text(),(j-categoryNumber))+(j-categoryNumber)+"</span><br />")
+										}else{
+											$("#category").find('.context_container').append("<span class='block third_level category'>"+$(this).text() +getPointStr(524,$(this).text(),(j-categoryNumber))+(j-categoryNumber)+"</span><br />")
+										}
+									})
+								}
+							})
+						})
+					}
+				})
+			}
+		})
+	}
+
+	function getPointStr(spanLength,text,index){
+		var str = "";
+		for(var i = 0 ;i < (spanLength-text.visualLength()-index.toString().visualLength())/8;i++){
+			str += ".";
+		}
+		return str;
+	}
+
+	function createPageNum(){
+		var contextPageSize = $(".page").size()-$(".category_page").size()-1;
+		for(var i=1;i<= contextPageSize;i++){
+			$(".page").eq(i+$(".category_page").size()).find(".header_page").html(i);
+
+		}
+
+	}
+
+</script>
+<script type="text/javascript">
+ (function($, window, document,undefined) {
+	    //定义Beautifier的构造函数
+	    var CircularChart = function(ele, opt,dataJson) {
+	        this.$element = ele,
+	        this.dataJson = dataJson;
+	        this.ctx = ele.get(0).getContext("2d")
+	        this.defaults = {
+	            'width': '1500px',
+	            'height': '1000px',
+	            'outerRadius': 400,
+	            "innerRadius" : 100,
+	            'outerBorder' : 20,
+	            'fontColor' : 'black',
+	            'font' : '14px 微软雅黑',
+	            'outerBorderColor' : "#DCDEDD",
+	            'innerBorder' : 2,
+	            'innerBorderColor' : "#DCDEDD"
+	        },
+	        this.options = $.extend({}, this.defaults, opt)
+	    }
+	    //定义Beautifier的方法
+	    CircularChart.prototype = {
+	        init: function(){
+	        	this.$element.attr({
+	        		'width': this.options.width,
+	        		'height': this.options.height
+	        	});
+	        	this.ctx.translate(parseInt(this.options.width)/2, parseInt(this.options.height)/2);
+	        	this.ctx.save();
+	        },
+	        createData:function(){
+	        	var blocks =0; //外圈的块数
+				for(var i=0;i<this.dataJson.length;i++){
+					for(var j=0;j<this.dataJson[i].data.length;j++){
+						blocks++;
+					}
+				}
+				var perSize = Math.PI*2/blocks;
+				var startDeg = 0;
+	            for(var i=0;i<this.dataJson.length;i++){
+            		for(var j=0;j<this.dataJson[i].data.length;j++){
+	            		this.ctx.beginPath();
+	            		this.ctx.moveTo(0,0);
+						this.ctx.arc(0,0,this.options.outerRadius+this.options.outerBorder/2,startDeg + perSize * j,startDeg + perSize * (j+1),false);
+
+	                    this.ctx.closePath();
+	                    this.ctx.lineWidth = 1;
+		                this.ctx.strokeStyle = '#D2D4D3';
+		                this.ctx.stroke();
+	                    this.ctx.save();
+	                    this.ctx.translate((this.options.outerRadius+this.options.outerBorder/2-20) * Math.cos(startDeg + perSize * j+ perSize/2),(this.options.outerRadius+this.options.outerBorder/2-20)  * Math.sin(startDeg + perSize * j+ perSize/2));
+	                    this.ctx.rotate(startDeg + perSize * j + perSize/2 + Math.PI / 2);
+	                    this.ctx.fillStyle = this.options.fontColor;
+	                    this.ctx.textAlign = "center"
+	                    this.ctx.font= this.options.font;
+	                    this.ctx.fillText(this.dataJson[i].data[j].name,0,0)
+	                    this.ctx.restore();
+
+
+	                    var dataRadius =  (this.dataJson[i].data[j].selfScore/160) * (this.options.outerRadius-this.options.outerBorder/2-this.options.innerRadius-this.options.innerBorder) +this.options.innerRadius+this.options.innerBorder ;
+						var textRadius = dataRadius-20;
+	                    this.ctx.beginPath();
+	            		this.ctx.moveTo(0,0);
+						this.ctx.arc(0,0,dataRadius,startDeg+ perSize*j,startDeg+perSize*(j+1),false);
+                    	this.ctx.fillStyle = this.getColor(this.dataJson[i].data[j].selfScore);
+                    	this.ctx.closePath();
+	                    this.ctx.fill();
+	                    this.ctx.save();
+	                    this.ctx.translate(textRadius * Math.cos(startDeg+ perSize*j + perSize/2),textRadius* Math.sin(startDeg+ perSize*j + perSize/2));
+	                    this.ctx.rotate(startDeg+ perSize*j + perSize/2 + Math.PI / 2);
+	                    this.ctx.fillStyle = this.options.fontColor;
+	                    this.ctx.textAlign = "center"
+	                    this.ctx.font= this.options.font;
+	                    this.ctx.fillText(this.dataJson[i].data[j].selfScore,0,0)
+	                    this.ctx.restore();
+	            	}
+	            	startDeg += perSize*(this.dataJson[i].data.length);
+            	}
+
+	        },
+	        createInnerData:function(){
+	        	var blocks =0; //外圈的块数
+				for(var i=0;i<this.dataJson.length;i++){
+					for(var j=0;j<this.dataJson[i].data.length;j++){
+						blocks++;
+					}
+				}
+
+            	var perSize = Math.PI*2/blocks;
+            	var startDeg = 0;
+	            for(var i=0;i<this.dataJson.length;i++){
+	                this.ctx.beginPath();
+	                this.ctx.moveTo(0, 0);
+	                this.ctx.globalCompositeOperation =  "source-over";
+	                this.ctx.arc(0,0,this.options.innerRadius+this.options.innerBorder,startDeg,startDeg+perSize*(this.dataJson[i].data.length),false);
+	                this.ctx.closePath();
+	                this.ctx.lineWidth = 1;
+	                this.ctx.strokeStyle = '#D2D4D3';
+	                this.ctx.fillStyle = 'white';
+	                this.ctx.fill();
+	                this.ctx.stroke();
+	                this.ctx.save();
+	                this.ctx.translate((this.options.innerRadius+this.options.innerBorder-20) * Math.cos(startDeg+perSize*(this.dataJson[i].data.length)/2),(this.options.innerRadius+this.options.innerBorder-20) * Math.sin(startDeg+perSize*(this.dataJson[i].data.length)/2));
+	                this.ctx.rotate(startDeg+perSize*(this.dataJson[i].data.length)/2+ Math.PI / 2);
+	                this.ctx.fillStyle = this.options.fontColor;
+	                this.ctx.textAlign = "center"
+	                this.ctx.fillText(this.dataJson[i].type,0,0)
+	                this.ctx.restore();
+	                startDeg += perSize*(this.dataJson[i].data.length);
+	            }
+	        },
+	    createOuterContainer: function(){
+			this.ctx.moveTo(0,0);
+			this.ctx.beginPath();
+			this.ctx.arc(0,0,this.options.outerRadius,0,Math.PI*2,false);
+			this.ctx.closePath();
+			this.ctx.lineWidth = this.options.outerBorder;
+			this.ctx.strokeStyle = '#DCDEDD';
+			this.ctx.stroke();
+		},
+        createInnerContainner: function(){
+			this.ctx.beginPath();
+			this.ctx.arc(0,0,this.options.innerRadius,0,Math.PI*2,false);
+			this.ctx.globalCompositeOperation =  "source-over";
+			this.ctx.closePath();
+			this.ctx.fillStyle = 'white';
+			this.ctx.lineWidth = 2;
+			this.ctx.strokeStyle = '#DCDEDD';
+			this.ctx.stroke();
+			this.ctx.fill();
+		},
+        getColor:function(score){
+            if(score >=130)
+                return "#FC5E45";
+            if(score >= 110 )
+                return "#FC9757"
+            if(score >= 90)
+                return "#FCBA6C"
+            if(score >=70)
+                return "#FEEF70"
+            if(score < 70)
+                return " #C5C5C5"
+
+        }
+	    }
+	    //在插件中使用Beautifier对象
+	    $.fn.CircularChart = function(options,dataJson) {
+	        var circularChart = new CircularChart(this, options,dataJson);
+	        //调用其方法
+	        circularChart.init();
+	        circularChart.createOuterContainer();
+	        circularChart.createData();
+	        circularChart.createInnerData();
+	        circularChart.createInnerContainner();
+    	}
+	})(jQuery, window, document);
+
+	$(function(){
+		var options = {
+			'width': '800px',
+			'height': '650px',
+			'outerRadius': 300,
+			"innerRadius" : 70,
+			'outerBorder' : 30,
+			'outerBorderColor' : "#DCDEDD",
+			'innerBorder' : 30,
+			'innerBorderColor' : "#DCDEDD"
+		}
+		var array = [];
+		var dataArray = [];
+		@defining(pdfData.get("sectionsThree").asInstanceOf[Map[String,Object]]){sectionThree=>
+	@sectionThree.get("intelligence").asInstanceOf[List[Map[String,Object]]].map{ section=>
+
+				var dataJson = {};
+				var dataArray = [];
+				@if(section.get("data").asInstanceOf[List[Map[String, String]]].size() !=0){
+	@section.get("data").asInstanceOf[List[Map[String, String]]].map{ data=>
+						var json ={};
+						json = {
+							"name":"@data.get("name")",
+							"selfScore":@data.get("score")
+						}
+						dataArray.push(json);
+					}
+					dataJson = {
+						"type": "@section.get("name")" ,
+						"data" : dataArray
+					}
+					array.push(dataJson)
+				}
+
+			}
+		}
+        $('.can').CircularChart(options,array);
+
+      })
+</script>
+
+

@@ -1,0 +1,98 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+<!DOCTYPE html>
+<html manifest="/criticalThinking/ability/practiceManifest">
+    <head>
+        @views.html.common.practice.head()
+        <link href="@routes.Assets.versioned("stylesheets/exam/criticalThinking/ability.css")" rel="stylesheet">
+        <script src="@routes.Assets.versioned("javascripts/exam/criticalThinking/ability/practice.js")" type="text/javascript"></script>
+        <script>
+            var url = "'/criticalThinking/ability/reasoning/test?tid=" + tid + "'";
+            var btnHtml = '<input id="startBtn" type="button" class="btn-test btn-default" onclick="location.replace(' + url + ');" value="正式测试"/>';
+            $(function(){
+                var pageNum = "@pageNum";
+                if(pageNum.split("/")[0] == pageNum.split("/")[1]){
+                    $("#page_content").html(btnHtml);
+                    $(".arrow-right").css("display", "none");
+                    $(".arrow-left").css("display", "none");
+                }
+            });
+
+            /**
+			 * param answer 答案
+			 * param obj 所选的DOM对象
+			 */
+			function choose(obj, answer){
+			    var options_div = $(obj).parent();
+				options_div.find(".active").removeClass("active");
+				$(obj).addClass("active");
+				if($(obj).val() == answer){
+				    options_div.find(".temp_pic").remove();
+					sign("@routes.Assets.versioned("images/common/right.png")", obj, "right_pic");
+				} else {
+				    options_div.find(".temp_pic").remove();
+                    sign("@routes.Assets.versioned("images/common/wrong.png")", obj, "wrong_pic");
+
+                    // 给出正确选项
+					var btn = options_div.find(".option[value='" + answer + "']")[0];
+					sign("@routes.Assets.versioned("images/common/right.png")", btn, "right_pic");
+				}
+				options_div.parent().parent().find(".prompt").css("display", "block");
+			}
+		</script>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+            <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                    <div class="arrow-left" onclick="show_prev_practice()"></div>
+                </div>
+                <div class="col-sm-10 panel-info" style="min-height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                @for((map, index) <- list zipWithIndex) {
+                    <div class="panel-body" style=@if(map == list.head){"display:block"} else{"display:none"}>
+                    <div class="row" style="min-height:150px;border:2px solid #eee;margin:10px 30px 10px 30px;font-size:16px;line-height:25px;">
+                        <div class="col-md-12" style="color: #42A47F">
+                            <strong>事实陈述：</strong>
+                        </div>
+                        <div class="col-md-12" style="padding:10px 0px 10px 10px;">
+                            <p style="text-indent:2em;">@map.get("material")</p>
+                        </div>
+                    </div>
+
+                    <div class="row" style="min-height:150px;border:2px solid #eee;margin:10px 30px 10px 30px;font-size:16px;line-height:25px;">
+                        <div class="col-md-12" style="color: #42A47F">
+                            <strong>推断结果：</strong>
+                        </div>
+                        <div class="col-md-12" style="min-height:80px;padding-top:10px;">
+                            <p style="text-indent:2em;">@(index+1).@map.get("question")</p>
+                        </div>
+                        <div class="col-md-12" style="text-align:center;margin-bottom: 0px;">
+                        @defining(map.get("options").asInstanceOf[Array[String]]) { optionList =>
+                            @for((option, index) <- optionList zipWithIndex) {
+                                <input type="button" class="option btn-default" value="@option" onclick="choose(this, '@map.get("answer")')"/>
+                            }
+                        }
+                        </div>
+                    </div>
+
+                    <div class="row prompt" style="margin:0px 30px;font-size:16px;line-height:25px;display: none;">
+                        <div class="col-md-12">
+                            <span style="color: #ff0000">解析：</span>@map.get("prompt")
+                        </div>
+                    </div>
+
+                    </div>
+                }
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                    <div class="arrow-right" onclick="show_next_practice();"></div>
+                </div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                @pageNum
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

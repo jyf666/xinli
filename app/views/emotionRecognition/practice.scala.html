@@ -1,0 +1,242 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import java.util.List
+@import utils.SystemConstant
+
+<!DOCTYPE html>
+    <html manifest="/emotionRecognition/practiceManifest">
+        <head>
+            @views.html.common.practice.head()
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            .optionBtn{
+                height:25px;
+                width:35px;
+                border:none;
+                font-size:18px;
+            }
+            .optionColor0{
+                background:#ffffff;
+            }
+            .optionColor1{
+                background:#f2faf7;
+            }
+            .optionColor2{
+                background:#e3f4ed;
+            }
+            .optionColor3{
+                background:#dcf1e9;
+            }
+            .optionColor4{
+                background:#d7efe6;
+            }
+            .optionColor5{
+                background:#d2ede3;
+            }
+            .option_selected{
+                background:#05c0c2;
+            }
+            .sender div:nth-of-type(1){
+            float: left;
+            }
+            .sender div:nth-of-type(2){
+            background-color: #F2F2F2;
+            float: left;
+            padding: 5px 5px 5px 0px;
+            border-radius:7px;
+            }
+
+            .left_triangle{
+            height:0px;
+            width:0px;
+            border-right:10px solid #F2F2F2;
+            border-bottom: 4px solid transparent;
+            border-top: 7px solid transparent;
+            position: relative;
+            left:-9px;
+            top:3px;
+            }
+        </style>
+        <script>
+
+            function setTimeoutForShow(){
+                var obj = $("#content-index >div");
+                var pageNum = getPageNum();// 当前页码
+                if (pageNum <= obj.length) {
+                    setTimeout("showReminder('div')", 2000);
+                    setTimeout("showReminder('img')", 3000);
+                }
+            }
+            function showReminder(tagName){
+                var pageNum = getPageNum();// 当前页码
+                $("#content-index >div").eq(pageNum-1).find(tagName + "[name=reminder]").css("display","block");
+            }
+            $(function(){
+                setTimeoutForShow();
+            })
+            function uncontrols(element){
+                $(element).removeAttr("controls");
+            }
+            function selected(obj) {
+                $(obj).parent().children(":button").each(function(i){
+                    $(this).attr("class","optionBtn optionColor" + i);
+                });
+				$(obj).attr("class","optionBtn option_selected");
+
+				if($(obj).parent().parent().find('.option_selected').length == 5){
+				    setNextButtonStyle(1);// 让切题箭头可用
+				}
+            }
+
+            function setNextButtonStyle(type){
+                if(type==1){// 切题箭头可用
+                    $(".arrow-right").attr("onclick","show_next_practice('/emotionRecognition/practiceEnd?tid=" + tid + "')");
+                    $(".arrow-right").css("border-left","50px solid #48C9A3");
+                } else {// 切题箭头不可用
+                    $(".arrow-right").attr("onclick","javascript:void(0)");
+                    $(".arrow-right").css("border-left","50px solid grey");
+                }
+            }
+		</script>
+        </head>
+        <body>
+            <div class="container">
+                @views.html.common.instructions.progress(questionTypeMap)
+                <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+                    </div>
+                    <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                        @for(map <- list){
+                            <div class="panel-body" style=@if(map == list.head){"display:block"} else{"display:none"}>
+                                <div class="row">
+                                @defining(map.get("question").asInstanceOf[String]){question =>
+                                    <div style="text-align:center;padding:0;">
+                                        <video width="320" controls onplay="uncontrols(this)">
+                                            <source src="@routes.Assets.versioned("videos/emotionRecognition/" + question + ".mp4")" type="video/mp4" />
+                                        </video>
+                                    </div>
+                                }
+                                </div>
+
+                                <div style="height:50px;">
+                                    <center>
+                                    <div name="reminder" class="row" style="height:50px;width:425px;margin-top:10px;background:#F2F2F2;display: none;">
+                                        请回答图中面孔上的表情在多大程度上包含了以下选项的情绪，从 0-5表示该情绪的强烈程度不断增强， 0表示完全没有，5表示很强。
+                                    </div>
+                                    </center>
+                                </div>
+
+                                <div class="row" style="margin-top:10px;">
+                                    <!-- 练习提示选择答案箭头 -->
+                                    @*<img name="reminder" src="@routes.Assets.versioned("images/symbolicOperation/reminder.png")" style="left:100px;top:310px;position: absolute;display: none;">*@
+                                        @*<!-- 练习提示选择答案箭头-->*@
+                                    <div name="reminder" style="width:110px;height: 80px;left:110px;top:310px;position: absolute;display: none;">
+                                        <div style="margin-top:7px;background-color: #F2F2F2;width:75px;height:55px;float:left;text-align: center;vertical-align:middle;padding:7px;color:#68999c">请点击<br>进行选择</div>
+                                        <div style="border-left:35px solid #F2F2F2;border-bottom: 35px solid transparent;border-top: 35px solid transparent;float:left;"></div>
+                                    </div>
+                            @defining(map.get("options").asInstanceOf[List[String]]){options =>
+                            @for((option, index) <- options zipWithIndex){
+                                @if(option == "a"){
+                                    <div style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出悲伤
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="selected(this)"/>
+                                        十分悲伤
+                                    </div>
+                                }
+                                @if(option == "b"){
+                                    <div style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出愤怒
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="selected(this)"/>
+                                        十分愤怒
+                                    </div>
+                                }
+                                @if(option == "c"){
+                                    <div style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出惊讶
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="selected(this)"/>
+                                        十分惊讶
+                                    </div>
+                                }
+                                @if(option == "d"){
+                                    <div style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出恐惧
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="selected(this)"/>
+                                        十分恐惧
+                                    </div>
+                                }
+                                @if(option == "e"){
+                                    <div style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出快乐
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="selected(this)"/>
+                                        十分快乐
+                                    </div>
+                                }
+                                @if(option == "f"){
+                                    <div style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出厌恶
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="selected(this)"/>
+                                        十分厌恶
+                                    </div>
+                                }
+                            }}
+                                    <div style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出兴奋
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="selected(this)"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="selected(this)"/>
+                                        十分兴奋
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                        <div class="arrow-right"  style="border-left:50px solid grey" onclick="alert('回答不完整，请对每种情绪都进行判断');"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                    @pageNum
+                    </p>
+                </div>
+            </div>
+        </body>
+    </html>

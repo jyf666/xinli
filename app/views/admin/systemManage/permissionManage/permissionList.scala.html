@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+    @views.html.common.admin.head()
+    <link rel="stylesheet" href="@routes.Assets.versioned("javascripts/zTree/metroStyle/metroStyle.css")"/>
+    <script src="@routes.Assets.versioned("javascripts/zTree/jquery.ztree.core-3.5.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/zTree/jquery.ztree.excheck-3.5.js")" type="text/javascript"></script>
+
+    <style>
+        ul.ztree {margin-top: 10px;border: 1px solid #ddd;width:100%;height:530px;overflow-y:scroll;overflow-x:auto;}
+        .menu{
+            overflow: hidden;
+            position: fixed;
+            left: 0;
+        }
+        .right-content {
+            overflow: hidden;
+            position: fixed;
+            right: 0;
+            left: 50%;
+            width: auto;
+        }
+        .right-content iframe {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript">
+
+        var setting = {
+			check: {
+				enable: true
+			},
+			data: {
+				simpleData: {
+					enable: true
+				}
+			}
+		};
+
+        var permissionTree;
+        $(function(){
+            initTree(0);
+        })
+
+        function initTree(roleId){
+            $.getJSON("/admin/system/permission/tree?roleId=" + roleId, function(nodes){
+                permissionTree = $.fn.zTree.init($("#permissionTree"), setting, nodes);
+            });
+        }
+
+        function save(){
+            if(parent.roleTable.row('.am-active').data() == undefined){
+                alert("请选择一个角色");
+                return;
+            }
+            var roleId = parent.roleTable.row('.am-active').data().id;
+
+            var permissionIds = new Array();
+            var nodes = permissionTree.getCheckedNodes(true);
+            if(nodes.length > 0){
+                for(var i=0;i<nodes.length;i++){
+                    var node = nodes[i];
+                    permissionIds.push(node.id);
+                }
+            }
+
+            var data = {
+                roleId:roleId,
+                permissionIds:permissionIds
+            };
+
+            ajax("/admin/system/role/savePermission", JSON.stringify(data), "角色授权");
+        }
+        function ajax(url, data, operation){
+            $.ajax({
+                type:"post",
+                url:url + "?t=" + (new Date()).valueOf(),
+                data:data,
+                contentType:"application/json",
+                success:function(data) {
+                    if(data == "1"){
+                        alert(operation + "成功");
+                        roleTable.ajax.reload();
+                    } else if(data == "0"){
+                        alert(operation + "失败");
+                    }
+                },
+                error:function() {
+                    alert(operation + "失败");
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <!--[if lte IE 9]>
+    <p class="browsehappy">你正在使用<strong>过时</strong>的浏览器，Amaze UI 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>
+        以获得更好的体验！</p>
+    <![endif]-->
+
+    <!-- content start -->
+    <div class="am-cf admin-main">
+
+    <div class="admin-content">
+
+        <div class="am-cf am-padding">
+            <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">授权</strong> / <small id="permission_role_name"></small></div>
+        </div>
+
+        <div class="am-container">
+            <ul id="permissionTree" class="ztree"></ul>
+        </div>
+        <div class="am-g am-text-center am-u-sm-12" style="margin-top: 10px;">
+            <button class="am-btn am-btn-primary am-btn-xs" style="border: 1px solid transparent;" onclick="save()" type="button">
+                <span class="am-icon-save"></span> 保存
+            </button>
+        </div>
+    </div>
+
+</div>
+<!-- content end -->
+</body>
+</html>

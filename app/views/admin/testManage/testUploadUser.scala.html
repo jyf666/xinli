@@ -1,0 +1,424 @@
+@(tid:Integer,orgCode:Integer)
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        @views.html.common.admin.head()
+        <link href="@routes.Assets.versioned("stylesheets/uploadifive.css")" rel="stylesheet">
+        <link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.datetimepicker.css")" rel="stylesheet">
+
+        <script src="@routes.Assets.versioned("javascripts/jquery.uploadifive.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.datetimepicker.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/test.guide.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+        <script type="text/javascript">
+            var orgCode = @orgCode;
+        </script>
+    </head>
+    <body>
+        <div id="admin-content">
+            <div class="am-cf am-padding">
+                <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">导入考生</strong> / <small>Table</small></div>
+            </div>
+            <div id="importFirst" class="am-cf am-padding am-form-inline" style="display:block">
+                <div id="head">
+                    <span style="font-size:15px;color:#a21d03;font-family:'微软雅黑'">下载考生导入表，填写考试安排和时间，并上传</span>
+                </div>
+                <div id="content" style="margin-top:10px;margin-bottom: 20px">
+                    <div>
+                        <div class="biaoti">
+                            <div style="float:left">
+                                <span>考生导入表.xls数据文件</span>
+                                <button class="am-btn am-btn-secondary am-btn-xs"  type="button" onclick="download()">
+                                    <span style="color:white;font-size:12px;font-family:'微软雅黑';" >下&nbsp;&nbsp;载</span>
+                                </button>
+                                <div id="userFileQueue" style="display: none"></div>
+                                <input type="text" style="width: 280px;margin-right:20px" id="userFilename" readonly>
+                            </div>
+                            <input type="file" name="uploadify" id="userExcel"/>
+                            <div>
+                                <label for="isBinding">固定的考试座位: </label>
+                                <input type="checkbox" name="isBinding" id="isBinding"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear: both">
+                        <div align="center" style="margin-bottom:5px">
+                            <span style="font-size:20px;font-weight:bold;color:#072a46;font-family:'微软雅黑'">填 写 示 例</span>
+                        </div>
+                        <table class="am-table am-table-striped am-table-bordered am-table-radius am-table-compact am-table-centered am-table-compact">
+                            <thead>
+                                <tr>
+                                    <th class="table-title">轮次</th>
+                                    <th class="table-title">姓名</th>
+                                    <th class="table-author am-hide-sm-only">性别</th>
+                                    <th class="table-author am-hide-sm-only">出生日期</th>
+                                    <th class="table-type">身份证号</th>
+                                    <th class="table-author am-hide-sm-only">生源地</th>
+                                    <th class="table-author am-hide-sm-only">学校</th>
+                                    <th class="table-author am-hide-sm-only">年级</th>
+                                    <th class="table-author am-hide-sm-only">班级</th>
+                                    <th class="table-author am-hide-sm-only">学号</th>
+                                    <th class="table-author am-hide-sm-only">联系方式</th>
+                                    <th class="table-author am-hide-sm-only">邮箱</th>
+                                    <th class="table-author am-hide-sm-only">考场号</th>
+                                    <th class="table-author am-hide-sm-only">准考证号</th>
+                                    <th class="table-author am-hide-sm-only">绑定信息</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><a href="#"></a>第XX轮(XX为阿拉伯数字)</td>
+                                    <td>中文汉字</td>
+                                    <td class="am-hide-sm-only">男或女</td>
+                                    <td class="am-hide-sm-only">YYYY-MM-DD(例：1987-01-01)</td>
+                                    <td class="am-hide-sm-only">18或15位身份证号</td>
+                                    <td class="am-hide-sm-only">无详细格式</td>
+                                    <td class="am-hide-sm-only">考生所在学校</td>
+                                    <td class="am-hide-sm-only">无详细格式</td>
+                                    <td class="am-hide-sm-only">无详细格式</td>
+                                    <td class="am-hide-sm-only">无详细格式</td>
+                                    <td class="am-hide-sm-only">11位手机号或者XXX-XXXXXXXX座机号</td>
+                                    <td class="am-hide-sm-only">标准邮箱格式</td>
+                                    <td class="am-hide-sm-only">无详细格式</td>
+                                    <td class="am-hide-sm-only">无详细格式</td>
+                                    <td class="am-hide-sm-only">IP地址或物理MAC地址</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="display: none" id="user_error">
+                            <div align="center" style="margin-bottom:5px">
+                                <span style="font-size:20px;font-weight:bold;color:#072a46;font-family:'微软雅黑'">异 常 数 据</span>
+                            </div>
+                            <table class="am-table am-table-striped am-table-bordered am-table-radius am-table-compact am-table-centered am-table-compact">
+                                <thead>
+                                    <tr>
+                                        <th class="table-title">轮次</th>
+                                        <th class="table-title">姓名</th>
+                                        <th class="table-author am-hide-sm-only">性别</th>
+                                        <th class="table-author am-hide-sm-only">出生年月</th>
+                                        <th class="table-type">身份证</th>
+                                        <th class="table-type">生源地</th>
+                                        <th class="table-author am-hide-sm-only">学校</th>
+                                        <th class="table-author am-hide-sm-only">年级</th>
+                                        <th class="table-author am-hide-sm-only">班级</th>
+                                        <th class="table-author am-hide-sm-only">学号</th>
+                                        <th class="table-author am-hide-sm-only">联系方式</th>
+                                        <th class="table-author am-hide-sm-only">邮箱</th>
+                                        <th class="table-author am-hide-sm-only">考场号</th>
+                                        <th class="table-author am-hide-sm-only">准考证号</th>
+                                        <th class="table-author am-hide-sm-only">绑定信息</th>
+                                        <th class="table-author am-hide-sm-only">异常信息</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-left: auto;margin-right: auto;margin-top: 20px" >
+                        <div style="display: none" id="user_right" >
+                            <div align="center" style="margin-bottom:5px">
+                                <span style="font-size:20px;font-weight:bold;color:#072a46;font-family:'微软雅黑'">考 生 预 览</span>
+                            </div>
+                            <table class="am-table am-table-striped am-table-bordered am-table-radius am-table-centered">
+                                <thead>
+                                    <tr>
+                                        <th class="table-title">轮次</th>
+                                        <th class="table-title">姓名</th>
+                                        <th class="table-author am-hide-sm-only">性别</th>
+                                        <th class="table-author am-hide-sm-only">出生年月</th>
+                                        <th class="table-type">身份证号</th>
+                                        <th class="table-author am-hide-sm-only">生源地</th>
+                                        <th class="table-author am-hide-sm-only">学校</th>
+                                        <th class="table-author am-hide-sm-only">年级</th>
+                                        <th class="table-author am-hide-sm-only">班级</th>
+                                        <th class="table-author am-hide-sm-only">学号</th>
+                                        <th class="table-author am-hide-sm-only">联系方式</th>
+                                        <th class="table-author am-hide-sm-only">邮箱</th>
+                                        <th class="table-author am-hide-sm-only">考场号</th>
+                                        <th class="table-author am-hide-sm-only">准考证号</th>
+                                        <th class="table-author am-hide-sm-only">绑定信息</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div style="clear: right;margin-top:100px">
+                        <div style="clear: right;margin-top:100px;height:200px">
+                            <div style="">
+                                <button class="am-btn am-btn-secondary" style="float:right;width: 100px;margin-right: 50px" type="button"onclick="importFirstNext()">
+                                    <span style="color:white;font-size:18px;font-family:'微软雅黑';">继&nbsp;&nbsp;&nbsp;续</span>
+                                </button>
+                                <button class="am-btn am-btn-secondary" style="float:right;width: 100px;margin-right: 20px" type="button" onclick="importFirstPre()">
+                                    <span style="color:white;font-size:18px;font-family:'微软雅黑';">上&nbsp;一&nbsp;步</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div id="importSecond" class="am-cf am-padding am-form-inline" style="display: none">
+                <div id="head">
+                    <span style="font-size:15px;color:#a21d03;font-family:'微软雅黑'">请导出考生列表，获得考生用户名和密码</span>
+                </div>
+                <div id="content" style="margin-top:10px;margin-bottom: 20px">
+                    <div style="margin-left: auto;margin-right: auto;margin-top: 20px" >
+                        <div  id="user_output" >
+                            <div align="center" style="margin-bottom:5px">
+                                <span style="font-size:20px;font-weight:bold;color:#072a46;font-family:'微软雅黑'">考 生 列 表</span>
+                            </div>
+                            <table class="am-table am-table-striped am-table-bordered am-table-radius am-table-centered">
+                                <thead>
+                                    <tr>
+                                        <th class="table-title">轮次</th>
+                                        <th class="table-title">姓名</th>
+                                        <th class="table-title">帐号</th>
+                                        <th class="table-title">密码</th>
+                                        <th class="table-author am-hide-sm-only">性别</th>
+                                        <th class="table-author am-hide-sm-only">出生年月</th>
+                                        <th class="table-type">身份证</th>
+                                        <th class="table-type">生源地</th>
+                                        <th class="table-author am-hide-sm-only">学校</th>
+                                        <th class="table-author am-hide-sm-only">年级</th>
+                                        <th class="table-author am-hide-sm-only">班级</th>
+                                        <th class="table-author am-hide-sm-only">学号</th>
+                                        <th class="table-author am-hide-sm-only">联系方式</th>
+                                        <th class="table-author am-hide-sm-only">邮箱</th>
+                                        <th class="table-author am-hide-sm-only">考场号</th>
+                                        <th class="table-author am-hide-sm-only">准考证号</th>
+                                        <th class="table-author am-hide-sm-only">绑定信息</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div style="clear: right;margin-top:100px;height: 200px;">
+                        <div style="">
+                            <button class="am-btn am-btn-secondary" style="float:right;width: 100px;margin-right: 50px" type="button" onclick="finish()">
+                                <span style="color:white;font-size:18px;font-family:'微软雅黑';">完&nbsp;&nbsp;&nbsp;成</span>
+                            </button>
+                            <button class="am-btn am-btn-secondary" style="float:right;width: 100px;margin-right: 20px" type="button" onclick="outputUser()">
+                                <span style="color:white;font-size:18px;font-family:'微软雅黑';">导&nbsp;&nbsp;&nbsp;出</span>
+                            </button>
+                                <!--<button class="am-btn am-btn-secondary" style="float:right;width: 100px;height: 50px;margin-right: 20px" type="button" onclick="importSecondPre()">
+                                <span style="color:white;font-size:18px;font-family:'微软雅黑';">上&nbsp;一&nbsp;步</span>
+                            </button>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+			var isError = false;
+			$(function(){
+				$("#userExcel").uploadifive({
+					'uploadScript': "/admin/organizeTest/user/validateExcel",
+					'fileSizeLimit':"3MB",
+					'progressData':'all',
+					'queueID': 'userFileQueue',
+					'auto': false,
+					'buttonText': '选择文件',
+					'multi': false,
+					onSelect:function(){
+					    $('#userExcel').data('uploadifive').settings.formData = {"ip": $("#isBinding").is(":checked")};
+						if($("#userFileQueue").find(".uploadifive-queue-item").length >1){
+							$("#userFileQueue").find(".uploadifive-queue-item")[0].remove();
+						}
+						$("#userFilename").val($("#importFirst").find(".filename").html())
+        				$('#userExcel').uploadifive('upload');
+        				$("#user_right").attr("style","display:none");
+        				$("#user_right").find("tbody").find("tr").remove();
+        				$("#user_output").find("tbody").find("tr").remove();
+        				$("#user_error").attr("style","display:none");
+        				$("#user_error").find("tbody").find("tr").remove();
+        				isError = false;
+        				$('#my-modal-loading').modal('open');
+					},
+					onUploadComplete:function(file,data,response){
+					    if(data != "error" && data.substring(0,1) !="["){
+							$('#my-modal-loading').modal('close');
+							am_alert("登录超时，请重新登录");
+							window.open('/admin/login','_self');
+						}
+					    $('#my-modal-loading').modal('close')
+						if(data=="error"){
+							am_alert("数据异常，请检查后重新上传！");
+							isError = true;
+						}else{
+							var users = JSON.parse(data);
+							if(users[0].excelUserError =="正常"){
+                                am_alert("信息校验成功，请单击确定，继续操作。");
+								for(var i = 0;i<users.length;i++){
+									$("#user_right").find("tbody").append("<tr>"+ getColHtml(users[i].turn) + getColHtml(users[i].name) + getColHtml(users[i].sex) + getColHtml(users[i].excelBirth)
+									    + getColHtml(users[i].idCard) + getColHtml(users[i].address) + getColHtml(users[i].schoolName) + getColHtml(users[i].grade) + getColHtml(users[i].class_)
+                                        + getColHtml(users[i].studentNum) + getColHtml(users[i].phone) + getColHtml(users[i].email) + getColHtml(users[i].testRoom) + getColHtml(users[i].testNum) + getColHtml(users[i].ip) + "</tr>");
+								}
+								$("#user_right").attr("style","display:block");
+							}else {
+								$("#user_error").find("tbody").find("tr").remove();
+								for(var i = 0;i<users.length;i++){
+                                	$("#user_error").find("tbody").append("<tr>"+ getColHtml(users[i].turn) + getColHtml(users[i].name) + getColHtml(users[i].sex) + getColHtml(users[i].excelBirth)
+									    + getColHtml(users[i].idCard) + getColHtml(users[i].address) + getColHtml(users[i].schoolName) + getColHtml(users[i].grade) + getColHtml(users[i].class_)
+                                        + getColHtml(users[i].studentNum) + getColHtml(users[i].phone) + getColHtml(users[i].email) + getColHtml(users[i].testRoom) + getColHtml(users[i].testNum)  + getColHtml(users[i].ip) + getColHtml(users[i].excelUserError) + "</tr>");
+								}
+								$("#user_error").attr("style","display:block");
+							}
+							$("#user_error").find("tr").each(function(){
+								$(this).find("td").eq(15).attr("style","color:red")
+							})
+						}
+					}
+				});
+				$("#uploadifive-userExcel").removeClass("uploadifive-button");
+				$("#uploadifive-userExcel").css({
+					'border': 'none',
+					'width': '80px',
+					'margin-left':'20px',
+					'background-color': '#3bb4f2',
+   	 				'border-color': '#3bb4f2',
+    				'color': '#fff',
+					'height': '30px',
+					'font-size':'12px',
+					'font-family':'微软雅黑'
+
+				});
+				$("#userExcel").css({
+					'float':'left',
+					"width":'100px'
+				});
+			})
+
+			function importFirstNext(){
+                var user_error_count = $("#user_error").find("tbody").find("tr").length;  //用户错误表格中的tr个数
+                if($("#userFilename").val()=="" || $("#userFilename").val()==null || $("#userFilename").val()==undefined){
+                    am_alert("请选择上传文件！");
+                }else if((user_error_count != undefined && user_error_count != 0) || isError ){
+                    am_alert("数据异常，请检查后重新上传！");
+                } else {
+                    var user_output_count = $("#user_output").find("tbody").find("tr").length;  //用户导出表格中的tr个数
+                    if(user_output_count==0) {
+                        $('#my-confirm').modal({
+                            onConfirm: function () {
+                                var userDtos = new Array();
+                                $("#user_right").find("tbody").find("tr").each(function (index) {
+                                    var user = {
+                                        "name": $(this).find("td").eq(1).html(),
+                                        "sex": $(this).find("td").eq(2).html(),
+                                        "birthday": $(this).find("td").eq(3).html(),
+                                        "idCard": $(this).find("td").eq(4).html(),
+                                        "address": $(this).find("td").eq(5).html(),
+                                        "phone": $(this).find("td").eq(10).html(),
+                                        "email": $(this).find("td").eq(11).html()
+                                    };
+                                    var admissionInfo = {
+                                        "orgCode": "@orgCode",
+                                        "orgName": '@session.get("ORG_NAME")',
+                                        "testNum": $(this).find("td").eq(13).html(),
+                                        "ip": $(this).find("td").eq(14).html(),
+                                        "testRoom":$(this).find("td").eq(12).html()
+                                    };
+                                    var eduExperience = {
+                                        "schoolName":$(this).find("td").eq(6).html(),
+                                        "grade":$(this).find("td").eq(7).html(),
+                                        "class_":$(this).find("td").eq(8).html(),
+                                        "studentNum":$(this).find("td").eq(9).html()
+                                    }
+                                    var userDto = {
+                                        "turn": getNumFromStr($(this).find("td").eq(0).html()),
+                                        "user": user,
+                                        "admissionInfo": admissionInfo,
+                                        "eduExperience": eduExperience
+                                    }
+                                    userDtos.push(userDto);
+                                });
+                                var organizeTestDto = {
+                                    "testId":"@tid",
+                                    "orgCode": "@orgCode",
+                                    "userDtos":userDtos
+                                };
+                                $.ajax({
+                                    url: "/admin/test/user/upload",
+                                    timeout: 1000,
+                                    async: false,
+                                    type: "POST",
+                                    contentType:"application/json",
+                                    data: JSON.stringify(organizeTestDto),
+                                    success: function (responseDto) {
+                                        var success = responseDto.success;
+                                        if(Boolean(success)){
+                                            var users = responseDto.result;
+                                            var size = 0;
+                                            if (users != null) {
+                                                if (users.length > 0 && users.length < 30) {
+                                                    size = users.length;
+                                                } else if (users.length >= 30) {
+                                                    size = 30;
+                                                    var importInfo_divHtml = "<span>共计导入<span>" + users.length + "</span>名考生，考生列表的示例如下。示例仅包括前30人，若需查看完整考生列表，请点击“<a href='download/user.xlsx'>考生管理</a>”。</span>";
+                                                    $("#importInfo_div").html(importInfo_divHtml);
+                                                }
+                                                console.log(users);
+                                                for (var i = 0; i < size; i++) {
+                                                    var password = users[i].idCard.toString();
+                                                    password = password.substring((password.length - 6), password.length);
+                                                    $("#user_output").find("tbody").append("<tr>" + getColHtml(users[i].turn) + getColHtml(users[i].name) + getColHtml(users[i].account) + getColHtml(password) + getColHtml(users[i].sex)
+                                                    + getColHtml(users[i].excelBirth) + getColHtml(users[i].idCard) + getColHtml(users[i].address) + getColHtml(users[i].schoolName) + getColHtml(users[i].grade) + getColHtml(users[i].class_)
+                                                    + getColHtml(users[i].studentNum) + getColHtml(users[i].phone) + getColHtml(users[i].email) + getColHtml(users[i].testRoom) + getColHtml(users[i].testNum) + getColHtml(users[i].ip) +"</tr>");
+                                                }
+                                            }
+                                            $('#my-modal-loading').modal('close');
+                                            $("#importFirst").css("display", "none");
+                                            $("#importSecond").css("display", "block");
+                                        } else {
+                                            am_alert(responseDto.message, "考生导入失败");
+                                            $('#my-modal-loading').modal('close');
+                                        }
+                                    },
+                                    error:function(){
+                                        $('#my-modal-loading').modal('close');
+                                        am_alert("考生导入失败！");
+                                    }
+                                });
+                            }
+                        });
+                    }else {
+                        $("#importFirst").css("display", "none");
+                        $("#importSecond").css("display", "block");
+                    }
+                }
+            }
+
+            function download(){
+                location.href="@routes.Assets.versioned("download/user.xlsx")"
+            }
+            /**
+             * 导出用户
+             */
+            function outputUser(){
+                var form = document.createElement("form");
+                form.id = 'excelInfoForm';
+                form.setAttribute("method", "POST");
+                form.setAttribute("action", "/admin/organizeTest/user/exportByData");
+                $("#user_output").find("tbody").find("tr").each(function (index) {
+                    var names = new Array("turn","name","account","password","sex","excelBirth","idCard","address", "schoolName", "grade","class_", "studentNum", "phone","email","testRoom","testNum", "ip");
+                    for(var i=0;i< names.length;i++){
+                        var name = "userVos[" + index + "]." + names[i];
+                        form.appendChild(field(name,name,$(this).find("td").eq(i).html()));
+                    }
+                });
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            function finish(){
+                location.href = "/admin/test/listView";
+            }
+		</script>
+        @views.html.common.modal.alert()
+        @views.html.common.modal.confirm("my-confirm", "是否确定导入考生？")
+        @views.html.common.modal.loading("my-modal-loading", "数据处理中.....")
+    </body>
+</html>

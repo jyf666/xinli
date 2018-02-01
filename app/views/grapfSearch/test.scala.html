@@ -1,0 +1,195 @@
+@(list:java.util.List[java.util.Map[String,java.util.List[java.util.List[String]]]])(pageNum: String)
+@import utils.enums.QuestionTypeEnum
+@import play.cache.Cache
+@import java.util.Map
+<!DOCTYPE html>
+<html manifest="/grapfSearch/testManifest">
+<head>
+@views.html.common.test.head()
+<script>
+	var qtype = @QuestionTypeEnum.GRAPF_SEARCH.getId();
+	var qtypeName = "@QuestionTypeEnum.GRAPF_SEARCH.getName()";
+	@defining(Cache.get("qtypeTimeMap").asInstanceOf[Map[Integer, Integer]]) { qtypeTimeMap =>
+		var maxtime = @qtypeTimeMap.get(QuestionTypeEnum.GRAPF_SEARCH.getId());
+	}
+</script>
+<script src="@routes.Assets.versioned("javascripts/question/test.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.js")" type="text/javascript"></script>
+<link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.css")" rel="stylesheet">
+<style>
+	body {
+		background: #F2F2F2;
+		color: #B5DC86;
+		padding-top: 0px;
+	}
+</style>
+<script>
+	function initPage(){
+		var testingPage = 1;
+		if(getCookieByName("testingPage")){
+			testingPage = getCookieByName("testingPage");
+		}
+		/** 设置当前显示的页面 */
+		showPageByCookie(testingPage);
+	}
+	/**
+	 * 3，2，1倒数结束
+	 */
+	function finish321(){
+		$("#countBackwards").remove();// 删除321组件
+		$("#content-index > div:first").css("display", "block");// 显示第一道题
+		countDown(maxtime);// 圆圈倒计时
+	}
+
+	function submitAnswer(){
+		for(var key in json){
+			answerList.push(json[key]);
+		}
+		var json_str = JSON.stringify(answerList);// 提交的json数据
+		var url = "/grapfSearch/submitAnswer";// ajax提交的地址
+		var href = "/grapfSearch/endTime?tid=" + tid;// 提交成功后跳转到此页面
+		var flag = true;// 是否要提示断网信息,并尝试重新提交答案
+		if(Boolean(isOffLine)){
+			submitAnswerByLocalStorage(json_str, href);
+		} else {
+			submitAnswerByAjax(url, json_str, href, flag);
+		}
+	}
+
+	var answerList = [];
+	var json = {};// 用来存储answer对象，组成一个answer的list
+	/**
+	 *
+	 * param qid 题目id
+	 * param imgnum 图片编号
+	 * param answer 答案
+	 * param obj 所选的图片对象
+	 */
+	function choose(qid,imgnum, answer,obj){
+		var src = $(obj).attr("src");
+		$("img[name='" + obj.name + "']").each(function(){
+			this.onclick="";
+		});
+		var answerObj = {
+			imgNum: imgnum,// 图片编号
+			x: obj.x,// 图片横坐标
+			y: obj.y// 图片纵坐标
+		}
+		if(json[qid] == undefined){
+			json[qid] = {
+				"uid":uid,
+				"tid":tid,
+				"qid":qid,
+				"answer":JSON.stringify(answerObj),
+				"qtype":qtype,
+				"clickNum":1,
+				"clickRight":0,
+				"clickTime": curentTime()
+			};
+		} else {
+			json[qid]["answer"] = answer;
+			json[qid]["clickNum"] ++;
+			json[qid]["clickTime"] = curentTime();
+		}
+		if(imgnum == answer){
+			json[qid]["clickNum"] ++;
+			json[qid]["clickRight"] ++;
+		} else {
+			json[qid]["clickNum"] ++;
+		}
+		scaleDown(obj);// 粉扑放大
+		saveAnswerDetailByLocalStorage(answer, "4");// 记录答题详情
+		setTimeout("show_next()", 800);// 翻页
+	}
+
+	 /**
+	  * 粉扑放大效果
+	  */
+	function scaleDown(obj){
+		if(!$(obj).attr("class")){
+			$(obj).addClass("am-animation-scale-down am-animation-reverse");
+		}
+		if ($.AMUI.support.animation) {
+			$(obj).addClass("am-animation-scale-down am-animation-reverse").one($.AMUI.support.animation.end, function() {
+				$(obj).removeClass("am-animation-scale-down am-animation-reverse");
+			});
+		}
+	}
+</script>
+</head>
+<body>
+	<div class="container">
+		<div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px;">
+				<!-- 问号提示 start -->
+			<div class=" col-sm-offset-1 col-sm-1">
+				<div class="bg" style="background-color:#7d7d7d;" ></div>
+				<div class="wenhao" onclick="showReminder()">?</div>
+				<div id="wenhao"  class="wenhao_reminder" style="padding-top:20px">
+					<span >
+				  请点击与其它图案都不相同的1个图案。
+					</span>
+				</div>
+			</div>
+				<!-- 问号提示 end -->
+			<div class=" col-sm-offset-7 col-sm-1">
+
+				<div class="hold">
+					<div class="pie pie1"></div>
+				</div>
+				<div class="hold">
+					<div class="pie pie2" style="font-size:20px;"></div>
+				</div>
+				<div class="bg"> </div>
+				<div class="time_cart"></div>
+			</div>
+				<!--<div class=" col-sm-1"><img src="__TMPL__Public/images/itemlist_gray.png" style="height:60px;"></div>-->
+		</div>
+		<div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+			<div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+        </div>
+			<div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+				<div id = "countBackwards" class="panel-body">
+					<div style="width:200px;height:200px;border-radius:200px;position:absolute;left:337.5px;top:122.5px;background-color:#d2ede3;"> </div>
+					<div class="num_cart"></div>
+				</div>
+
+				@for(map <- list){
+					@*<div class="panel-body"  style=@if(map == list.head){"display:block"} else{"display:none"}>*@
+					<div data="@map.get("qid")" class="panel-body"  style="display:none">
+						<table align="center" widte="641px" height="391px">
+								<!--<table align="center" widte="641px" height="391px" style="border-collapse:separate;border-spacing:22px;position:relative;">-->
+							@for((grapfList, y) <- map.get("grapfList") zipWithIndex){
+								<tr>
+								@for((img, x) <- grapfList zipWithIndex){
+									<td width="80.125px" height="78.2">
+										<img name="img_@map.get("qid")" src="@routes.Assets.versioned("images/grapfSearch/" + img +".png")" @if(img.equals("0")){style="height:58px;width:58px;cursor:auto;"}else{style="height:58px;width:58px;cursor:pointer;"
+											onclick="choose('@map.get("qid")',@img, @map.get("answer"),this)"}>
+									</td>
+								}
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			</div>
+			<div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+        </div>
+		</div>
+		@* <div class="row">
+		<p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+		@pageNum
+		</p>
+		</div>*@
+		@*<div class="row">*@
+		@*<input id="btn" type="button" value="开&nbsp;&nbsp;&nbsp;&nbsp;始" onclick="submitAnswer()"/>*@
+		@*</div>*@
+		@*<div class="row">
+			<p class="text-center" style="margin-top:10px;font-size:16px;" >
+				<input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+				onclick="maxtime=0;" value="跳过"/>
+			</p>
+		</div>*@
+	</div>
+</body>
+</html>

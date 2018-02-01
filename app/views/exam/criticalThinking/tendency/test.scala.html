@@ -1,0 +1,228 @@
+@import java.util
+@(list: java.util.List[java.util.Map[String, Object]])(pageNum: String)
+@import utils.enums.QuestionTypeEnum
+<!DOCTYPE html>
+<html manifest="/criticalThinking/ability/testManifest">
+    <head>
+        @views.html.common.test.head()
+        <script>
+			var qtype = @QuestionTypeEnum.CRITICALTHINKING_TENDENCY.getId();
+			var qtypeName = "@QuestionTypeEnum.CRITICALTHINKING_TENDENCY.getName()";
+			var marksrc = "@routes.Assets.versioned("images/common/mark.png")";
+            var markedsrc = "@routes.Assets.versioned("images/common/marked.png")";
+        </script>
+        <script src="@routes.Assets.versioned("javascripts/question/test.js")" type="text/javascript"></script>
+
+        <style>
+            .option{
+                width:95px;
+                border:none;
+                background:#d2ede3;
+                padding: 6px 12px;
+                line-height: 1.42857;
+            }
+            .option:hover,.option:focus,.option.focus,.option:active,.option.active{background:#05c0c2;color:#ffffff}
+        </style>
+        <script>
+            var pageNum_showed = 1;
+			function initPage(){
+                var testingPage = 1;
+                if(getCookieByName("testingPage")){
+                    testingPage = getCookieByName("testingPage");
+                }
+                if(getCookieByName("pageNum_showed")){
+                    pageNum_showed = getCookieByName("pageNum_showed");
+                }
+                if(getCookieByName("answerJsonCookies")){
+                    json = JSON.parse(getCookieByName("answerJsonCookies"));
+                }
+                /** 设置当前显示的页面 */
+                showPageByCookie(testingPage);
+
+                /** 设置答案 */
+                if(getCookieByName("answerCookies")){
+                    answerCookies = JSON.parse(getCookieByName("answerCookies"));
+                }
+                for(var i = 0; i < answerCookies.length; i++) {
+                    var answer = answerCookies[i];
+                    if(answer != null){
+                        $("#content-index >div").eq(i).find('input[value="'+ answer + '"]').addClass("active");
+                    }
+                }
+                /** 设置书签 */
+                showMarkByCookie("@routes.Assets.versioned("images/common/marked.png")");
+                /** 设置页码 */
+                showPageNumByCookie(testingPage);
+                /** 设置当前页的向右箭头和练习按钮是否显示 */
+                if(testingPage == $("#content-index > div.panel-body").length){
+                    $("#practice_button").css("display", "block");
+                    $(".arrow-right").css("display","none");
+                }
+            }
+
+            function submitAnswer(){
+                $(".marking").each(function(index){
+                    var qid = $(this).attr("data");
+                    if (json[qid] != undefined) {
+                        json[qid].type = $(this).attr("mark");
+                    }
+                })
+
+                for(var key in json){
+                    answerList.push(json[key]);
+                }
+                var json_str = JSON.stringify(answerList);// 提交的json数据
+                var url = "/criticalThinking/tendency/submitAnswer";// ajax提交的地址
+                var href = "/criticalThinking/tendency/endTime?tid=" + tid;// 提交成功后跳转到此页面
+                var flag = true;// 是否要提示断网信息,并尝试重新提交答案
+                if(isOffLine){
+                    submitAnswerByLocalStorage(json_str, href);
+                } else {
+                    submitAnswerByAjax(url, json_str, href, flag);
+                }
+            }
+
+			var answerList = [];
+			var json = {};// 用来存储answer对象，组成一个answer的list
+			/**
+			 * param qid 题目id
+			 * param answer 答案
+			 */
+			function choose(obj, qid, answer){
+			    selected(obj);
+				setAnswerCookies(answer);
+
+				var curent_time = curentTime();// 当前系统时间
+				if(json[qid] == undefined){
+					json[qid] = {
+						"uid":uid,
+						"tid":tid,
+						"qid":qid,
+						"answer":answer,
+						"qtype":qtype,
+						"clickNum":1,
+						"clickTime": curent_time
+					};
+				} else {
+					json[qid]["answer"] = answer;
+					json[qid]["clickNum"] ++;
+					json[qid]["clickTime"] = curent_time;
+				}
+				saveAnswerByLocalStorage(json);
+				saveAnswerDetailByLocalStorage(answer, "4");// 记录答题详情
+			}
+
+			function selected(obj){
+                var options_div = $(obj).parent();
+				options_div.find(".active").removeClass("active");
+				$(obj).addClass("active");
+            }
+
+            /**
+             * 下一页
+             */
+            function show_practiceBtn() {
+                var obj = $("#content-index > div.panel-body");
+                var pageNum = getPageNum();// 当前页码
+                if (pageNum == obj.length) {
+                    $("#submit_button").css("display", "block");
+                }
+            }
+
+            function show_next() {
+	            var obj = $("#content-index > div.panel-body");
+	            var pageNum = getPageNum();// 当前页码
+	            var activeNumber = $(obj).eq(pageNum - 1).find('.active').length;
+	            if(activeNumber <= 0){
+                    alert("请回答当前题目");
+                }else{
+                    if (pageNum < obj.length) {
+		                saveAnswerDetailByLocalStorage("", "3");// 记录向后切题的时间
+		                document.cookie= "testingPage=" + (pageNum + 1);
+		                $(obj).eq(pageNum - 1).css("display", "none");
+		                $(obj).eq(pageNum).css("display", "block");
+		                var str = pageNum + 1 + "/" + obj.length;
+		                $("#page_content").html(str);
+		                if(pageNum_showed && pageNum+1>pageNum_showed){
+			                document.cookie= "pageNum_showed=" + (++pageNum_showed);
+		                }
+	                }
+	                if (pageNum == obj.length - 1) {
+		                $(".arrow-right").css("display","none");
+	                }
+                }
+
+}
+		</script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px;">
+                    <!-- 问号提示 start -->
+                <div class=" col-sm-offset-1 col-sm-1">
+                    <div class="bg" style="background-color:#7d7d7d;" ></div>
+                    <div class="wenhao" onclick="showReminder()">?</div>
+                    <div id="wenhao"  class="wenhao_reminder">
+                        <span>
+                            请你回答对该倾向特征的赞同程度，判断其中哪一个程度更符合你。
+                        </span>
+                    </div>
+                </div>
+                    <!-- 问号提示 end -->
+
+                <div id="mark" class="col-sm-offset-8 col-sm-1">
+                    <div style="width:100%;text-align: center;cursor: pointer;" onclick="get_layer('/criticalThinking/ability/mark?tid=' + tid);">
+                        <img src="@routes.Assets.versioned("images/common/seemark.png")" width="45px">
+                    </div>
+                    <div style="margin-top: 2px;width:100%;text-align: center;">
+                        <span>
+                            <a href="#" onclick="get_layer('/criticalThinking/ability/mark?tid=' + tid);" style="color:black;" >查看标记</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1 arrow_div">
+                    <div class="arrow-left" onclick="show_prev()"></div>
+                </div>
+                <div class="col-sm-10 panel-info answer_box" id="content-index">
+                @for((map, index) <- list zipWithIndex) {
+                    <div data="@map.get("qid")" class="panel-body" style=@if(map == list.head){"display:block"} else{"display:none"}>
+                        <div style="position:absolute;right:20px">
+                            <img class="marking" data="@map.get("qid")" mark="0" isMark="false" src="@routes.Assets.versioned("images/common/mark.png")" style="width:55px;cursor: pointer;">
+                        </div>
+
+                        <div class="row" style="min-height:100px;border:2px solid #eee;margin:30px 30px 10px 30px;font-size:18px;">
+                            <div class="col-md-12" style="line-height:100px;height:100px;">
+                                <p style="text-indent:2em;">@map.get("question")</p>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin:130px 30px 10px 30px;font-size:16px;line-height:25px;">
+                            <div class="col-md-12" style="text-align:center;margin-bottom: 0px;">
+                            @defining(map.get("options").asInstanceOf[Map[String, String]]) { optionMap =>
+                                @defining(optionMap.toList.sorted) { keyValueList =>
+                                    @for((key,value) <- keyValueList) {
+                                        <input type="button" class="option btn-default" style="height: 60px;" value="@value" onclick="choose(this, '@map.get("qid")','@key')"/>
+                                    }
+                                }
+                            }
+                            </div>
+                        </div>
+                    </div>
+                }
+                </div>
+                <div class="col-sm-1 arrow_div">
+                    <div class="arrow-right" onclick="show_next();show_practiceBtn();"></div>
+                </div>
+            </div>
+            <div class="row" style="position:relative;">
+                <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                @pageNum
+                </p>
+                <input id="submit_button" type="button" class="btn-test btn-default" style="position: absolute;right:150px;top:1px;display: none;"  value="提 交"
+                    onclick="submitAnswer();"/>
+            </div>
+        </div>
+    </body>
+</html>

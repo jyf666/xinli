@@ -1,0 +1,85 @@
+<script type="text/javascript">
+    // 查看订单
+    function showOrder(){ 
+        if(orderTable.row('.am-active').data() == undefined){
+            alert("请选择一个订单");
+            return;
+        }
+        var tableData = orderTable.row('.am-active').data();
+        var orderId = tableData.id;
+        var tpid = tableData.tpid;
+        var testpaperName = tableData.testpaperName;
+        var testNumber = tableData.testNumber;
+        var remainNumber = tableData.remainNumber;
+        var startTime = tableData.startTime;
+        var endTime = tableData.endTime;
+        var ageLow = tableData.ageLow;
+        var ageUpp = tableData.ageUpp;
+
+        $("#testpaperName_td").html(testpaperName);
+        $("#testNumber_td").html(testNumber);
+        $("#remainNumber_td").html(remainNumber);
+        $("#startTime_td").html(formatDateTime(startTime));
+        $("#endTime_td").html(formatDateTime(endTime));
+        $("#age_td").html(ageLow + "-" + ageUpp + "岁");
+        $.getJSON("/admin/questionType/list/" + tpid, function(questiontypes){
+            if(questiontypes){
+                var questiontypeText = "";
+                for(var i=0; i < questiontypes.length; i++){
+                    var questiontype = questiontypes[i];
+                    questiontypeText += "<span class='am-badge am-badge-success am-round am-text-sm'>" + questiontype.name + "</span>\n";
+                }
+                $("#questiontypes_td").html(questiontypeText);
+            } else {
+                $("#questiontypes_td").html("");
+            }
+        });
+        $('#order_prompt').modal({
+            closeViaDimmer: 0
+        });
+    } 
+</script>
+<div class="am-popup" tabindex="-1" id="order_prompt">
+    <div class="am-modal-dialog">
+        <div class="am-popup-inner">
+        <div class="am-popup-hd" style="background-color: ##f8f8f8;padding-left: 15px;padding-top: 5px;">
+            <strong class="am-text-primary am-text-lg">订单详情</strong> / <small>Order Details</small>
+            <span data-am-modal-close class="am-close">&times;</span>
+        </div>
+        <div class="am-popup-bd admin-content">
+            <table class="am-table">
+                <tbody>
+                    <tr>
+                        <td class="am-text-right" width="130px" style="border-top:0;">试卷名称:</td>
+                        <td id="testpaperName_td" style="border-top:0;"></td>
+                    </tr>
+                    <tr>
+                        <td class="am-text-right">测试模块:</td>
+                        <td id="questiontypes_td"></td>
+                    </tr>
+                    <tr>
+                        <td class="am-text-right">订单人数:</td>
+                        <td id="testNumber_td"></td>
+                    </tr>
+                    <tr>
+                        <td class="am-text-right">剩余人数:</td>
+                        <td id="remainNumber_td"></td>
+                    </tr>
+                    <tr>
+                        <td class="am-text-right">年龄范围:</td>
+                        <td id="age_td"></td>
+                    </tr>
+                    <tr>
+                        <td class="am-text-right">订单生效时间:</td>
+                        <td id="startTime_td"></td>
+                    </tr>
+                    <tr>
+                        <td class="am-text-right">订单到期时间:</td>
+                        <td id="endTime_td"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+</div>

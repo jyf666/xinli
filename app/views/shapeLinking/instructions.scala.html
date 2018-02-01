@@ -1,0 +1,52 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])
+@import utils.SystemConstant
+<!DOCTYPE html>
+<html manifest="/shapelinking/instructionsManifest">
+@views.html.common.instructions.head()
+<body>
+<div class="container">
+    @views.html.common.instructions.progress(questionTypeMap)
+
+    <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+        <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+        </div>
+        <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+            <div class="panel-body">
+                <div class="row">
+                    <h4><p class="text-center"><b>图形连线测试</b></p></h4>
+                </div>
+                <div class="row" >
+                    <div class="col-sm-12" style="padding:10px;font-size:16px;line-height:30px;">
+                        本测试中，你将看到一系列的圆形、方形和十字，上面标有阿拉伯数字（1-8）。
+                    </div>
+                    <div class="col-sm-12" style="padding:10px;font-size:16px;line-height:30px;">
+                        你需要按照
+                        <img src="@routes.Assets.versioned("images/shapeLinking/circleSymbol.png")" style="width:20px;">
+                        <img src="@routes.Assets.versioned("images/shapeLinking/rectangleSymbol.png")" style="width:20px;">
+                        <img src="@routes.Assets.versioned("images/shapeLinking/plusSymbol.png")" style="width:20px;">
+                        的图形顺序和从小到大的数字顺序用鼠标依次点击这些图形。
+                    </div>
+                    <div class="col-sm-12" style="padding:60px;font-size:16px;line-height:30px;">
+                        <span style="font-weight: bold">例：</span> <img src="@routes.Assets.versioned("images/shapeLinking/instSample.png")" style="width:450px;">
+                    </div>
+                    <div class="col-sm-12" style="padding:10px;font-size:16px;">
+                        点击正确，图形会变为绿色，并和上一个图形之间产生连线，连接所有图形后，此题结束。
+                    </div>
+                    <div class="col-sm-12" style="padding:10px;font-size:16px;">
+                        点击错误，图形会闪烁提醒，请重新点击正确的图形。
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+    </div>
+    <div class="row">
+        <p class="text-center" style="margin-top:10px;">
+            <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                   onclick="location.replace('/shapelinking/practice?tid=' + tid);;" value="测试练习"/>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

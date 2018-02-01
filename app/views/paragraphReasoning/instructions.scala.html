@@ -1,0 +1,87 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/paragraphReasoning/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+        <style>
+            .options_table{
+                margin-top: 20px;
+                border-collapse:separate;
+                border-spacing:10px;
+            }
+            .options_table tr{
+                height:50px;
+            }
+            .options_table td{
+                width:50%;
+                background-color:#d2ede3;
+            }
+            .rightOrWrong{
+                position:relative;
+                left:360px;
+                top:-19px;
+                width: 30px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4><p class="text-center"><b>段落推理测试</b></p></h4>
+                        </div>
+                        <div class="row" >
+                            <div class="col-sm-12" style="padding:40px 30px 10px 30px;font-size:16px;line-height:30px;">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请认真阅读题目中的文字，理解其中表述的概念、原理或事件。根据题目给出的问题，在选项中选出最合理的一项。
+                            </div>
+                            <div class="col-sm-12" style="padding:10px 30px 10px 30px;font-size:16px;">
+                                <div style="padding:10px 0px 10px 5px;">
+                                    <b>例:</b>
+                                </div>
+                                <div style="border:2px solid #eee;padding:10px 0px 10px 10px;font-size:16px;line-height:30px;">
+                                    通过调查得知，并非所有的餐馆都有卫生许可证，可知 （）
+                                </div>
+                                <table class="options_table" width="100%" style="font-size:16px;line-height:30px;">
+                                    <tr>
+                                        <td>
+                                            <img src="@routes.Assets.versioned("images/common/wrong.png")" class="rightOrWrong">
+                                            <b>A</b> 所有餐馆都没有卫生许可证
+                                        </td>
+                                        <td>
+                                            <img src="@routes.Assets.versioned("images/common/wrong.png")" class="rightOrWrong">
+                                            <b>B</b> 少数餐馆没有卫生许可证
+                                        </td>
+                                    </tr>
+                                    <tr height="50px">
+                                        <td>
+                                            <img src="@routes.Assets.versioned("images/common/wrong.png")" class="rightOrWrong">
+                                            <b>C</b> 多数餐馆没有卫生许可证
+                                        </td>
+                                        <td>
+                                            <img src="@routes.Assets.versioned("images/common/right.png")" class="rightOrWrong">
+                                            <b>D</b> 有的餐馆确实没有卫生许可证
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                    onclick="location.replace('/paragraphReasoning/practice?tid=' + tid);" value="测试练习"/>
+                </p>
+            </div>
+        </div>
+
+    </body>
+</html>

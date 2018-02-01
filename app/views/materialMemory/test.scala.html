@@ -1,0 +1,170 @@
+@(list: java.util.List[Question], pageNum: String)
+@import utils.enums.QuestionTypeEnum
+@import play.cache.Cache
+@import java.util.Map
+<html lang="en" manifest="/materialMemory/testManifest">
+    <head>
+        @views.html.common.test.head()
+        <script>
+            var qtype = @QuestionTypeEnum.MATERIAL_MEMORY.getId();
+		    var qtypeName = "@QuestionTypeEnum.MATERIAL_MEMORY.getName()";
+		    @defining(Cache.get("qtypeTimeMap").asInstanceOf[Map[Integer, Integer]]) { qtypeTimeMap =>
+			    var maxtime = @qtypeTimeMap.get(QuestionTypeEnum.MATERIAL_MEMORY.getId());
+	  	    }
+        </script>
+        <script src="@routes.Assets.versioned("javascripts/question/test.js")" type="text/javascript"></script>
+        <style>
+            body {
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+        </style>
+        <script>
+            function initPage(){
+                var testingPage = 1;
+                if(getCookieByName("testingPage")){
+                    testingPage = getCookieByName("testingPage");
+                }
+                /** 设置当前显示的页面 */
+                showPageByCookie(testingPage);
+                /** 设置页码 */
+                showPageNumByCookie(testingPage);
+            }
+            /**
+             * 3，2，1倒数结束
+             */
+			function finish321(){
+                $("#countBackwards").remove();// 删除321组件
+                $("#content-index > div:first").css("display", "block");// 显示第一道题
+                countDown(maxtime);// 圆圈倒计时
+                $("#pre").css("display", "block");
+                $("#next").css("display", "block");
+                $("#page_content").css("display", "block");
+			}
+
+            function submitAnswer(){
+				var json_str = JSON.stringify(datas);// 提交的json数据
+				var url = "/materialMemory/submitAnswer";// ajax提交的地址
+				var href = "/materialMemory/endTime?tid=" + tid;// 提交成功后跳转到此页面
+				var flag = true;// 是否要提示断网信息,并尝试重新提交答案
+				if(Boolean(isOffLine)){
+					submitAnswerByLocalStorage(json_str, href);
+				} else {
+					submitAnswerByAjax(url, json_str, href, flag);
+				}
+			}
+
+            var datas = new Array();
+            /**
+             * 记录数据
+             * param direction 箭头方向
+             */
+			function recordData(direction){
+			    var obj = $("#content-index >div");
+			    var pageFrom = getPageNum();
+			    var pageTo = 0;
+			    if(direction == "left"){
+                    if(pageFrom != 1){
+                        pageTo = pageFrom - 1;
+                    }
+			    } else if(direction == "right"){
+                    if(pageFrom != obj.length){
+                        pageTo = pageFrom + 1;
+                    }
+			    }
+                if(pageTo > 0 ){
+                    var data = {
+                        "uid":uid,
+                        "tid":tid,
+                        "qtype":qtype,
+//                        "answerDetail":{
+//                            "pageFrom": pageFrom,
+//                            "pageTo":pageTo
+//                        },
+                        "clickTime": curentTime()
+                    }
+                    datas.push(data);
+                }
+			}
+		</script>
+    </head>
+    <body>
+        <div class="container">
+
+            <div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px;">
+                <!-- 问号提示 start -->
+                <div class=" col-sm-offset-1 col-sm-1">
+                    <div class="bg" style="background-color:#7d7d7d;" ></div>
+                    <div class="wenhao" onclick="showReminder()">?</div>
+                    <div id="wenhao"  class="wenhao_reminder" style="padding-top:13px">
+                        <span >
+                            请在限定时间内尽可能多的记忆图片的对应关系。
+                        </span>
+                    </div>
+                </div>
+                <!-- 问号提示 end -->
+                <div class=" col-sm-offset-7 col-sm-1">
+
+                    <div class="hold">
+                        <div class="pie pie1"></div>
+                    </div>
+                    <div class="hold">
+                        <div class="pie pie2" style="font-size:20px;"></div>
+                    </div>
+                    <div class="bg"> </div>
+                    <div class="time_cart"></div>
+                </div>
+                    <!--<div class=" col-sm-1"><img src="/xinli/home/Tpl/default/Public/images/itemlist_gray.png" style="height:60px;"></div>-->
+            </div>
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:400px;float:left;padding-top:112px;">
+                    <div id="pre" class="arrow-left" onclick="show_prev()" style="display:none"></div>
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div id = "countBackwards" class="panel-body">
+                        <div style="width:200px;height:200px;border-radius:200px;position:absolute;left:337.5px;top:122.5px;background-color:#d2ede3;"> </div>
+                        <div class="num_cart"></div>
+                    </div>
+                    @for((question, index) <- list zipWithIndex) {
+                        @if(index != 0) {
+                            @if(index % 6 == 0) {
+                                </div>
+                            }
+                            @if(index % 3 == 0) {
+                                </div>
+                            }
+                        }
+                        @if(index % 6 == 0) {
+                            <div class="panel-body" style="display:none;padding: 70px;">
+                        }
+                        @if(index % 3 == 0){
+                            <div class="row" style="margin-top:40px;">
+                        }
+                        <div class=" col-sm-4">
+                            <img src="@routes.Assets.versioned("images/materialMemory/question/" + question.getQuestion + ".png")" width="85px">
+                            <img src="@routes.Assets.versioned("images/materialMemory/answer/" + question.getAnswer + ".png")" width="85px" style="margin-left: 15px;">
+                        </div>
+                        @if(index == list.size - 1 && index % 3 != 0) {
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="col-sm-1" style="height:400px;float:left;padding-top:112px;">
+                    <div id="next" class="arrow-right" onclick="show_next();" style="display:none"></div>
+                </div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;font-size:16px;display:none" id="page_content">
+                    @pageNum
+                </p>
+                @*<p class="text-center" style="margin-top:10px;font-size:16px;display: block;" >
+                    <input type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;" value="跳过" onclick="maxtime=0;"/>
+                </p>*@
+            </div>
+        </div>
+    </body>
+</html>
+
+

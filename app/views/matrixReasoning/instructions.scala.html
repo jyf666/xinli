@@ -1,0 +1,50 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/matrixReasoning/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left : 50 px ; padding-right : 50 px ; padding-bottom : 10 px ; color : #000000">
+                <div class="col-sm-1" style="height : 445 px ; float : left ; padding-top : 112 px ;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px; background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;"id="content-index">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4><p class="text-center"><b>矩阵推理测试</b></p></h4>
+                        </div>
+                        <div class="row" >
+                            <table align="center">
+                                <tr height="150px">
+                                    <td valign="middle">
+                                        <span style="font-size:16px;line-height:30px;margin-left:30px">如例题所示：一张大图中，缺失九分之一的内容，</span><br>
+                                        <span style="font-size:16px;line-height:30px;margin-left: -10px;">请根据现有图形的规律，选择正确选项。</span>
+                                    </td>
+                                    <td rowspan="2" valign="middle">
+                                        <p class="text-center"> <img src="@routes.Assets.versioned("images/matrixReasoning/example.png")" style="width:300px;"></p>
+                                    </td>
+                                </tr>
+                                <tr height="150px">
+                                    <td valign="middle">
+                                        <span style="font-size:16px;line-height:30px;margin-left:30px">判断并点击正确选项。</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                    onclick="location.replace('/matrixReasoning/practice?tid=' + tid);" value="测试练习"/>
+                </p>
+            </div>
+        </div>
+
+    </body>
+</html>

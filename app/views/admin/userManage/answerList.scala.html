@@ -1,0 +1,70 @@
+@(questiontypes:java.util.List[Questiontype],q:java.util.List[java.util.List[java.util.Map[String,Object]]])
+<!doctype html>
+<html>
+    <head>
+        @views.html.common.admin.head()
+    </head>
+    <body>
+            <!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器，Amaze UI 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>
+    以获得更好的体验！</p>
+<![endif]-->
+
+
+            <!-- content start -->
+        <div class="admin-content">
+            <section class="am-panel am-panel-default">
+                <header class="am-panel-hd">
+                    <h3 class="am-panel-title">试卷试题</h3>
+                </header>
+                <div class="am-tabs" data-am-tabs>
+                    <ul class="am-tabs-nav am-nav am-nav-tabs">
+                    @questiontypes.map { item =>
+                        <li @if(item==questiontypes.head){class="am-active"}><a href="#tab@item.getId">@item.getName</a></li>
+                    }
+                    </ul>
+                    <div class="am-tabs-bd">
+                    @q.map { item =>
+                        @item.map { answers =>
+                            <div class="am-tab-panel am-fade @if(answers==item.head){am-in am-active}" id="tab@answers.get("questionType")">
+                                <table class="am-table am-table-striped am-table-hover table-main">
+                                    <thead>
+                                        <tr>
+                                            <th class="table-check"><input type="checkbox" /></th>
+                                            <th class="table-id">编号</th>
+                                            <th class="table-title">题目</th>
+                                            <th class="table-author am-hide-sm-only">答案</th>
+                                            <th class="table-author am-hide-sm-only">用户答案</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @answers.get("answers").asInstanceOf[List[models.vo.AnswerVo]].map { answer =>
+                                        <tr>
+                                            <td><input type="checkbox" /></td>
+                                            <td>@answer.getQid</td>
+                                            <td>@answer.getQuestion</td>
+                                            <td>@answer.getAnswer</td>
+                                            <td>@answer.getUserAnswer</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                <div class="am-cf">
+                                    共  @answers.get("totalNum") 条记录
+                                </div>
+                                <hr />
+                            </div>
+                        }
+                    }
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+            <!-- content end -->
+        <script type="text/javascript">
+
+        </script>
+    </body>
+</html>

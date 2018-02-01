@@ -1,0 +1,27 @@
+<title>综合素质测评系统</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/common/logo_xinli.png")">
+
+<link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.min.css")" rel="stylesheet">
+<link href="@routes.Assets.versioned("stylesheets/amazeUI/admin.css")" rel="stylesheet">
+
+<script src="@routes.Assets.versioned("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.min.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/amazeUI/app.js")" type="text/javascript"></script>
+
+<!--[if lt IE 9]>
+<script src="http://cdn.staticfile.org/modernizr/2.8.3/modernizr.js"></script>
+<script src="assets/javascripts/amazeUI/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+
+<script type="text/javascript">
+    var session = {
+        "orgCode" : @session.get("ORG_CODE")
+    }
+</script>
+
+
+
+

@@ -1,0 +1,228 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import java.util.HashMap
+@import utils.SystemConstant
+
+<!DOCTYPE html>
+    <html manifest="/symbolicOperation/practiceManifest">
+        <head>
+            @views.html.common.practice.head()
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            #content-style li{
+                list-style:none;
+                width:60px;
+                float:left;
+                padding-left:45px;
+                margin-left: 3px;
+            }
+        </style>
+
+        </head>
+        <body>
+            <div class="container">
+                @views.html.common.instructions.progress(questionTypeMap)
+                <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+                    </div>
+                    <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                        @for(map <- list){
+                            <div class="panel-body" style=@if(map == list.head){"display:block"} else{"display:none"}>
+                                <div class="row" style="margin-top:20px;">
+                                    <div >
+                                        <ul id="content-style">
+                                        @for(tigan_item <- 0 to 9){
+                                            <li>
+                                                <div style="background:#48c8a3;width:60px;height:40px;padding:10px;text-align:center;font-size:16px">@tigan_item</div>
+                                                <div style="background:#d2ede3;width:60px;margin-top:5px;text-align:center;">
+                                                    <img src="@routes.Assets.versioned("images/symbolicOperation/answer/answer"+tigan_item+".png")" width="30px">
+                                                </div>
+                                            </li>
+                                        }
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+                                <div class="row" style="margin-top:50px;margin-left:35%;font-size:16px;text-align:center;">
+                                        @for(question <- map.get("question").asInstanceOf[Array[String]]){
+                                            @if(question!=null && !question.equals("")){
+                                                @if(question.equals("+") || question.equals("-") || question.equals("x") || question.equals("÷")){
+                                                    <span style="width:30px;float:left;text-align:center;font-size:30px;"><b>@question</b></span>
+                                                }
+                                                @if("0123456789".contains(question)){
+                                                    <div style="width:40px;float:left;"><img src="@routes.Assets.versioned("images/symbolicOperation/answer/answer"+question+".png")" width="30px"></div>
+                                                }
+                                            }
+                                        }
+                                    <span style="width:30px;float:left;text-align:center;font-size:30px;"><b>=</b></span>
+                                </div>
+
+                                <!-- 练习提示内容 start-->
+                                <div class="row" style="height:30px;width:430px;margin-top:10px;margin-left:175px;font-size:16px;">
+                                    <span name="reminder" style="background:#F2F2F2;display:none;height:100%;">
+                                        @defining(map.get("question").asInstanceOf[Array[String]]){questionArr =>
+                                        @defining(questionArr.indexOf(map.get("symbol"))){symbolIndex =>
+
+                                        @for( i <- 0 to questionArr.indexOf(map.get("symbol"))){
+                                            @defining(questionArr(i)){question =>
+                                                @if(question!=null && !question.equals("")){
+                                                    @if("0123456789".contains(question)){
+                                                        <img src="@routes.Assets.versioned("images/symbolicOperation/answer/answer"+question+".png")" width="10px">对应数字@question
+                                                        @if(symbolIndex > 2){
+                                                            ，
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        @if(symbolIndex > 2){
+                                        因此
+                                        @for( i <- 0 to questionArr.indexOf(map.get("symbol"))){
+                                            @defining(questionArr(i)){question =>
+                                                @if(question!=null && !question.equals("")){
+                                                    @if("0123456789".contains(question)){
+                                                        <img src="@routes.Assets.versioned("images/symbolicOperation/answer/answer"+question+".png")" width="10px">
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        表示数字
+                                        @for( i <- 0 to questionArr.indexOf(map.get("symbol"))){
+                                            @defining(questionArr(i)){question =>
+                                                @if(question!=null && !question.equals("")){
+                                                    @if("0123456789".contains(question)){
+                                                        @question
+                                                    }
+                                                }
+                                            }
+                                        }}}}
+                                    </span>
+                                </div>
+                                <div class="row" style="height:30px;width:430px;margin-top:5px;margin-left:175px;font-size:16px;">
+                                    <span name="reminder" style="background:#F2F2F2;display:none;height:100%;">
+                                        @defining(map.get("question").asInstanceOf[Array[String]]){questionArr =>
+                                        @defining(questionArr.indexOf(map.get("symbol"))){symbolIndex =>
+                                        @for( i <- symbolIndex to questionArr.size - 1){
+                                            @defining(questionArr(i)){question =>
+                                                @if(question!=null && !question.equals("")){
+                                                    @if("0123456789".contains(question)){
+                                                        <img src="@routes.Assets.versioned("images/symbolicOperation/answer/answer"+question+".png")" width="10px">对应数字@question
+                                                        @if(questionArr.size - symbolIndex > 2){
+                                                            ，
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        @if(questionArr.size - symbolIndex > 2){
+                                        因此
+                                        @for( i <- symbolIndex to questionArr.size - 1){
+                                            @defining(questionArr(i)){question =>
+                                                @if(question!=null && !question.equals("")){
+                                                    @if("0123456789".contains(question)){
+                                                        <img src="@routes.Assets.versioned("images/symbolicOperation/answer/answer"+question+".png")" width="10px">
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        表示数字
+                                        @for( i <- symbolIndex to questionArr.size - 1){
+                                            @defining(questionArr(i)){question =>
+                                                @if(question!=null && !question.equals("")){
+                                                    @if("0123456789".contains(question)){
+                                                        @question
+                                                    }
+                                                }
+                                            }
+                                        }}}}
+                                    </span>
+                                </div>
+                                <!-- 练习提示内容 end-->
+
+                                <div class="row" style="margin-top:35px;margin-left:170px;font-size:16px;text-align:center;">
+                                    <!-- 练习提示选择答案箭头 -->
+                                    <img src="@routes.Assets.versioned("images/symbolicOperation/reminder.png")" style="position: absolute;left:100px;top:340px;">
+                                @for((key, value) <- map.get("options").asInstanceOf[HashMap[String, String]]){
+                                    <div class="col-sm-2">
+                                        <span name="options" style="background:#d2ede3;padding:10px 15px 10px 15px;cursor:pointer;" onclick="choose(this,'@map.get("qid")',@value,@map.get("answer"))">
+                                        <b>@key</b><b>.</b>&nbsp;<b>@value</b>
+                                        @*<input type="radio"  style="display:none" name="test_@map.get("qid")" data="@map.get("qid")" value="@value">*@
+                                        </span>
+                                    </div>
+                                }
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                        <div class="arrow-right" onclick="show_next_practice('/symbolicOperation/practiceEnd?tid=' + tid);setTimeoutForShow();"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                    @pageNum
+                    </p>
+                </div>
+            </div>
+            <script>
+
+            var num = 0;
+            function setTimeoutForShow(){
+                var obj = $("#content-index >div");
+                var flag = 0;
+                for (var i = 0; i < obj.length; i++) {
+                    if ($(obj).eq(i).css("display") == "block") {
+                        flag = i;
+                    }
+                }
+                if (flag < obj.length - 1) {
+                    setTimeout("showReminder()", 2000);
+                    setTimeout("showReminder()", 3000);
+                }
+            }
+            function showReminder(){
+                $($("span[name=reminder]")[num++]).css("display","block");
+//                $("#reminder" + num).css("display","block");
+            }
+            $(function(){
+                setTimeoutForShow();
+            })
+
+			/**
+			 * param qid 题目id
+			 * param answer 答案
+			 * param obj 所选的DOM对象
+			 */
+			function choose(obj,qid, val, answer){
+				$("span[name = options]").css("background","#d2ede3");
+				$(obj).css("background","#05c0c2");
+				if(val == answer){
+
+                    $("#temp_pic").remove();
+					sign("@routes.Assets.versioned("images/common/right.png")", obj);
+				} else {
+                    $("#temp_pic").remove();
+                    sign("@routes.Assets.versioned("images/common/wrong.png")", obj);
+				}
+			}
+
+			/**
+             * 反馈
+             */
+            function sign(src, obj){
+                var img = document.createElement("img");
+                img.src = src;
+                img.style = "z-index:9;position:absolute;left:"+ ($(obj).position().left - 10) +"px;top:" + ($(obj).position().top - 10)+"px;";
+                img.width = 20;
+                img.id = "temp_pic";
+                $(obj).parent().append(img);
+            }
+		</script>
+        </body>
+    </html>

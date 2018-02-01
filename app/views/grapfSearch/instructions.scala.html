@@ -1,0 +1,42 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])
+@import utils.SystemConstant
+<!DOCTYPE html>
+<html manifest="/grapfSearch/instructionsManifest">
+  <head>
+  @views.html.common.instructions.head()
+  </head>
+<body>
+  <div class="container">
+  @views.html.common.instructions.progress(questionTypeMap)
+
+  <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+    <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+    </div>
+    <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+      <div class="panel-body">
+        <div class="row">
+          <h4><p class="text-center"><b>图案搜索测试</b></p></h4>
+        </div>
+        <div class="row" >
+          <div class="col-sm-12" style="padding:10px 10px 10px 50px;font-size:16px;line-height:30px;">
+              本测试中，你需要尽快找到与其他图案都不相同的1个图案，并点击该图案。
+              <br><span style="margin-left: 80px;font-size: 16px;font-weight: bold">例：</span>
+          </div>
+          <div class="col-sm-12" style="padding:10px;font-size:18px;line-height:30px;">
+            <p class="text-center"><img src="@routes.Assets.versioned("images/grapfSearch/grapfSearchExample.png")" style="width:550px;"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+  </div>
+  <div class="row">
+    <p class="text-center" style="margin-top:10px;">
+        <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+        onclick="location.replace('/grapfSearch/practice?tid=' + tid);" value="测试练习"/>
+    </p>
+  </div>
+  </div>
+
+</body>
+</html>

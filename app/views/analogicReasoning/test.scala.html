@@ -1,0 +1,282 @@
+@(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import utils.enums.QuestionTypeEnum
+@import play.cache.Cache
+@import java.util.Map
+<!DOCTYPE html>
+    <html manifest="/analogicReasoning/testManifest">
+        <head>
+            @views.html.common.test.head()
+            <script>
+                var qtype = @QuestionTypeEnum.ANALOGIC_REASONING.getId();
+                var qtypeName = "@QuestionTypeEnum.ANALOGIC_REASONING.getName()";
+                @defining(Cache.get("qtypeTimeMap").asInstanceOf[Map[Integer, Integer]]) { qtypeTimeMap =>
+                    var maxtime = @qtypeTimeMap.get(QuestionTypeEnum.ANALOGIC_REASONING.getId());
+                }
+                var marksrc = "@routes.Assets.versioned("images/common/mark.png")";
+                var markedsrc = "@routes.Assets.versioned("images/common/marked.png")";
+            </script>
+            <script src="@routes.Assets.versioned("javascripts/question/test.js")" type="text/javascript"></script>
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+        </style>
+        <script>
+            function initPage(){
+                var testingPage = 1;
+                if(getCookieByName("testingPage")){
+                    testingPage = getCookieByName("testingPage");
+                }
+                if(getCookieByName("answerJsonCookies")){
+                    json = JSON.parse(getCookieByName("answerJsonCookies"));
+                }
+                /** 设置当前显示的页面 */
+                showPageByCookie(testingPage);
+
+                /** 设置答案 */
+                if(getCookieByName("answerCookies")){
+                    answerCookies = JSON.parse(getCookieByName("answerCookies"));
+                }
+                for(var i = 0; i < answerCookies.length; i++) {
+                    var answer = answerCookies[i];
+                    if(answer != null){
+                        $("#content-index >div").eq(i).find('h4').each(function(j){
+                            if($(this).attr("data") == answer) {
+                                huaquan(this);
+                            }
+                        })
+                    }
+                }
+                /** 设置书签 */
+                showMarkByCookie("@routes.Assets.versioned("images/common/marked.png")");
+                /** 设置当前页的向右箭头是绿色还是灰色 */
+                showArrowRightByCookie(testingPage);
+                /** 设置页码 */
+                showPageNumByCookie(testingPage);
+            }
+
+            /**
+             * 3，2，1倒数结束
+             */
+			function finish321(){
+                $("#countBackwards").remove();// 删除321组件
+                $("#content-index > div:first").css("display", "block");// 显示第一道题
+                countDown(maxtime);// 圆圈倒计时
+			}
+
+            function chooseTrigger(obj){
+                $(obj).parent().children('h4').click();
+            }
+
+            var answerList = [];
+            var json = {};// 用来存储answer对象，组成一个answer的list
+            /**
+             * param qid 题目id
+             * param choice 选择的答案
+             * param obj 所选的DOM对象
+             */
+            function choose(obj, qid, choice){
+                huaquan(obj);
+                setAnswerCookies(choice);
+                var curent_time = curentTime();// 当前系统时间
+                if(json[qid] == undefined){
+                    json[qid] = {
+                        "uid":uid,
+                        "tid":tid,
+                        "qid":qid,
+                        "answer":choice,
+//                        "answerDetail":[
+//                            {
+//                                "answer":choice,
+//                                "clickTime": curent_time
+//                            }
+//                        ],
+                        "qtype":qtype,
+                        "type":0,// type代表：考生在切换前是否对题目进行了标记（是-1，否-0）
+                        "clickNum":1,
+                        "clickTime": curent_time
+                    };
+                } else {
+                    json[qid]["answer"] = choice;
+                    json[qid]["clickNum"] ++;
+                    json[qid]["clickTime"] = curent_time;
+//                    json[qid]["answerDetail"].push({"answer": choice, "clickTime": curent_time});
+                }
+                saveAnswerByLocalStorage(json);
+                saveAnswerDetailByLocalStorage(choice, "4");// 记录答题详情
+            }
+
+            function submitAnswer(){
+                $(".marking").each(function(index){
+                    var qid = $(this).attr("data");
+                    if (json[qid] != undefined) {
+                        json[qid].type = $(this).attr("mark");
+                    }
+                })
+
+                for(var key in json){
+                    answerList.push(json[key]);
+                }
+                var json_str = JSON.stringify(answerList);// 提交的json数据
+                var url = "/analogicReasoning/submitAnswer";// ajax提交的地址
+                var href = "/analogicReasoning/endTime?tid=" + tid;// 提交成功后跳转到此页面
+                var flag = true;// 是否要提示断网信息,并尝试重新提交答案
+                if(isOffLine){
+                    submitAnswerByLocalStorage(json_str, href);
+                } else {
+                    submitAnswerByAjax(url, json_str, href, flag);
+                }
+            }
+
+            /**
+             * 画圈
+             * param qid 题号
+             */
+            function huaquan(obj) {
+                var circles = $(obj).parent().parent().parent().find('div[name="circle_visible"]');
+                circles.each(function(index){
+                    circles.attr("name", "circle");
+                    circles.css("display", "none");
+                })
+                var circle_div = $(obj).parent().children('div[name="circle"]');
+                circle_div.attr("name", "circle_visible");
+                circle_div.css("display", "block");
+            }
+
+            function show_next() {
+                var obj = $("#content-index >div");
+                var pageNum = getPageNum();// 当前页码
+                if(pageNum == @list.size()-1){
+                    $(".arrow-right").css("display","none");
+                }
+                if (pageNum < obj.length) {
+                    saveAnswerDetailByLocalStorage("", "3");// 记录向后切题的时间
+                    setCookie("testingPage", pageNum + 1, 120);
+//                    document.cookie= "testingPage=" + (pageNum + 1);
+                    $(obj).eq(pageNum - 1).css("display", "none");
+                    $(obj).eq(pageNum).css("display", "block");
+                    var str = pageNum + 1 + "/" + obj.length;
+                    $("#page_content").html(str);
+                }
+            }
+		</script>
+        </head>
+        <body>
+            <div class="container">
+                <div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px;">
+                    <!-- 问号提示 start -->
+                    <div class=" col-sm-offset-1 col-sm-1">
+                        <div class="bg" style="background-color:#7d7d7d;" ></div>
+                        <div class="wenhao" onclick="showReminder()">?</div>
+                        <div id="wenhao"  class="wenhao_reminder">
+                            <span >
+                                请通过观察<b>=</b>左侧两个图形的关系，推测<b>?</b>应填入哪个选项。
+                            </span>
+                        </div>
+                    </div>
+                    <!-- 问号提示 end -->
+
+                    <div class=" col-sm-offset-7 col-sm-1">
+
+                        <div class="hold">
+                            <div class="pie pie1"></div>
+                        </div>
+                        <div class="hold">
+                            <div class="pie pie2" style="font-size:20px;"></div>
+                        </div>
+                        <div class="bg"> </div>
+                        <div class="time_cart"></div>
+                    </div>
+
+                    <div id="mark" class="col-sm-1">
+                        <div style="width:100%;text-align: center;cursor: pointer;" onclick="get_layer('/analogicReasoning/mark?tid=' + tid);">
+                            <img src="@routes.Assets.versioned("images/common/seemark.png")" width="45px">
+                        </div>
+                        <div style="margin-top: 2px;width:100%;text-align: center;">
+                            <span>
+                                <a href="#" onclick="get_layer('/analogicReasoning/mark?tid=' + tid);" style="color:black;" >查看标记</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                        <div class="arrow-left" onclick="show_prev()"></div>
+                    </div>
+                    <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                        <div id = "countBackwards" class="panel-body">
+                            <div style="width:200px;height:200px;border-radius:200px;position:absolute;left:337.5px;top:122.5px;background-color:#d2ede3;"> </div>
+                            <div class="num_cart"></div>
+                        </div>
+                        @for(map <- list){
+                            <div data="@map.get("qid")" class="panel-body" style="display:none">
+                                <div style="float: right;margin-right:10px">
+                                    <img class="marking" data="@map.get("qid")" mark="0" isMark="false" src="@routes.Assets.versioned("images/common/mark.png")" style="width:55px;cursor: pointer;">
+                                </div>
+                                <div class="row" style="margin-top:20px;padding-left: 80px;">
+                                @defining(map.get("question").asInstanceOf[String]){question =>
+                                    <div class="col-sm-offset-1 col-sm-1" style="text-align:center;padding:0;">
+                                        <img src="@routes.Assets.versioned("images/analogicReasoning/question/question" + question + ".png")" width="570px">
+                                    </div>
+                                }
+                                </div>
+
+                                <div class="row" style="margin-top:50px;padding-left: 156px;">
+                            @defining(map.get("question").asInstanceOf[String]){question =>
+                            @defining(map.get("choiceArr").asInstanceOf[Array[String]]){choiceArr =>
+                            @for((choice, index) <- choiceArr zipWithIndex){
+                                    <div class="col-sm-offset-1 col-sm-1" style="text-align:center;padding:0;margin-top: -20px;">
+                                        <img src="@routes.Assets.versioned("images/analogicReasoning/answer/answer" + question + "_" + choice + ".png")" style="width:90px;cursor: pointer;" onclick="chooseTrigger(this)">
+                                        @if(index==0){
+                                            <h4 style="cursor: pointer;padding-left: 30px;padding-top: -10px;padding-bottom: 10px;" onclick="choose(this, '@map.get("qid")', '@choice')" data="@choice">A</h4>
+                                        }
+                                        @if(index==1){
+                                            <h4 style="cursor: pointer;padding-left: 30px;padding-top: -10px;padding-bottom: 10px;" onclick="choose(this, '@map.get("qid")', '@choice')" data="@choice">B</h4>
+                                        }
+                                        @if(index==2){
+                                            <h4 style="cursor: pointer;padding-left: 30px;padding-top: -10px;padding-bottom: 10px;" onclick="choose(this, '@map.get("qid")', '@choice')" data="@choice">C</h4>
+                                        }
+                                        @if(index==3){
+                                            <h4 style="cursor: pointer;padding-left: 30px;padding-top: -10px;padding-bottom: 10px;" onclick="choose(this, '@map.get("qid")', '@choice')" data="@choice">D</h4>
+                                        }
+                                        @if(index==4){
+                                            <h4 style="cursor: pointer;padding-left: 30px;padding-top: -10px;padding-bottom: 10px;" onclick="choose(this, '@map.get("qid")', '@choice')" data="@choice">E</h4>
+                                        }
+                                        @if(index==5){
+                                            <h4 style="cursor: pointer;padding-left: 30px;padding-top: -10px;padding-bottom: 10px;" onclick="choose(this, '@map.get("qid")', '@choice')" data="@choice">F</h4>
+                                        }
+                                        @if(index==6){
+                                            <h4 style="cursor: pointer;padding-left: 30px;padding-top: -10px;padding-bottom: 10px;" onclick="choose(this, '@map.get("qid")', '@choice')" data="@choice">G</h4>
+                                        }
+                                        @if(index==7){
+                                            <h4 style="cursor: pointer;padding-left: 30px;padding-top: -10px;padding-bottom: 10px;" onclick="choose(this, '@map.get("qid")', '@choice')" data="@choice">H</h4>
+                                        }
+                                        <div name="circle" style="position:absolute;top:82px;left:23px;width:40px;height:40px;border:3px solid lightgreen;border-radius:40px;display: none;"></div>
+                                    </div>
+                            @if(index == 3){
+                                </div>
+                                <div class="row" style="margin-top:10px;padding-left: 156px;">
+                            }}}}
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                        <div class="arrow-right" onclick="show_next();"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                    @pageNum
+                    </p>
+                    @*<p class="text-center" style="margin-top:10px;font-size:16px;display: block;" >
+                    <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                    onclick="maxtime=0;" value="跳过"/>
+                    </p>*@
+                </div>
+            </div>
+        </body>
+    </html>

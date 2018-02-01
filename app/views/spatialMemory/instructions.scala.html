@@ -1,0 +1,47 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])
+@import utils.SystemConstant
+<!DOCTYPE html>
+<html manifest="/spatialMemory/instructionsManifest">
+  <head>
+  @views.html.common.instructions.head()
+  </head>
+<body>
+  <div class="container">
+  @views.html.common.instructions.progress(questionTypeMap)
+
+  <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+    <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+    </div>
+    <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+      <div class="panel-body">
+        <div class="row">
+          <h4><p class="text-center" ><b>顺序记忆测试</b></p></h4>
+        </div>
+        <div class="row" >
+          <div class="col-sm-12" style="font-size:16px;line-height:30px;">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在测试界面中，你将看到一个5×5的方格。
+          </div>
+          <div class="col-sm-12" style="font-size:16px;line-height:30px;">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;方格中将有数量不等的方块被依次“点亮”，每个方块点亮后熄灭，下一个方块再点亮，形式如下：
+          </div>
+          <div class="col-sm-12" style="padding:10px;font-size:16px;line-height:30px;">
+            <p style="margin-left: 90px"> <img src="@routes.Assets.versioned("images/spatialMemory/lizi/lizi.png")"></p>
+          </div>
+          <div class="col-sm-12" style="font-size:16px;line-height:30px;">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;你需要记住这些方块的位置以及点亮的顺序，按顺序点击方块，再次把它们点亮。
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+  </div>
+  <div class="row">
+    <p class="text-center" style="margin-top:10px;">
+        <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+        onclick="location.replace('/spatialMemory/practice?tid=' + tid);" value="测试练习"/>
+    </p>
+  </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+@(userVo: models.vo.UserVo)
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>综合素质测评系统</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/common/logo_xinli.png")">
+        <link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.min.css")" rel="stylesheet">
+        <script src="@routes.Assets.versioned("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <style>
+            body{
+                overflow: hidden;
+            }
+            .admissionCard{
+                min-height: 60px;
+                background: #48C9A3 none repeat scroll 0 0;
+                border-color: #d2ede3;
+                border-style: solid;
+                border-width: 0 0 1px;
+                color: #ffffff;
+                font-size: 17px;
+                font-family: "Microsoft YaHei";
+                font-weight: normal;
+                line-height: 60px;
+            }
+            .examFrame{
+                height: 100vh;
+                width: 100%;
+                overflow: hidden;
+                /*margin: 0;*/
+                /*position:fixed;*/
+                /*top:66px;*/
+                /*left: 0;*/
+                /*right: 0;*/
+                /*bottom: 0;*/
+            }
+        </style>
+        <script type="text/javascript" language="javascript">
+            /**
+            * 根据name获取cookie的值
+            */
+            function getCookieByName(name) {
+                 //获取cookie字符串
+                var strCookie = document.cookie;
+                 //将多cookie切割为多个名/值对
+                var arrCookie = strCookie.split("; ");
+                var value;
+                 //遍历cookie数组，处理每个cookie对
+                for (var i = 0; i < arrCookie.length; i++) {
+                    var arr = arrCookie[i].split("=");
+                     //找到名称为name的cookie，并返回它的值
+                    if (name == arr[0]) {
+                        value = arr[1];
+                        break;
+                    }
+                }
+                return value;
+            }
+
+            function logout(){
+                if(confirm("确定要退出考试吗？")){
+                    location.replace('/showOffLineAnswer');
+                }
+            }
+
+            $(function(){
+                var tid = getCookieByName("tid");// 考试id
+                $(".examFrame").attr('src',"/instructions/index/1?tid=" + tid);
+            })
+        </script>
+    </head>
+    <body>
+        <div class="admissionCard am-g">
+            <div class="am-u-sm-8 am-u-sm-offset-2">
+                <div class="am-u-sm-3"><label for="username">姓名: </label> <span id="username">@userVo.getName</span></div>
+                <div class="am-u-sm-3"><label for="sex">性别: </label> <span id="sex">@userVo.getSex</span></div>
+                <div class="am-u-sm-6"><label for="admissionId">准考证号: </label> <span id="admissionId">@userVo.getTestNum</span></div>
+            </div>
+            <div class="am-u-sm-2"><a onclick="logout()" href="#" style="color: #FFFFFF"><span class="am-icon-power-off"></span> 退出系统</a></div>
+        </div>
+        <iframe class="examFrame" src="" scrolling="auto" allowtransparency="true" frameborder="no"></iframe>
+
+    </body></html>

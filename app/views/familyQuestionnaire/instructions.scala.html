@@ -1,0 +1,74 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/familyQuestionnaire/instructionsManifest">
+<head>
+    @views.html.common.instructions.head()
+    <script>
+        function forward(){
+            if($("#father_q").prop("checked")){
+                document.cookie = "familyQuestionnaire_father=1";
+            } else {
+                document.cookie = "familyQuestionnaire_father=0";
+            }
+            if($("#mother_q").prop("checked")){
+                document.cookie = "familyQuestionnaire_mother=1";
+            } else {
+                document.cookie = "familyQuestionnaire_mother=0";
+            }
+            location.replace('/familyQuestionnaire/practiceEnd?tid=' + tid);
+        }
+
+        function skip(){
+            document.cookie = "familyQuestionnaire_father=0";
+            document.cookie = "familyQuestionnaire_mother=0";
+            location.replace('/familyQuestionnaire/practiceEnd?tid=' + tid);
+        }
+        $(function(){
+            $("input[name = 'chk']").prop("checked", true);
+        })
+    </script>
+</head>
+<body>
+    <div class="container">
+        @views.html.common.instructions.progress(questionTypeMap)
+
+    <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+        <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+    </div>
+        <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+            <div class="panel-body">
+                <div class="row">
+                    <h4><p class="text-center"><b>家庭情况问卷</b></p></h4>
+                </div>
+                <div class="row" style="font-size: 16px;padding: 10px 50px 10px 50px">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本问卷描述了 父亲 /母亲 可能存在的各种态度和行为。请你回答 父亲/母亲 的表现与题目描述的符合程度。<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;答案没有对错之分，仅用于科学研究。
+                </div>
+                <div class="row" style="font-size: 16px;" >
+                    <table align="center" width="680px" height="280px" style="border-collapse:separate;border-spacing: 20px;">
+                        <tr height="100%">
+                            <td width="50%" style="color: #49B992;font-size: 16px;">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请分别回答父母两人的表现。如无法回答，请将相应题目前方的“√”去掉。
+                            </td>
+                            <td width="50%" align="center">
+                                <div style="border:2px solid #d2ede3;height:80%;padding-top: 60px; ">
+                                    <div><input name="chk" id="father_q" type="checkbox" ><Label for="father_q" style="font-weight: normal;font-size: 16px;margin-left: 10px;">回答与父亲相关的问题</Label></div>
+                                    <div><input name="chk" id="mother_q" type="checkbox" ><Label for="mother_q" style="font-weight: normal;font-size: 16px;margin-left: 10px;">回答与母亲相关的问题</Label></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+    </div>
+    <div class="row">
+        <p class="text-center" style="margin-top:10px;">
+            <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+            onclick="forward()" value="测试须知"/>
+        </p>
+    </div>
+    </div>
+</body>
+</html>

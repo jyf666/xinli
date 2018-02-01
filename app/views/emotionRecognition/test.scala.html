@@ -1,0 +1,363 @@
+@(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import utils.enums.QuestionTypeEnum
+@import play.cache.Cache
+@import java.util.Map
+<!DOCTYPE html>
+<html manifest="/emotionRecognition/testManifest">
+    <head>
+        @views.html.common.test.head()
+        <script>
+            var qtype = @QuestionTypeEnum.EMOTION_RECOGNITION.getId();
+		    var qtypeName = "@QuestionTypeEnum.EMOTION_RECOGNITION.getName()";
+		    @defining(Cache.get("qtypeTimeMap").asInstanceOf[Map[Integer, Integer]]) { qtypeTimeMap =>
+			    var maxtime = @qtypeTimeMap.get(QuestionTypeEnum.EMOTION_RECOGNITION.getId());
+	  	    }
+            var marksrc = "@routes.Assets.versioned("images/common/mark.png")";
+            var markedsrc = "@routes.Assets.versioned("images/common/marked.png")";
+        </script>
+        <script src="@routes.Assets.versioned("javascripts/question/test.js")" type="text/javascript"></script>
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            .optionBtn{
+                height:25px;
+                width:35px;
+                border:none;
+                font-size:18px;
+            }
+            .optionColor0{
+                background:#ffffff;
+            }
+            .optionColor1{
+                background:#f2faf7;
+            }
+            .optionColor2{
+                background:#e3f4ed;
+            }
+            .optionColor3{
+                background:#dcf1e9;
+            }
+            .optionColor4{
+                background:#d7efe6;
+            }
+            .optionColor5{
+                background:#d2ede3;
+            }
+            .option_selected{
+                background:#05c0c2;
+            }
+        </style>
+        <script>
+            function initPage(){
+                var testingPage = 1;
+                if(getCookieByName("testingPage")){
+                    testingPage = getCookieByName("testingPage");
+                }
+                if(getCookieByName("answerJsonCookies")){
+                    json = JSON.parse(getCookieByName("answerJsonCookies"));
+                }
+                /** 设置当前显示的页面 */
+                showPageByCookie(testingPage);
+
+                /** 设置答案 */
+                if(getCookieByName("answerCookies")){
+                    answerCookies = JSON.parse(getCookieByName("answerCookies"));
+                }
+
+                for(var i = 0; i < answerCookies.length; i++) {
+                    var answer = answerCookies[i];
+                    if(answer != null){
+                        for(var key in answer){
+                            $("#content-index >div").eq(i).find('div[name="div_' + key + '"] > :button').each(function(j){
+                                if($(this).val() == answer[key]) {
+                                    selected(this);
+                                }
+                            })
+                        }
+
+                    }
+                }
+                $(".arrow-right").attr("onclick","show_next()");
+                $(".arrow-right").css("border-left","50px solid #48C9A3");
+                /** 设置页码 */
+                showPageNumByCookie(testingPage);
+            }
+
+            /**
+             * 3，2，1倒数结束
+             */
+			function finish321(){
+			    $("#countBackwards").remove();// 删除321组件
+                $("#content-index > div:first").css("display", "block");// 显示第一道题
+                countDown(maxtime);// 圆圈倒计时
+			}
+
+            var answerList = [];
+            var json = {};// 用来存储answer对象，组成一个answer的list
+            var answerJson = {};
+            var lastQuestionId = '@list.get(list.size()-1).get("qid")';
+            var isAnserwEnd = false;//标记是否全部答完题目
+            /**
+             * param qid 题目id
+             * param choice 选择的答案
+             * param obj 所选的DOM对象
+             */
+            function choose(obj, qid, type){
+                selected(obj);
+                var answer;
+                var answerDetail;
+                if(answerJson[qid] == undefined){
+                    answerJson[qid] = {};
+                }
+                answerJson[qid][type] = $(obj).val();
+                answer = answerJson[qid];
+                answerDetail = type+":"+$(obj).val();
+                setAnswerCookies(answer);
+                var curent_time = curentTime();// 当前系统时间
+                if(json[qid] == undefined){
+                    json[qid] = {
+                        "uid":uid,
+                        "tid":tid,
+                        "qid":qid,
+                        "answer":JSON.stringify(answer),
+                        "qtype":qtype,
+                        "type":0,// type代表：考生在切换前是否对题目进行了标记（是-1，否-0）
+                        "clickNum":1,
+                        "clickTime": curent_time
+                    };
+                } else {
+                    json[qid]["answer"] = JSON.stringify(answer);
+                    json[qid]["clickNum"] ++;
+                    json[qid]["clickTime"] = curent_time;
+                }
+                saveAnswerByLocalStorage(json);
+                saveAnswerDetailByLocalStorage(answerDetail, "4");// 记录答题详情
+            }
+
+            function submitAnswer(){
+                for(var key in json){
+                    answerList.push(json[key]);
+                }
+                var json_str = JSON.stringify(answerList);// 提交的json数据
+                var url = "/emotionRecognition/submitAnswer";// ajax提交的地址
+                var href = "/emotionRecognition/endTime?tid=" + tid;// 提交成功后跳转到此页面
+                var flag = true;// 是否要提示断网信息,并尝试重新提交答案
+                if(isOffLine){
+                    submitAnswerByLocalStorage(json_str, href);
+                } else {
+                    submitAnswerByAjax(url, json_str, href, flag);
+                }
+            }
+
+            function selected(obj) {
+                var pageNum = getPageNum();// 当前页码
+                $("#content-index >div").eq(pageNum - 1).attr("data", "1");
+
+                $(obj).parent().children(":button").each(function(i){
+                    $(this).attr("class","optionBtn optionColor" + i);
+                });
+				$(obj).attr("class","optionBtn option_selected");
+
+				if($(obj).parent().parent().find('.option_selected').length == 5){
+				    setNextButtonStyle(1);// 让切题箭头可用
+				    if(pageNum == $("#content-index >div").length){
+                        $("#submit_button").css("display","block");
+                    }
+				}
+            }
+
+            function show_next() {
+                var obj = $("#content-index >div");
+                var pageNum = getPageNum();// 当前页码
+                if(pageNum == @list.size()-1){
+                    $(".arrow-right").css("display","none");
+                }
+                var data = $("#content-index >div").eq(pageNum - 1).attr("data");
+                if (data == 1) {
+                    if (pageNum < obj.length) {
+                        setNextButtonStyle(0);// 让下一页的切题箭头不可用
+                        saveAnswerDetailByLocalStorage("", "3");// 记录向后切题的时间
+                        setCookie("testingPage", pageNum + 1, 120);
+//                        document.cookie= "testingPage=" + (pageNum + 1);
+                        $(obj).eq(pageNum - 1).css("display", "none");
+                        $(obj).eq(pageNum).css("display", "block");
+                        var str = pageNum + 1 + "/" + obj.length;
+                        $("#page_content").html(str);
+
+                    }
+                } else {
+                    alert("请选择答案");
+                }
+            }
+            function uncontrols(element){
+                $(element).removeAttr("controls");
+            }
+            function setNextButtonStyle(type){
+                if(type==1){// 切题箭头可用
+                    $(".arrow-right").attr("onclick","show_next()");
+                    $(".arrow-right").css("border-left","50px solid #48C9A3");
+                } else {// 切题箭头不可用
+                    $(".arrow-right").attr("onclick","javascript:void(0)");
+                    $(".arrow-right").css("border-left","50px solid grey");
+                }
+            }
+		</script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px;">
+                    <!-- 问号提示 start -->
+                <div class=" col-sm-offset-1 col-sm-1">
+                    <div class="bg" style="background-color:#7d7d7d;" ></div>
+                    <div class="wenhao" onclick="showReminder()">?</div>
+                    <div id="wenhao"  class="wenhao_reminder">
+                        <span >
+                            请观看视频回答其中人物的情绪，从0-5表示情绪的强烈程序不断增强。
+                        </span>
+                    </div>
+                </div>
+                    <!-- 问号提示 end -->
+                <div class=" col-sm-offset-7 col-sm-1">
+
+                    <div class="hold">
+                        <div class="pie pie1"></div>
+                    </div>
+                    <div class="hold">
+                        <div class="pie pie2" style="font-size:20px;"></div>
+                    </div>
+                    <div class="bg"> </div>
+                    <div class="time_cart"></div>
+                </div>
+            </div>
+            <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                    @*<div class="arrow-left" onclick="show_prev()"></div>*@
+                </div>
+
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div id = "countBackwards" class="panel-body">
+                        <div style="width:200px;height:200px;border-radius:200px;position:absolute;left:337.5px;top:122.5px;background-color:#d2ede3;"> </div>
+                        <div class="num_cart"></div>
+                    </div>
+                @for(map <- list){
+                    <div data="0" class="panel-body" style="display:none">
+                    <div class="row">
+                    @defining(map.get("question").asInstanceOf[String]){question =>
+                        <div style="text-align:center;padding:0;">
+                            <video width="400" controls="controls" onplay="uncontrols(this)">
+                                <source src="@routes.Assets.versioned("videos/emotionRecognition/" + question + ".mp4")" type="video/mp4" />
+                            </video>
+                        </div>
+                    }
+                    </div>
+
+                    <div class="row" style="margin-top:10px;">
+                        @defining(map.get("options").asInstanceOf[List[String]]){options =>
+                            @for((option, index) <- options zipWithIndex){
+                                @if(option == "a"){
+                                    <div name="div_@option" style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出悲伤
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        十分悲伤
+                                    </div>
+                                }
+                                @if(option == "b"){
+                                    <div name="div_@option" style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出愤怒
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        十分愤怒
+                                    </div>
+                                }
+                                @if(option == "c"){
+                                    <div name="div_@option" style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出惊讶
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        十分惊讶
+                                    </div>
+                                }
+                                @if(option == "d"){
+                                    <div name="div_@option" style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出恐惧
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        十分恐惧
+                                    </div>
+                                }
+                                @if(option == "e"){
+                                    <div name="div_@option" style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出快乐
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        十分快乐
+                                    </div>
+                                }
+                                @if(option == "f"){
+                                    <div name="div_@option" style="text-align:center;padding:0;margin-top: 5px;">
+                                        没有表现出厌恶
+                                        <input type="button" class="optionBtn optionColor0" value="0" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor1" value="1" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor2" value="2" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor3" value="3" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor4" value="4" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        <input type="button" class="optionBtn optionColor5" value="5" onclick="choose(this, '@map.get("qid")', '@option')"/>
+                                        十分厌恶
+                                    </div>
+                                }
+                            }}
+                        <div name="div_g" style="text-align:center;padding:0;margin-top: 5px;">
+                            没有表现出兴奋
+                            <input type="button" class="optionBtn optionColor0" value="0" onclick="choose(this, '@map.get("qid")', 'g')"/>
+                            <input type="button" class="optionBtn optionColor1" value="1" onclick="choose(this, '@map.get("qid")', 'g')"/>
+                            <input type="button" class="optionBtn optionColor2" value="2" onclick="choose(this, '@map.get("qid")', 'g')"/>
+                            <input type="button" class="optionBtn optionColor3" value="3" onclick="choose(this, '@map.get("qid")', 'g')"/>
+                            <input type="button" class="optionBtn optionColor4" value="4" onclick="choose(this, '@map.get("qid")', 'g')"/>
+                            <input type="button" class="optionBtn optionColor5" value="5" onclick="choose(this, '@map.get("qid")', 'g')"/>
+                            十分兴奋
+                        </div>
+                    </div>
+                    </div>
+                }
+
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                    <div class="arrow-right"  style="border-left:50px solid grey"></div>
+                </div>
+            </div>
+
+            <div class="row" style="position:relative;">
+                <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                @pageNum
+                </p>
+                <input id="submit_button" type="button" class="btn-test btn-default" style="position: absolute;right:150px;top:1px;display: none;" value="提 交"
+                onclick="submitAnswer();"/>
+            </div>
+
+        </div>
+    </body>
+</html>

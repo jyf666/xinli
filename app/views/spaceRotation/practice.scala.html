@@ -1,0 +1,128 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import java.util.HashMap
+@import utils.SystemConstant
+
+<!DOCTYPE html>
+    <html manifest="/spaceRotation/practiceManifest">
+        <head>
+            @views.html.common.practice.head()
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            .circle{
+                margin-top: 85px;
+                margin-left:20px;
+                float:left;
+                cursor:pointer;
+                width:40px;
+                height:40px;
+                border:3px solid white;
+                border-radius:40px;
+                font-size: 23px;
+                padding: 1px;
+            }
+        </style>
+        <script>
+
+            function chooseTrigger(obj){
+                $(obj).siblings("div .circle").click();
+            }
+
+            /**
+             * param choice 选择的答案
+             * param answer 答案
+             * param obj 所选的DOM对象
+             */
+            function choose(obj, choice, answer){
+                if(choice == answer){
+                    $("#temp_pic").remove();
+					sign("@routes.Assets.versioned("images/common/right.png")", obj);
+				} else {
+                    $("#temp_pic").remove();
+                    sign("@routes.Assets.versioned("images/common/wrong.png")", obj);
+				}
+                huaquan(obj);
+            }
+
+			/**
+             * 反馈
+             */
+            function sign(src, obj){
+                var img = document.createElement("img");
+                img.src = src;
+                img.style = "z-index:9;position:absolute;left:"+ ($(obj).position().left + 40) +"px;top:" + ($(obj).position().top + 70)+"px;";
+                img.width = 20;
+                img.id = "temp_pic";
+                $(obj).parent().append(img);
+            }
+
+            /**
+             * 画圈
+             * param obj
+             */
+            function huaquan(obj) {
+                $(obj).parent().parent().parent().find("div[name='circle_visible']").css("border","3px solid white");
+                $(obj).css("border","3px solid lightgreen");
+				$(obj).parent().parent().parent().find('div[name="circle_visible"]').attr("name", "circle");
+				$(obj).attr("name", "circle_visible");
+            }
+		</script>
+        </head>
+        <body>
+            <div class="container">
+                @views.html.common.instructions.progress(questionTypeMap)
+                <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+                    </div>
+                    <div class="col-sm-10 panel-info" style="padding:0;height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                        @for(map <- list){
+                            <div data="@map.get("qid")" class="panel-body" style="height:100%;padding:0;@(if(map == list.head){"display:block"} else{"display:none"})">
+                            @defining(map.get("options").asInstanceOf[HashMap[String, String]]) { options =>
+                                @defining(map.get("question").asInstanceOf[String]){question =>
+                                    <table width="100%" height="100%">
+                                        <tr>
+                                            <td width="33%" rowspan="2" align="center" valign="middle" style="background-color:#d2ede3;">
+                                                <div style="text-align:center;padding:0;">
+                                                    <img src="@routes.Assets.versioned("images/spaceRotation/question/" + question + "_t.png")">
+                                                </div>
+                                            </td>
+                                            <td width="33%" align="center" >
+                                                <div id="@map.get("qid")_a" name="circle" class="circle" onclick="choose(this, '@options.get("A")', '@map.get("answer")')" data="@options.get("A")">A</div>
+                                                <img style="cursor: pointer;" src="@routes.Assets.versioned("images/spaceRotation/answer/" + question + "_" + options.get("A") + ".png")" onclick="chooseTrigger(this)">
+                                            </td>
+                                            <td width="33%" align="center" >
+                                                <div id="@map.get("qid")_b" name="circle" class="circle" onclick="choose(this, '@options.get("B")', '@map.get("answer")')" data="@options.get("B")">B</div>
+                                                <img style="cursor: pointer;" src="@routes.Assets.versioned("images/spaceRotation/answer/" + question + "_" + options.get("B") + ".png")" onclick="chooseTrigger(this)">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="33%" align="center" >
+                                                <div id="@map.get("qid")_c" name="circle" class="circle" onclick="choose(this, '@options.get("C")', '@map.get("answer")')" data="@options.get("C")">C</div>
+                                                <img style="cursor: pointer;" src="@routes.Assets.versioned("images/spaceRotation/answer/" + question + "_" + options.get("C") + ".png")" onclick="chooseTrigger(this)">
+                                            </td>
+                                            <td width="33%" align="center" >
+                                                <div id="@map.get("qid")_d" name="circle" class="circle" onclick="choose(this, '@options.get("D")', '@map.get("answer")')" data="@options.get("D")">D</div>
+                                                <img style="cursor: pointer;" src="@routes.Assets.versioned("images/spaceRotation/answer/" + question + "_" + options.get("D") + ".png")" onclick="chooseTrigger(this)">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                }}
+                            </div>
+                        }
+                    </div>
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                        <div class="arrow-right" onclick="show_next_practice('/spaceRotation/practiceEnd?tid=' + tid);"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                    @pageNum
+                    </p>
+                </div>
+            </div>
+        </body>
+    </html>

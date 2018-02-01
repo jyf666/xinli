@@ -1,0 +1,71 @@
+@(questionsStr:String,qidsStr:String,questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])
+@import utils.enums.QuestionTypeEnum
+
+@* 输出参数message *@
+<html lang="en" manifest="/spatialMemory/practiceManifest">
+    <head>
+        @views.html.common.practice.head()
+        <script>
+            var qtype = @QuestionTypeEnum.SPATIAL_MEMORY.getId();
+
+            var questionsStr = "@questionsStr";
+            var qidsStr = "@qidsStr";
+            var isTest = false;
+            var millisecond = 800;// 800毫秒后开始
+        </script>
+        <script src="@routes.Assets.versioned("javascripts/question/spatialMemory.js")"></script>
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            #stable{
+                border:solid #92572C 5px;
+                font-size:34px;
+                color:white;
+                text-align:center;
+                font-family:Arial;
+            }
+            .square{
+                width:55px;
+                height:55px;
+                border:solid #92572C 5px;
+                background:#A6A6A6;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+            <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;"></div>
+
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div id="content" align="center" style="font-size: 24px;color: green;margin-top: 40px;margin-bottom: 10px">请记住方块点亮的顺序</div>
+                    <img id="wrong" src="@routes.Assets.versioned("images/common/wrong.png")" width="46px" height="44px" style="display: none"/>
+                    <img id="right" src="@routes.Assets.versioned("images/common/right.png")" width="46px" height="44px" style="display: none"/>
+                    <table id="stable" align="center">
+                        @for(i <- 1 to 5){
+                            <tr>
+                            @for(j <- 1 to 5){
+                                <td class="square"></td>
+                            }
+                            </tr>
+                        }
+                    </table>
+                </div>
+
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;"></div>
+            </div>
+
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+
+                </p>
+            </div>
+        </div>
+    </body>
+</html>
+

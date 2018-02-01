@@ -1,0 +1,123 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])
+<html lang="en" manifest="/familyQuestionnaire/markManifest">
+    <head>
+        @views.html.common.instructions.head()
+        <style>
+            #stable{
+                border:solid #92572C 0px;
+                font-size:34px;
+                text-align:center;
+                font-family:Arial
+            }
+            .square{
+                width:80px;
+                height:59px;
+                color:#C2C1C2;
+                border:solid #E0F6EF 12px;
+                background:#8C8F8E
+            }
+        </style>
+        <script type="text/javascript">
+            var marks = "";// 将所有标记的位置拼成字符串记录
+            $(".marking", window.parent.document).each(function(index){
+                if ($(this).attr("isMark") == "true") {
+                    marks += "," + index;
+                }
+            })
+            if(marks != ""){
+                marks = marks.substring(1);
+            }
+            var radioCheckedLength = $("div[name='circle_visible']", window.parent.document).length;
+            $(function(){
+                $(".square").each(function (index){
+                    $(this).html(index + 1);
+                    if(index + 1 <= radioCheckedLength){
+                        $(this).css('background','#A6E3D4');
+                        $(this).css("color","#2DA987");
+                        $(this).css("cursor","pointer");
+                        $(this).click(function(){
+                            var obj = $("#content-index >div",window.parent.document);
+                            $("#content-index",window.parent.document).children().css("display","none");
+                            $(obj).eq(index).css("display","block");
+                            var pageNum = index + 1 + "/" + obj.length;
+                            $("#page_content",window.parent.document).html(pageNum);
+
+                            var close = parent.layer.getFrameIndex(window.name);
+                            var quantity = 1;
+                            var pageNum = getPageNum();
+                            if(pageNum < 26){
+                                if($("tr[name='father_tr']",window.parent.document).length>0 && $("tr[name='mother_tr']",window.parent.document).length>0){
+                                    quantity = 2;
+                                }
+                            }
+                            if(index+1 !=$(obj).length){
+                                 $(".arrow-right",window.parent.document).css("display","block");
+                            }else{
+                                 $(".arrow-right",window.parent.document).css("display","none");
+                            }
+
+                            if($(obj).eq(index).find("div").eq(2).find('td[name="td_selected"]').length == quantity){
+                                 $(".arrow-right",window.parent.document).attr("onclick","show_next()");
+                                 $(".arrow-right",window.parent.document).css("border-left","50px solid #48C9A3");
+                            }
+                            parent.layer.close(close);
+                        })
+                    }
+                })
+                if(marks != ""){// 加小钉子
+                    var markIndex = marks.split(",");
+                    for(var i=0;i<markIndex.length;i++) {
+                        var img = document.createElement("img");
+                        img.src = "@routes.Assets.versioned("images/common/dingzi.png")";
+                        img.style = "z-index:9;position:absolute;left:"+ ($(".square").eq(markIndex[i]).position().left+ 37) +"px;top:" + ($(".square").eq(markIndex[i]).position().top - 13)+"px;";
+                        img.width = 30;
+                        $(".square").eq(markIndex[i]).append(img);
+                    }
+                }
+                $("#startBtn").click(function(){
+                    var index = parent.layer.getFrameIndex(window.name);
+                    parent.layer.close(index);
+                })
+            })
+
+            /**
+             * 获取当前页码
+             *
+             */
+            function getPageNum(){
+                var obj = $("#content-index >div",window.parent.document);
+                for (var i = 0; i < obj.length; i++) {
+                    if ($(obj).eq(i).css("display") == "block") {
+                        return i + 1;
+                    }
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div style="float: left">
+                @views.html.common.instructions.progress(questionTypeMap)
+            </div>
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-10 col-sm-offset-1" style="height:445px;background:#E0F6EF;border:5px solid #5DCEAF;border-radius:4px;float:left;" id="content-index">
+                    <table id="stable" align="center" style="margin-top: 25px">
+                        @for(i <- 1 to 4){
+                            <tr>
+                            @for(j <- 1 to 7){
+                                <td class="square"></td>
+                            }
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="startBtn" type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;"
+                     value="返回测试"/></p>
+            </div>
+        </div>
+    </body>
+</html>
+

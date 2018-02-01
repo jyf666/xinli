@@ -1,0 +1,233 @@
+@(questiontList: java.util.List[java.util.Map[String,java.util.List[java.util.Map[String, String]]]])(pageNum: String)
+@import utils.enums.QuestionTypeEnum
+@import play.cache.Cache
+@import java.util.Map
+<!DOCTYPE html>
+<html manifest="/shapelinking/testManifest" >
+	<head>
+		@views.html.common.test.head()
+		<script>
+			var qtype = @QuestionTypeEnum.SHAPE_LINKING.getId();
+			var qtypeName = "@QuestionTypeEnum.SHAPE_LINKING.getName()";
+			@defining(Cache.get("qtypeTimeMap").asInstanceOf[Map[Integer, Integer]]) { qtypeTimeMap =>
+			    var maxtime = @qtypeTimeMap.get(QuestionTypeEnum.SHAPE_LINKING.getId());
+	  	    }
+		</script>
+		<script src="@routes.Assets.versioned("javascripts/exam/shapelinking/shapelinking.js")" type="text/javascript"></script>
+		<script src="@routes.Assets.versioned("javascripts/question/test.js")" type="text/javascript"></script>
+		<style>
+			body{
+				background:#F2F2F2;
+				color:#B5DC86;
+				padding-top:0px;
+			}
+		</style>
+		<script>
+			function initPage(){
+                var testingPage = 1;
+                if(getCookieByName("testingPage")){
+                    testingPage = getCookieByName("testingPage");
+                }
+                /** 设置当前显示的页面 */
+                $("#content-index").children().css("display","none");
+    			$("#content-index >div.panel-body").eq(testingPage - 1).css("display","block");
+                /** 设置页码 */
+                showPageNumByCookie(testingPage);
+            }
+			/**
+             * 3，2，1倒数结束
+             */
+			function finish321(){
+                $("#countBackwards").remove();// 删除321组件
+                $("#content-index > div.panel-body:first").css("display", "block");// 显示第一道题
+                $("#reminder").css("display", "block");
+                countDown(maxtime);// 圆圈倒计时
+			}
+
+			var answerList = [];
+			var json = {};// 用来存储answer对象，组成一个answer的list
+			var answerDetailArray = new Array();// 答题详情
+			var flagNum = 1;
+			var imgNameArr = ["circle1","rectangle1","plus1","circle2","rectangle2","plus2","circle3","rectangle3","plus3","circle4","rectangle4","plus4",
+						"circle5","rectangle5","plus5","circle6","rectangle6","plus6","circle7","rectangle7","plus7","circle8","rectangle8","plus8"];
+			function panduan(obj,qid,shape,number,str,count) {
+				var curent_time = curentTime();// 当前系统时间
+				var top = $(obj).parent().css("top");
+				var left = $(obj).parent().css("left");
+				var imgName = shape + number;
+				var answerDetail = {
+					"shape": shape,// 形状
+					"number": number,// 号码
+					"x": left,// 横坐标
+					"y": top,// 纵坐标
+					"isRight": 0,// 每一题中鼠标每次点击是否正确（正确-1，错误-0）
+					"clickTime":curent_time
+				}
+
+				if(json[qid]) { // 非第一次点击
+					json[qid]["clickNum"] ++;
+					json[qid]["clickTime"] = curent_time;
+					if(imgNameArr[flagNum-1] == imgName) { // 选择正确
+						answerDetail.isRight = 1;
+
+						flagNum ++;
+						json[qid]["rightNum"] ++;
+						var new_str = str + "b_" + imgName + ".png"
+						$(obj).attr("src",new_str);
+
+						chkBtn(obj.parentNode.id);// 连线
+						obj.onclick = "";
+					}else{ // 选择错误
+						flashing(obj);// 让所传图片闪烁
+					}
+				} else { // 第一次点击
+					json[qid] = {
+						"uid":uid,
+						"tid":tid,
+						"qid":qid,
+	                    "answer":imgName,
+						"qtype":qtype,
+						"type":0,// 材料回忆测试中，type代表：考生在切换前是否对题目进行了标记（是-1，否-0）
+						"clickNum":1,
+						"rightNum":0,
+						"clickTime": curent_time
+					};
+
+					if(imgNameArr[0] == imgName) { // 选择正确
+						answerDetail.isRight = 1;
+
+						flagNum ++;
+						json[qid]["rightNum"] ++;
+						var new_str = str + "b_" + imgName + ".png"
+						$(obj).attr("src",new_str);
+
+						chkBtn(obj.parentNode.id);// 连线
+						obj.onclick = "";
+					}else { // 选择错误
+						json[qid]["clickNum"] ++;
+						flashing(obj);// 让所传图片闪烁
+					}
+				}
+
+				answerDetailArray.push(answerDetail);
+				json[qid]["answer"] = JSON.stringify(answerDetailArray);
+				if(json[qid]["rightNum"] == count){
+//					json[qid]["answer"] = JSON.stringify(answerDetailArray);
+					answerDetailArray = new Array();// 答题详情
+
+					flagNum = 1;
+					clearLineSprite();
+					selFromId = "";
+					show_next();
+				}
+			}
+
+			function submitAnswer(){
+				for(var key in json){
+					answerList.push(json[key]);
+				}
+				var json_str = JSON.stringify(answerList);// 提交的json数据
+				var url = "/shapelinking/submitAnswer";// ajax提交的地址
+				var href = "/shapelinking/endTime?tid=" + tid;// 提交成功后跳转到此页面
+				var flag = true;// 是否要提示断网信息,并尝试重新提交答案
+				if(Boolean(isOffLine)){
+					submitAnswerByLocalStorage(json_str, href);
+				} else {
+					submitAnswerByAjax(url, json_str, href, flag);
+				}
+			}
+
+			/**
+			 * 下一页
+			 */
+			function show_next() {
+				var obj = $("#content-index > div.panel-body");
+				var pageNum;
+				for (var i = 0; i < obj.length; i++) {
+					if ($(obj).eq(i).css("display") == "block") {
+						pageNum = i + 1;
+						break;
+					}
+				}
+				if (pageNum < obj.length) {
+					saveAnswerDetailByLocalStorage("", "3");// 记录向后切题的时间
+					setCookie("testingPage", pageNum + 1, 120);
+					$(obj).eq(pageNum - 1).css("display", "none");
+					$(obj).eq(pageNum).css("display", "block");
+					var str = pageNum + 1 + "/" + obj.length;
+					$("#page_content").html(str);
+				}
+				if (pageNum == obj.length - 1) {
+					$(".arrow-right").css("display","none");
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px;">
+				<!-- 问号提示 start -->
+				<div class=" col-sm-offset-1 col-sm-1">
+					<div class="bg" style="background-color:#7d7d7d;" ></div>
+					<div class="wenhao" onclick="showReminder()">?</div>
+					<div id="wenhao"  class="wenhao_reminder" style="padding-top:5px">
+						<span>
+							请按照下面给出的形状顺序和从小到大的数字顺序依次点击各个形状。
+							正确点击全部形状后自动进入下一题，在三分钟内完成尽可能多的题目
+						</span>
+					</div>
+				</div>
+				<!-- 问号提示 end -->
+
+				<div class=" col-sm-offset-7 col-sm-1">
+
+					<div class="hold">
+						<div class="pie pie1"></div>
+					</div>
+					<div class="hold">
+						<div class="pie pie2" style="font-size:20px;"></div>
+					</div>
+					<div class="bg"> </div>
+					<div class="time_cart"></div>
+				</div>
+			</div>
+			<div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+				<div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+				</div>
+				<div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;padding:0;" id="content-index">
+					<div id = "countBackwards" class="panel-body">
+						<div style="width:200px;height:200px;border-radius:200px;position:absolute;left:337.5px;top:122.5px;background-color:#d2ede3;"> </div>
+						<div class="num_cart"></div>
+					</div>
+					<div id = "reminder" style="height:40px;background:#d2ede3;line-height: 40px;text-align:center;display: none;">
+            			按照
+						<img src="@routes.Assets.versioned("images/shapeLinking/circleSymbol.png")" style="width:20px;">
+						<img src="@routes.Assets.versioned("images/shapeLinking/rectangleSymbol.png")" style="width:20px;">
+						<img src="@routes.Assets.versioned("images/shapeLinking/plusSymbol.png")" style="width:20px;">
+						的形状顺序和从小到大的数字顺序依次点击这些图形
+					</div>
+						<!--画线预览层-->
+					<div id="prewLineSprite"></div>
+						<!--线条层-->
+					<div id="lineSprite"></div>
+					@for(questiontMap <- questiontList ) {
+					<div class="panel-body" style="display:none">
+						@for((imgMap, index) <- questiontMap.get("imgList") zipWithIndex) {
+							<div id="btnPoint_@questiontMap.get("qid")_@index" style="position:absolute;left:@{imgMap.get("width")}px;top:@{imgMap.get("height")}px;" class="">
+								<img style="width:50px;cursor: pointer;" onclick="panduan(this, '@questiontMap.get("qid")', '@imgMap.get("shape")', '@imgMap.get("number")', '@routes.Assets.versioned("images/shapeLinking/")', @questiontMap.get("count"))"
+								src="@routes.Assets.versioned("images/shapeLinking/a_" + imgMap.get("shape") + imgMap.get("number") + ".png")" >
+							</div>
+						}
+					</div>
+				}
+				</div>
+		</div>
+		<div class="row">
+			<p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+			@pageNum
+			</p>
+		</div>
+		</div>
+	</body>
+</html>

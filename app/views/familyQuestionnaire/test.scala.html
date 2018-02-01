@@ -1,0 +1,624 @@
+@(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import java.util.HashMap
+@import utils.enums.QuestionTypeEnum
+
+<!DOCTYPE html>
+<html manifest="/familyQuestionnaire/testManifest">
+    <head>
+        @views.html.common.test.head()
+        <script>
+            var qtype = @QuestionTypeEnum.FAMILY_QUESTIONNAIRE.getId();
+		    var qtypeName = "@QuestionTypeEnum.FAMILY_QUESTIONNAIRE.getName()";
+            var marksrc = "@routes.Assets.versioned("images/common/mark.png")";
+            var markedsrc = "@routes.Assets.versioned("images/common/marked.png")";
+        </script>
+        <script src="@routes.Assets.versioned("javascripts/question/test.js")" type="text/javascript"></script>
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            .options_table{
+                margin-top: 20px;
+                border-collapse:separate;
+                border-spacing:10px;
+            }
+            .options_table td{
+                width:20%;
+                background-color:#d2ede3;
+                padding: 10px;
+                cursor:pointer;
+                text-align:center;
+            }
+            .options_table_2{
+                margin-top: 20px;
+                border-collapse:separate;
+                border-spacing:3px;
+            }
+            .options_table_2 td{
+                width:33%;
+                background-color:#d2ede3;
+                padding: 3px;
+                cursor:pointer;
+                text-align:center;
+            }
+
+            .ladder_table{
+                margin-top: 20px;
+                border-collapse:separate;
+                border-spacing:10px;
+            }
+            .ladder_table td{
+                width:50%;
+            }
+            #submit_button{
+                height:40px;
+                border:none;
+                font-size:18px;
+                font-weight:bolder;
+                width:200px;
+                background:#48C9A3;
+                color:white;
+            }
+            area{
+                cursor: pointer;
+            }
+        </style>
+        <script>
+            var testingPage = 1;
+            if(localStorage.getItem("answerReport_" + userInfoStr) && getCookieByName("testingPage")){
+                testingPage = getCookieByName("testingPage");
+            }
+            function initPage(){
+                if(getCookieByName("answerJsonCookies")){
+                    json = JSON.parse(getCookieByName("answerJsonCookies"));
+                }
+                /** 设置答案 */
+                if(getCookieByName("answerCookies")){
+                    answerCookies = JSON.parse(getCookieByName("answerCookies"));
+                }
+                for(var i = 0; i < answerCookies.length; i++) {
+                    var answer = answerCookies[i];
+                    if(answer != null){
+//                        answer = JSON.parse(answer);
+                        if(i < 25){
+                            if(!(i == 1 && checkFather == "0" && checkMother == "0")){
+                                if(answer["father"]){
+                                    $("#content-index >div").eq(i).find('tr[name="father_tr"]').find('.options').each(function(){
+                                        if($(this).attr("data") == answer["father"]){
+                                            checked(this);
+                                        }
+                                    })
+                                }
+                                if(answer["mother"]){
+                                    $("#content-index >div").eq(i).find('tr[name="mother_tr"]').find('.options').each(function(){
+                                        if($(this).attr("data") == answer["mother"]){
+                                            checked(this);
+                                        }
+                                    })
+                                }
+                            }
+                        } else if(i == 25 || i == 26){
+                            if(!(i == 26 && ((checkFather == "1" && checkMother == "0") || (checkFather == "0" && checkMother == "1")))){
+                                $("#content-index >div").eq(i).find('.options').each(function(){
+                                    if(answer["father"] && $(this).attr("data") == answer["father"]){
+                                        checked_26_27(this)
+                                    } else if(answer["mother"] && $(this).attr("data") == answer["mother"]){
+                                        checked_26_27(this)
+                                    }
+                                })
+                            }
+                        }
+                        if((i == 0 && checkFather == "0" && checkMother == "0")
+                         || (i == 26 && checkFather == "1" && checkMother == "0")
+                         || (i == 26 && checkFather == "0" && checkMother == "1")
+                         || i == 27){
+                            $("#content-index >div").eq(27).find('area').each(function(){
+                                if(answer && $(this).attr("data") == answer){
+                                    if(answer == '10'){
+                                        checked_28(this, 68, 632);
+                                    } else  if(answer == '9'){
+                                        checked_28(this, 102, 622);
+                                    } else  if(answer == '8'){
+                                        checked_28(this, 135, 612);
+                                    } else  if(answer == '7'){
+                                        checked_28(this, 168, 602);
+                                    } else  if(answer == '6'){
+                                        checked_28(this, 201, 592);
+                                    } else  if(answer == '5'){
+                                        checked_28(this, 235, 582);
+                                    } else  if(answer == '4'){
+                                        checked_28(this, 268, 572);
+                                    } else  if(answer == '3'){
+                                        checked_28(this, 302, 562);
+                                    } else  if(answer == '2'){
+                                        checked_28(this, 335, 552);
+                                    } else  if(answer == '1'){
+                                        checked_28(this, 368, 542);
+                                    }
+                                    $("#submit_button").css("display", "block");
+                                    $("#submit_button").attr("onclick","submitAnswer()");
+                                    $("#submit_button").css("background","#48C9A3");
+                                }
+                            })
+                        }
+                    }
+                }
+
+                /** 设置书签 */
+                showMarkByCookie('@routes.Assets.versioned("images/common/marked.png")');
+            }
+
+            var checkFather = getCookieByName("familyQuestionnaire_father");
+            var checkMother = getCookieByName("familyQuestionnaire_mother");
+
+            function chooseTrigger(id){
+                $("#" + id).click();
+            }
+
+            var answerList = [];
+            var json = {};// 用来存储answer对象，组成一个answer的list
+            var answerJson = {};
+            var lastQuestionId = '@list.get(list.size()-1).get("qid")';
+            var isAnserwEnd = false;//标记是否全部答完题目
+            function show_prev() {
+                $(".arrow-right").css("display", "block");
+                $("#submit_button").css("display", "none");
+                $(".arrow-right").attr("onclick","show_next()");
+                $(".arrow-right").css("border-left","50px solid #48C9A3");
+                var obj = $("#content-index >div");
+                var pageNum = getPageNum();// 当前页码
+                if (pageNum - 1 > 0) {
+                    saveAnswerDetailByLocalStorage("", "2");// 记录向前切题的时间
+                    setCookie("testingPage", pageNum - 1, 120);
+//                    document.cookie= "testingPage=" + (pageNum - 1);
+                    $(obj).eq(pageNum - 1).css("display", "none");
+                    $(obj).eq(pageNum - 2).css("display", "block");
+                    var str = pageNum - 1 + "/" + obj.length;
+                    $("#page_content").html(str);
+                }
+            }
+            /**
+             * param qid 题目id
+             * param choice 选择的答案
+             * param obj 所选的DOM对象
+             */
+            function choose(obj, qid, choice, type){
+                if(qid == lastQuestionId){
+                    $("#submit_button").css("display", "block");
+                    $("#submit_button").attr("onclick","submitAnswer()");
+                    $("#submit_button").css("background","#48C9A3");
+                    isAnserwEnd = true;
+                }
+
+                var answer;
+                var answerDetail;
+                if(type == "28"){
+                    answer = choice;
+                    answerDetail = choice;
+                } else {
+                    if(answerJson[qid] == undefined){
+                        answerJson[qid] = {};
+                    }
+                    answerJson[qid][type] = choice;
+                    answer = answerJson[qid];
+                    answerDetail = type+":"+choice;
+                }
+                setAnswerCookies(answer);
+                var curent_time = curentTime();// 当前系统时间
+                if(json[qid] == undefined){
+                    json[qid] = {
+                        "uid":uid,
+                        "tid":tid,
+                        "qid":qid,
+                        "answer":JSON.stringify(answer),
+//                        "answerDetail":[
+//                            {
+//                                "answer":answer,
+//                                "clickTime": curent_time
+//                            }
+//                        ],
+                        "qtype":qtype,
+                        "type":0,// type代表：考生在切换前是否对题目进行了标记（是-1，否-0）
+                        "clickNum":1,
+                        "clickTime": curent_time
+                    };
+                } else {
+                    json[qid]["answer"] = JSON.stringify(answer);
+                    json[qid]["clickNum"] ++;
+                    json[qid]["clickTime"] = curent_time;
+//                    json[qid]["answerDetail"].push({"answer": answer, "clickTime": curent_time});
+                }
+                saveAnswerByLocalStorage(json);
+                saveAnswerDetailByLocalStorage(answerDetail, "4");// 记录答题详情
+
+                if (checkFather != "0" || checkMother != "0") {
+                    var quantity = 1;
+                    var pageNum = getPageNum();
+                    if(pageNum < 26){
+                        if($("tr[name='father_tr']").length>0 && $("tr[name='mother_tr']").length>0){
+                            quantity = 2;
+                        }
+                    }
+                    if($(obj).parent().parent().find('td[name="td_selected"]').length == quantity){
+                         $(".arrow-right").attr("onclick","show_next()");
+                         $(".arrow-right").css("border-left","50px solid #48C9A3");
+                    }
+                }
+            }
+
+            function submitAnswer(){
+                $(".marking").each(function(index){
+                    var qid = $(this).attr("data");
+                    if (json[qid] != undefined) {
+                        json[qid].type = $(this).attr("mark");
+                    }
+                })
+
+                for(var key in json){
+                    answerList.push(json[key]);
+                }
+                var json_str = JSON.stringify(answerList);// 提交的json数据
+                var url = "/familyQuestionnaire/submitAnswer";// ajax提交的地址
+                var href = "/familyQuestionnaire/endTime?tid=" + tid;// 提交成功后跳转到此页面
+                var flag = true;// 是否要提示断网信息,并尝试重新提交答案
+                if(isOffLine){
+                    submitAnswerByLocalStorage(json_str, href);
+                } else {
+                    submitAnswerByAjax(url, json_str, href, flag);
+                }
+            }
+
+            $(function(){
+                if (checkFather == "1" && checkMother == "0") {
+                    $("tr[name = 'mother_tr']").remove();
+                    $("#mother_div_27").remove();
+                    $("#page_content").html(testingPage + "/27");
+                } else if (checkFather == "0" && checkMother == "1") {
+                    $("tr[name = 'father_tr']").remove();
+                    $("#father_div_26").remove();
+                    $("#page_content").html(testingPage + "/27");
+                } else if (checkFather == "0" && checkMother == "0") {
+                    var obj = $("#content-index >div");
+                    for (var i = 0; i < obj.length - 1; i++) {
+                        $(obj).eq(i).remove();
+                    }
+                    $("#page_content").html("1/1");
+                    if(!localStorage.getItem("answerReport_" + userInfoStr)) {
+                        $("#submit_button").css("display", "block");
+                        $(".arrow-right").css("display","none");
+                        $(".arrow-left").css("display","none");
+                    }
+                }
+                /** 设置当前显示的页面 */
+                showPageByCookie(testingPage);
+                if(localStorage.getItem("answerReport_" + userInfoStr)) {
+                    /** 设置当前页的向右箭头是绿色还是灰色 */
+                    showArrowRightByCookie(testingPage);
+                }
+            })
+
+            function checked(obj){
+                if($(obj).parent().find('td[name="td_selected"]')){
+                    $(obj).parent().find('td[name="td_selected"]').attr("name", "");
+                }
+                $(obj).attr("name", "td_selected");
+
+                if($(obj).parent().parent().parent().find('div[name="circle_visible"]')){
+                    $(obj).parent().parent().parent().find('div[name="circle_visible"]').remove();
+                }
+                var div = document.createElement("div");
+                $(div).attr("name","circle_visible");
+                $(div).attr("display","none");
+                $(obj).append(div);
+
+                $(obj).siblings(".options").css("background","#d2ede3");
+				$(obj).css("background","#05c0c2");
+            }
+
+            function checked_26_27(obj){
+                if($(obj).parent().parent().find('td[name="td_selected"]')){
+                    $(obj).parent().parent().find('td[name="td_selected"]').attr("name", "");
+                }
+                $(obj).attr("name", "td_selected");
+
+                if($(obj).parent().parent().find('div[name="circle_visible"]')){
+                    $(obj).parent().parent().find('div[name="circle_visible"]').remove();
+                }
+                var div = document.createElement("div");
+                $(div).attr("name","circle_visible");
+                $(div).attr("display","none");
+                $(obj).append(div);
+
+                $(obj).parent().parent().find(".options").css("background","#d2ede3");
+				$(obj).css("background","#05c0c2");
+            }
+
+            function checked_28(obj, top, left){
+                if($(obj).parent().parent().find('div[name="circle_visible"]')){
+                    $(obj).parent().parent().find('div[name="circle_visible"]').remove();
+                }
+                var div = document.createElement("div");
+                div.style = "position:absolute;top:"+top+"px;left:"+left+"px;width:25px;height:20px;border:3px solid #75a0b0;border-radius:40px;background-color:#5c8696;";
+                $(div).attr("name","circle_visible");
+                $("#ladder_div").append(div);
+            }
+
+            function show_next() {
+                var obj = $("#content-index >div");
+                var pageNum = getPageNum();
+                var circles = $(obj).eq(pageNum - 1).find('td[name="td_selected"]');
+                var quantity = 1;
+                if(pageNum < 26){
+                    if($("tr[name='father_tr']").length>0 && $("tr[name='mother_tr']").length>0){
+                        quantity = 2;
+                    }
+                } else {
+                    quantity = 1;
+                }
+                 var nextDivCircles =  $(obj).eq(pageNum).find('td[name="td_selected"]');
+                    if(nextDivCircles.length>0){
+                         $(".arrow-right").attr("onclick","show_next()");
+                         $(".arrow-right").css("border-left","50px solid #48C9A3");
+                    }else {
+                         $(".arrow-right").attr("onclick","javascript:void(0)");
+                         $(".arrow-right").css("border-left","50px solid grey");
+                    }
+
+                if (circles.length == quantity) {
+                    if (pageNum < obj.length) {
+                        saveAnswerDetailByLocalStorage("", "3");// 记录向后切题的时间
+                        setCookie("testingPage", pageNum + 1, 120);
+//                        document.cookie= "testingPage=" + (pageNum + 1);
+                        $(obj).eq(pageNum - 1).css("display", "none");
+                        $(obj).eq(pageNum).css("display", "block");
+                        var str = pageNum + 1 + "/" + obj.length;
+                        $("#page_content").html(str);
+                        if(pageNum == obj.length - 1){
+                            $("#submit_button").css("display", "block");
+                            $(".arrow-right").css("display","none");
+                        }
+                    }
+                } else {
+                    alert("请选择答案");
+                }
+            }
+		</script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px;">
+                    <!-- 问号提示 start -->
+                <div class=" col-sm-offset-1 col-sm-1">
+                    <div class="bg" style="background-color:#7d7d7d;" ></div>
+                    <div class="wenhao" onclick="showReminder()">?</div>
+                    <div id="wenhao"  class="wenhao_reminder" style="padding-top:20px">
+                        <span >
+                            请选择最符合你的答案，任何答案都无所谓对错。
+                        </span>
+                    </div>
+                </div>
+                    <!-- 问号提示 end -->
+
+                <div id="mark" class="col-sm-offset-8 col-sm-1">
+                    <div style="width:100%;text-align: center;cursor: pointer;" onclick="get_layer('/familyQuestionnaire/mark?tid=' + tid);">
+                        <img src="@routes.Assets.versioned("images/common/seemark.png")" width="45px">
+                    </div>
+                    <div style="margin-top: 2px;width:100%;text-align: center;">
+                        <span>
+                            <a href="#" onclick="get_layer('/familyQuestionnaire/mark?tid=' + tid);" style="color:black;" >查看标记</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                    <div class="arrow-left" onclick="show_prev()"></div>
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                @for((map, index) <- list zipWithIndex){
+                    @if(map.get("answer") != "26" && map.get("answer") != "27" && map.get("answer") != "28"){
+                        <div data="@map.get("qid")" class="panel-body" style="display:none">
+                            <div style="float: right;margin-right:10px">
+                                <img class="marking" data="@map.get("qid")" mark="0" isMark="false" src="@routes.Assets.versioned("images/common/mark.png")" style="width:55px;cursor: pointer;">
+                            </div>
+                            <div class="row" style="margin:30px 70px 0px 70px;font-size:15px;line-height:20px;">
+                            @defining(map.get("question").asInstanceOf[String]){question =>
+                                <table width="100%" height="100px" style="border:2px solid #eee;">
+                                    <tr>
+                                        <td valign="center" style="padding:0px 10px 0px 10px;">@question</td>
+                                    </tr>
+                                </table>
+                            }
+                            </div>
+
+                            <div class="row" style="margin:50px 70px 0px 70px;">
+                                <table class="options_table" width="85%">
+                                    <tr name="father_tr">
+                                        <td style="background-color:transparent;cursor:auto;">父：</td>
+                                        <td class="options" onclick="checked(this);choose(this, '@map.get("qid")', 'A', 'father');" data="A">不符合</td>
+                                        <td class="options" onclick="checked(this);choose(this, '@map.get("qid")', 'B', 'father');" data="B">稍不符合</td>
+                                        <td class="options" onclick="checked(this);choose(this, '@map.get("qid")', 'C', 'father');" data="C">稍符合</td>
+                                        <td class="options" onclick="checked(this);choose(this, '@map.get("qid")', 'D', 'father');" data="D">非常符合</td>
+                                    </tr>
+                                    <tr name="mother_tr">
+                                        <td style="background-color:transparent;cursor:auto;">母：</td>
+                                        <td class="options" onclick="checked(this);choose(this, '@map.get("qid")', 'A', 'mother');" data="A">不符合</td>
+                                        <td class="options" onclick="checked(this);choose(this, '@map.get("qid")', 'B', 'mother');" data="B">稍不符合</td>
+                                        <td class="options" onclick="checked(this);choose(this, '@map.get("qid")', 'C', 'mother');" data="C">稍符合</td>
+                                        <td class="options" onclick="checked(this);choose(this, '@map.get("qid")', 'D', 'mother');" data="D">非常符合</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    @if(map.get("answer") == "26"){
+                        <div data="@map.get("qid")" id="father_div_26" class="panel-body" style="display:none">
+                            <div style="float: right;margin-right:10px">
+                                <img class="marking" data="@map.get("qid")" mark="0" isMark="false" src="@routes.Assets.versioned("images/common/mark.png")" style="width:55px;cursor: pointer;">
+                            </div>
+                            <div class="row" style="margin:10px 70px 0px 70px;font-size:15px;line-height:20px;">
+                            @defining(map.get("question").asInstanceOf[String]){question =>
+                                <table width="100%" height="50px" style="border:2px solid #eee;">
+                                    <tr>
+                                        <td valign="center" style="padding:0px 10px 0px 10px;">@question</td>
+                                    </tr>
+                                </table>
+                            }
+                            </div>
+
+                            <div class="row" style="margin-top:10px;">
+                                <table class="options_table_2" width="45%" align="center">
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'A', 'father');" data="A">没上过学</td>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'B', 'father');" data="B">小学</td>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'C', 'father');" data="C">初中</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'D', 'father');" data="D">高中</td>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'E', 'father');" data="E">职高或技校</td>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'F', 'father');" data="F">中专</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'G', 'father');" data="G" colspan="3">大专<br>（非全日制，如：自考、函授、夜大、电大等）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'H', 'father');" data="H" colspan="3">大专<br>（全日制）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'I', 'father');" data="I" colspan="3">本科<br>（非全日制，如：自考、函授、夜大、电大等）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'J', 'father');" data="J" colspan="3">本科<br>（全日制）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'K', 'father');" data="K" colspan="3">研究生及以上</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'L', 'father');" data="L" colspan="3">其他</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    @if(map.get("answer") == "27"){
+                        <div data="@map.get("qid")" id="mother_div_27" class="panel-body" style="display:none">
+                            <div style="float: right;margin-right:10px">
+                                <img class="marking" data="@map.get("qid")" mark="0" isMark="false" src="@routes.Assets.versioned("images/common/mark.png")" style="width:55px;cursor: pointer;">
+                            </div>
+                            <div class="row" style="margin:10px 70px 0px 70px;font-size:15px;line-height:20px;">
+                            @defining(map.get("question").asInstanceOf[String]){question =>
+                                <table width="100%" height="50px" style="border:2px solid #eee;">
+                                    <tr>
+                                        <td valign="center" style="padding:0px 10px 0px 10px;">@question</td>
+                                    </tr>
+                                </table>
+                            }
+                            </div>
+
+                            <div class="row" style="margin-top:10px;">
+                                <table class="options_table_2" width="45%" align="center">
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'A', 'mother');" data="A">没上过学</td>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'B', 'mother');" data="B">小学</td>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'C', 'mother');" data="C">初中</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'D', 'mother');" data="D">高中</td>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'E', 'mother');" data="E">职高或技校</td>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'F', 'mother');" data="F">中专</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'G', 'mother');" data="G" colspan="3">大专<br>（非全日制，如：自考、函授、夜大、电大等）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'H', 'mother');" data="H" colspan="3">大专<br>（全日制）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'I', 'mother');" data="I" colspan="3">本科<br>（非全日制，如：自考、函授、夜大、电大等）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'J', 'mother');" data="J" colspan="3">本科<br>（全日制）</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'K', 'mother');" data="K" colspan="3">研究生及以上</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="options" onclick="checked_26_27(this);choose(this, '@map.get("qid")', 'L', 'mother');" data="L" colspan="3">其他</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    @if(map.get("answer") == "28"){
+                        <div data="@map.get("qid")" class="panel-body" style="display:none;">
+                            <div style="float: right;margin-right:10px">
+                                <img class="marking" data="" mark="0" isMark="false" src="@routes.Assets.versioned("images/common/mark.png")" style="width:55px;cursor: pointer;">
+                            </div>
+
+                            <div class="row" style="margin:0px 70px 0px 70px;">
+                                <table class="ladder_table" width="100%" >
+                                    <tr>
+                                        <td >
+                                            <div style="height:360px;font-size: 16px;padding: 30px 10px 10px 10px;border:2px solid #d2ede3;">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;想象右侧梯子的层级代表您家所在地区不同家庭所在的位置：<br>
+                                                <span style="font-family:'楷体','楷体_GB2312';">&nbsp;&nbsp;&nbsp;&nbsp;梯子的最高层代表生活水平最高的家庭——收入最高，受教育程度最高，社会地位最高；<br>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;梯子的最低层代表生活水平最低的家庭——收入最低，受教育程度最低，社会地位最低。</span><br>
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请您考虑您家在这个梯子上的位置，并点击相应的层级。
+                                            </div>
+                                        </td>
+                                        <td align="center">
+                                            <div id="ladder_div" style="padding: 1px;">
+                                                @*<div name="circle" style="position:absolute;top:68px;left:632px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:102px;left:622px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:135px;left:612px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:168px;left:602px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:201px;left:592px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:235px;left:582px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:268px;left:572px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:302px;left:562px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:335px;left:552px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>
+                                                <div name="circle" style="position:absolute;top:368px;left:542px;width:25px;height:20px;border:3px solid lightgreen;border-radius:40px;"></div>*@
+                                                <img src="@routes.Assets.versioned("images/familyQuestionnaire/ladder.png")" width="168" height="372" border="0" usemap="#ladderMap" />
+                                                <map name="ladderMap" id="ladderMap">
+                                                    <area shape="poly" coords="108,28,109,24,118,23,139,36,137,45" href="#" onclick="checked_28(this, 68, 632);choose(this, '@map.get("qid")', '10', '28');" data="10"/>
+                                                    <area shape="poly" coords="99,61,99,57,107,56,128,68,127,77" href="#" onclick="checked_28(this, 102, 622);choose(this, '@map.get("qid")', '9', '28');" data="9"/>
+                                                    <area shape="poly" coords="88,96,89,89,94,90,120,100,118,109" href="#" onclick="checked_28(this, 135, 612);choose(this, '@map.get("qid")', '8', '28');" data="8"/>
+                                                    <area shape="poly" coords="78,130,78,123,86,124,109,136,106,144" href="#" onclick="checked_28(this, 168, 602);choose(this, '@map.get("qid")', '7', '28');" data="7"/>
+                                                    <area shape="poly" coords="67,160,69,155,76,156,99,168,99,176" href="#" onclick="checked_28(this, 201, 592);choose(this, '@map.get("qid")', '6', '28');" data="6"/>
+                                                    <area shape="poly" coords="58,194,58,189,68,189,87,200,88,209" href="#" onclick="checked_28(this, 235, 582);choose(this, '@map.get("qid")', '5', '28');" data="5"/>
+                                                    <area shape="poly" coords="48,228,48,221,58,223,78,235,76,241" href="#" onclick="checked_28(this, 268, 572);choose(this, '@map.get("qid")', '4', '28');" data="4"/>
+                                                    <area shape="poly" coords="37,261,37,255,46,255,68,267,68,275" href="#" onclick="checked_28(this, 302, 562);choose(this, '@map.get("qid")', '3', '28');" data="3"/>
+                                                    <area shape="poly" coords="27,294,28,289,39,290,59,299,56,306" href="#" onclick="checked_28(this, 335, 552);choose(this, '@map.get("qid")', '2', '28');" data="2"/>
+                                                    <area shape="poly" coords="17,327,18,322,27,322,48,332,48,340" href="#" onclick="checked_28(this, 368, 542);choose(this, '@map.get("qid")', '1', '28');" data="1"/>
+                                                </map>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                }
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+                    <div class="arrow-right"  style="border-left:50px solid grey"></div>
+                </div>
+            </div>
+
+            <div class="row" style="position:relative;">
+                <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                @pageNum
+                </p>
+                <input id="submit_button" type="button" style="position: absolute;right:150px;top:1px;display: none;background:grey;" class="btn btn-default"  value="提&nbsp;&nbsp;&nbsp;&nbsp;交" />
+            </div>
+            @*<div class="row">
+                <p class="text-center" style="margin-top:10px;font-size:16px;display: block;" >
+                    <input type="button" class="btn-default" style="height:40px;border:none;font-size:18px;font-weight:bolder;width:150px;background:#d2ede3;" value="跳过" onclick="submitAnswer()"/>
+                </p>
+            </div>*@
+
+        </div>
+    </body>
+</html>

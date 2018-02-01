@@ -1,0 +1,641 @@
+@(questiontypes:List[Questiontype],testpapers:List[Testpaper])
+@import utils.enums.QuestionTypeEnum
+<!doctype html>
+<html>
+<head>
+    @views.html.common.admin.head()
+    <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+
+    <script src="@routes.Assets.versioned("javascripts/proAndCity/jsAddress.js")" type="text/javascript"></script>
+    <link href="@routes.Assets.versioned("stylesheets/uploadifive.css")" rel="stylesheet">
+    <script src="@routes.Assets.versioned("javascripts/jquery.uploadifive.min.js")" type="text/javascript"></script>
+
+    <link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.datetimepicker.css")" rel="stylesheet">
+    <script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.datetimepicker.min.js")" type="text/javascript"></script>
+</head>
+<body>
+    @views.html.common.admin.upgradeBrowserInfo()
+    <!-- content start -->
+    <div class="admin-content">
+        <section class="am-panel am-panel-default">
+            <header class="am-panel-hd">
+                <h3 class="am-panel-title">招生机构注册</h3>
+            </header>
+            <div class="am-panel-bd" id="container" style="width: 800px;margin: 0 auto">
+                <div  id="orgInfo" style="display: block">
+                    <form class="am-form" id="doc-vld-msg">
+                        <fieldset>
+                            <legend>招生机构信息</legend>
+                            <div class="am-form-group">
+                                <label for="orgName">机构名称：</label>
+                                <input type="text" id="orgName" class="js-ajax-validate" minlength="2"  maxlength="25"
+                                    pattern="^[\S]*$" placeholder="输入机构名称（机构名称由2位到25位的字符构成，不支持空格）" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label for="property">机构性质：</label>
+                                <select id="property" required>
+                                    <option value="" >请选择机构性质</option>
+                                    <option value="1" >小学</option>
+                                    <option value="2">初中</option>
+                                    <option value="3">高中</option>
+                                    <option value="4">大学</option>
+                                </select>
+                            </div>
+                            <div class="am-form-group">
+                                <label style="display: inline">机构地址：</label>
+                                <div class="am-form-inline">
+                                    <div class="am-form-group" style="width:32%">
+                                        <select id="cmbProvince" required>
+
+                                        </select>
+                                    </div>
+                                    <div class="am-form-group" style="width:32%">
+                                        <select id="cmbCity" required></select>
+                                    </div>
+                                    <div class="am-form-group" style="width:32%">
+                                        <select id="cmbArea" required></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label for="address">详细地址：</label>
+                                <input type="text" id="address"  minlength="5"  maxlength="100" placeholder="输入详细地址（最多 100 个字符,最少 5 个字符）" required/>
+                            </div>
+                            <div>
+                                <label for="description">机构简介：</label>
+                                <textarea id="description" maxlength="1000" placeholder="输入机构简介（最多 1000 个字符）"></textarea>
+                            </div>
+                            <button class="am-btn am-btn-secondary" type="button" onclick="orgInfoNext()" style="float: right">继续</button>
+                        </fieldset>
+                    </form>
+                </div>
+                <div  id="adminInfo" style="display: none">
+                    <form class="am-form" id="doc-vld-msg">
+                        <fieldset>
+                            <legend>招生机构负责人信息</legend>
+                            <div class="am-form-group">
+                                <label for="adminAccount">用户名：</label>
+                                <input type="text" id="adminAccount" class="js-ajax-validate" minlength="6" maxlength="15"
+                                    pattern="^[a-zA-Z0-9_]{6,15}$" placeholder="输入用户名（用户名由6位到15位的数字、字母、下划线构成，不支持空格）" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label for="adminPwd">密码：</label>
+                                <input type="password" id="adminPwd" minlength="8" maxlength="35"
+                                    pattern="^[a-zA-Z0-9]{8,35}$" placeholder="输入密码（密码由8位到35位的数字、字母构成，不支持空格）"
+                                    data-validation-message="密码由8位到35位的数字、字母构成，不支持空格" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label for="doc-vld-pwd-2">确认密码：</label>
+                                <input type="password" placeholder="请与上面输入的值一致" data-equal-to="#adminPwd" data-validation-message="两遍密码输入不一致" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label for="adminName">姓名：</label>
+                                <input type="text" id="adminName" maxlength="20" placeholder="输入姓名" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label for="phone">电话：</label>
+                                <input type="text" id="phone" maxlength="11" maxlength="11" placeholder="输入电话" pattern="^1[3|4|5|7|8][0-9]\d{8}$"
+                                    data-validation-message="电话号码必须是11位的手机号码" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label for="email">email：</label>
+                                <input type="email" id="email"  maxlength="100" placeholder="输入email" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label for="duties">职务：</label>
+                                <input type="text" id="duties" maxlength="10" placeholder="输入职务(最大10个字符)" required/>
+                            </div>
+                            <button class="am-btn am-btn-secondary" type="button" onclick="adminInNext()" style="float: right">下一步</button>
+                            <button class="am-btn am-btn-secondary" type="button" onclick="adminInPre()" style="float: right;margin-right: 10px;">上一步</button>
+                        </fieldset>
+                    </form>
+                </div>
+                <div  id="orderInfo" style="display: none">
+                    <form class="am-form" id="doc-vld-msg">
+                        <fieldset>
+                            <legend>订单信息</legend>
+                            <div class="am-form-group">
+                                <label>试卷类型： </label>
+                                <label class="am-radio-inline">
+                                    <input type="radio" name="paperType" data-am-ucheck checked onclick="showPaperSelectDiv()">
+                                    成套试卷
+                                </label>
+                                <label class="am-radio-inline">
+                                    <input type="radio" name="paperType" data-am-ucheck onclick="showQuestionTypeCheckBoxDiv()">
+                                    单项测试
+                                </label>
+                            </div>
+                            <div class="am-form-group validate" id="paperSelect_div">
+                                <label class="am-form-label">成套试卷：</label>
+                                <div class="am-form-inline">
+                                    <div class="am-form-group" style="width: 100%">
+                                        <select id="testpaper" required>
+                                            <option value="">请选择</option>
+                                            @testpapers.map {item =>
+                                                <option value="@item.getId">@item.getName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="testpaper_name" class="am-form-group validate">
+                            </div>
+                            <div id="questiontype" class="am-form-group validate">
+                            </div>
+                            <div class="am-form-group">
+                                <label for="number">考试人数：</label>
+                                <input type="text" id="number" maxlength="5" placeholder="输入考试人数" pattern="^[1-9][0-9]*$"
+                                    data-validation-message="考试人数需要为整数，大于0人，小于等于99999人" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label style="display: inline">测试年龄范围：</label>
+                                <div class="am-form-inline">
+                                    <div class="am-form-group" style="width: 49%">
+                                        <select id="ageLow"  required>
+                                            <option value="">请选择</option>
+                                            @for(i <- 5 to 20){
+                                                <option value="@i">@i 岁</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="am-form-group" style="width: 50%">
+                                        <select id="ageUpp" required>
+                                            <option value="">请选择</option>
+                                            @for(i <- 5 to 20){
+                                                <option value="@i">@i 岁</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label style="display: inline">订单生效时间：</label>
+                                <div class="am-form-icon-right am-input-group" style="width:100%">
+                                    <input id="startTime" size="16" type="text" style="margin-top:0px;cursor: pointer"
+                                    data-validation-message="请选择订单生效时间" class="am-form-field datetimepicker" placeholder="生效时间" required>
+                                    <i class="am-icon-calendar"></i>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label style="display: inline">订单到期时间：</label>
+                                <div class="am-form-icon-right am-input-group" style="width:100%">
+                                    <input id="endTime" size="16" type="text" style="margin-top:0px;cursor: pointer"
+                                    data-validation-message="请选择订单到期时间" class="am-form-field datetimepicker" placeholder="到期时间" required>
+                                    <i class="am-icon-calendar"></i>
+                                </div>
+                            </div>
+                            <div class="am-form-file" style="margin-bottom: 1.5rem;">
+                                <label style="display: inline">合作协议：<small style="color:red;">（合作协议签字版扫描文件，图片格式，大小不能超过65K）</small></label>
+                                <div id="agreementQueue" ></div>
+                                <input id="agreement_file_input" name="agreement" type="file" multiple>
+                            </div>
+
+                            <button class="am-btn am-btn-secondary" type="button" onclick="addSubmit()" style="float: right">提交申请</button>
+                            <button class="am-btn am-btn-secondary" type="button" onclick="orderInfoPre()" style="float: right;margin-right: 10px;">上一步</button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </section>
+        <div class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+            <div class="am-modal-dialog">
+                <div class="am-modal-bd">
+                    申请成功，请等待审核！请注意邮箱！
+                </div>
+                <div class="am-modal-footer">
+                    <span class="am-modal-btn" data-am-modal-confirm>确定</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="paperSelect_div_hide" style="display: none;">
+        <label class="am-form-label">成套试卷：</label>
+        <div class="am-form-inline">
+            <div class="am-form-group" style="width: 100%">
+                <select id="testpaper" required>
+                    <option value="">请选择</option>
+                    @testpapers.map {item =>
+                        <option value="@item.getId">@item.getName</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="questiontypeCheckbox_div_hide" style="display: none;">
+        <label class="am-form-label">单项测试：</label><br />
+        @for((item, index) <- questiontypes zipWithIndex) {
+            @if(item.getId != QuestionTypeEnum.MATERIAL_EXTRACT.getId){
+                <label class="am-checkbox-inline">
+                    <input type="checkbox" class="questiontype" value="@item.getId" name="questiontype" minchecked="4" data-am-ucheck required >@item.getName
+                </label>
+            }
+            @if((index + 1) % 7 == 0){
+                <br>
+            }
+        }
+    </div>
+    <div id="testpaper_name_div_hide" style="display: none;">
+        <label for="testpaperName">试卷名称：</label>
+        <input type="text" id="testpaperName" maxlength="15" placeholder="请为单项测试的试卷起个名字" required/>
+    </div>
+
+<!-- content end -->
+    <script type="text/javascript">
+
+        $(function() {
+            //省市二级联动初始化
+            addressInit('cmbProvince', 'cmbCity', 'cmbArea');
+            $("#orgInfo>.am-form").validator({
+                onValid: function(validity) {
+                    $(validity.field).closest('.am-form-group').find('.am-alert').hide();
+                },
+                onInValid: function(validity) {
+                    var $field = $(validity.field);
+                    var $group = $field.closest('.am-form-group');
+                    var $alert = $group.find('.am-alert');
+                    var msg = $field.data('validationMessage') || this.getValidationMessage(validity);
+                    if($field.is('.js-ajax-validate')){
+                        var v = $field.val();
+                        if(v.length < 2){
+                            msg="不得少于两个字";
+                        } else if(!/^[\S]*$/.test(v)){
+                            msg="招生机构名称不得包含空格";
+                        }
+                    }
+                    if (!$alert.length) {
+                        $alert = $('<div class="am-alert am-alert-danger"></div>').hide().appendTo($group);
+                    }
+                    $alert.html(msg).show();
+                },
+                validate: function(validity) {
+                      // 本地验证，同步操作，无需返回值
+                    if ($(validity.field).is('.js-ajax-validate')) {
+                        var v = $(validity.field).val();
+                        if(v.length <2){
+                             return validity;
+                        }
+                        // 异步操作必须返回 Deferred 对象
+                        return $.ajax({
+                            url: '/public/admin/org/validateOrgName/' + v,
+                            type:'get'
+                        }).then(function(data) {
+                           if(data != "" && v.length >=2){
+                              $(validity.field).attr("data-validation-message", data);
+                              validity.valid = false;
+                           }
+                            return validity;
+                        });
+                    }
+                }
+            });
+
+            $('#adminInfo>.am-form').validator({
+                onValid: function(validity) {
+                    $(validity.field).closest('.am-form-group').find('.am-alert').hide();
+                },
+                onInValid: function(validity) {
+                    var $field = $(validity.field);
+                    var $group = $field.closest('.am-form-group');
+                    var $alert = $group.find('.am-alert');
+                    var msg = $(validity.field).attr("data-validation-message") || this.getValidationMessage(validity);
+                    if($field.is('.js-ajax-validate')){
+                        var v = $field.val();
+                        if(!/^[a-zA-Z0-9_]{6,15}$/.test(v)){
+                            msg = "用户名由6位到15位的数字、字母、下划线构成，不支持空格";
+                        }
+                    }
+                    if (!$alert.length) {
+                        $alert = $('<div class="am-alert am-alert-danger"></div>').hide().
+                            appendTo($group);
+                    }
+                    $alert.html(msg).show();
+                },
+                validate: function(validity) {
+                      // 本地验证，同步操作，无需返回值
+                    if ($(validity.field).is('.js-ajax-validate')) {
+                        var v = $(validity.field).val();
+                        if(v.length < 6){
+                             return validity;
+                        }
+                        // 异步操作必须返回 Deferred 对象
+                        return $.ajax({
+                            url: '/public/admin/admin/validateLoginName/' + v,
+                            type:'get'
+                        }).then(function(data) {
+                            if(data != "" && v.length >= 6){
+                                $(validity.field).attr("data-validation-message", data);
+                                validity.valid = false;
+                            }
+                            return validity;
+                        });
+                    }
+                }
+            });
+
+            $('#orderInfo>.am-form').validator({
+                onValid: function(validity) {
+                    $(validity.field).closest('.am-form-group').find('.am-alert').hide();
+                },
+                onInValid: function(validity) {
+                    var $field = $(validity.field);
+                    var $group = $field.closest('.am-form-group');
+                    var $alert = $group.find('.am-alert');
+                    var msg = $field.data('validationMessage') || this.getValidationMessage(validity);
+                    if (!$alert.length) {
+                        $alert = $('<div class="am-alert am-alert-danger"></div>').hide().appendTo($group);
+                    }
+                    $alert.html(msg).show();
+                },
+                validate: function(validity) {
+                     var ageLow = $("#ageLow").find("option:selected").val()
+                     var ageUpp = $("#ageUpp").find("option:selected").val()
+
+                     if ($(validity.field).is('#ageLow')) {
+                        if(ageUpp != ""){
+                            if(parseInt(ageLow) > parseInt(ageUpp)){
+                                $(validity.field).attr("data-validation-message","不得大于年龄范围上限")
+                                validity.valid = false
+                            }else{
+                                 validity.valid = true
+                                  $("#ageUpp").addClass("am-field-valid")
+                                  $("#ageUpp").removeClass("am-field-error")
+                                  $("#ageUpp").siblings("div").hide();
+                            }
+                        }
+                     }
+                     if ($(validity.field).is('#ageUpp')) {
+                        if(ageLow != ""){
+                            if(parseInt(ageLow) > parseInt(ageUpp)){
+                                $(validity.field).attr("data-validation-message","不得低于年龄范围下限")
+                                validity.valid = false
+                            }else{
+                                 validity.valid = true
+                                 $("#ageLow").addClass("am-field-valid")
+                                 $("#ageLow").removeClass("am-field-error")
+                                 $("#ageLow").siblings("div").hide();
+                            }
+                        }
+
+                     }
+
+                    var v = $(validity.field).val();
+                    if ($(validity.field).is('#startTime')) {
+                        if(v == ""){
+                            $(validity.field).data('validationMessage', "请选择订单生效时间");
+                            return validity;
+                        }
+                        var startTime = getUnixTime(v);
+                        var endTime = 0;
+                        var endTimeStr = $("#endTime").val();
+                        if(endTimeStr != ""){
+                            endTime = getUnixTime(endTimeStr);
+                            if(endTime <= startTime){
+                                $(validity.field).data('validationMessage', "订单生效时间应小于订单到期时间");
+                                validity.valid = false;
+                                return validity;
+                            }
+                        }
+                    } else if ($(validity.field).is('#endTime')) {
+                        if(v == ""){
+                            $(validity.field).data('validationMessage', "请选择订单到期时间");
+                            return validity;
+                        }
+                        var endTime = getUnixTime(v);
+                        var startTime = 0;
+                        var startTimeStr = $("#startTime").val();
+                        if(startTimeStr != ""){
+                            startTime = getUnixTime(startTimeStr);
+                            if(endTime <= startTime){
+                                $(validity.field).data('validationMessage', "订单到期时间应大于订单生效时间");
+                                validity.valid = false;
+                                return validity;
+                            }
+                        }
+                    }
+                }
+
+            });
+
+            $("#agreement_file_input").uploadifive({
+                'uploadScript': "/public/admin/org/regist",
+                'fileType' : 'image/',
+                'fileObjName' : 'agreement_img',// 定义上传数据处理文件中接收数据使用的文件对象名。
+                'fileSizeLimit':"65535",// 上传文件大小限制。
+                'progressData':'all',// 设置显示在上传进度条中的数据类型，可选项时百分比（percentage）或速度（speed）。
+                'queueID': 'agreementQueue',// queueID选项允许你设置一个拥有唯一ID的DOM元素来作为显示上传队列的容器。
+//                'queueSizeLimit' : 1, // 上传队列中一次可容纳的最大条数。
+//                'uploadLimit' : 1, // 定义允许的最大上传数量。
+                'removeCompleted' : true,// 不设置该选项或者将其设置为false，将使上传队列中的项目始终显示于队列中，直到点击了关闭按钮或者队列被清空。
+                'auto': false,// 设置auto为true，当文件被添加至上传队列时，将会自动上传。
+                'buttonText': '<i class="am-icon-cloud-upload"></i> 选择要上传的文件',
+                'buttonClass': 'am-btn am-btn-secondary',// 为上传按钮添加类名。
+                'width':'140px',
+                'multi': false,// 设置值为false时，一次只能选中一个文件。
+                //上传组件选择文件之后触发
+                onSelect:function(){
+                    if($("#agreementQueue").find(".uploadifive-queue-item").length >1){
+                        $("#agreementQueue").find(".uploadifive-queue-item")[0].remove();
+                    }
+                },
+                'onSelectError' : function() {
+                    alert(file.name + '文件返回错误，没有添加到上传队列中.');
+                },
+                onUploadComplete:function(file,data,response){
+                    var responseDto = JSON.parse(data);
+                    var success = responseDto.success;
+                    if(Boolean(success)){
+                        $('#my-alert').modal({
+                            relatedTarget: this,
+                            closeViaDimmer: 0,
+                            onConfirm: function() {
+                                location.href = "/admin/login";
+                            }
+                        });
+                    } else {
+                        am_alert(responseDto.message);
+                    }
+                }
+            });
+            $("#uploadifive-agreement_file_input").removeClass("uploadifive-button");
+            $("#uploadifive-agreement_file_input").css({
+                'font': 'bold 12px Arial,Helvetica,sans-serif'
+            });
+
+            /** 配置日期时间组件 */
+            datatimepickerZn();
+            $('.datetimepicker').datetimepicker({
+                format:"yyyy-mm-dd hh:ii",
+                autoclose:true,
+                todayBtn:true,
+                todayHighlight:true,
+                language:"zh-CN",
+                startDate:new Date()
+            });
+        });
+        function orgInfoNext(){
+            var formValidity = $("#orgInfo>.am-form").validator().data('amui.validator').isFormValid();
+             $.when(formValidity).then(function() {
+                $("#orgInfo").attr("style","display:none")
+                $("#adminInfo").attr("style","display:block")
+            })
+        }
+        function adminInPre(){
+            $("#orgInfo").attr("style","display:block")
+            $("#adminInfo").attr("style","display:none")
+        }
+        function adminInNext(){
+         var formValidity = $('#adminInfo>.am-form').validator().data('amui.validator').isFormValid();
+             $.when(formValidity).then(function() {
+                $("#orderInfo").attr("style","display:block")
+                $("#adminInfo").attr("style","display:none")
+            })
+        }
+        function orderInfoPre(){
+            $("#orderInfo").attr("style","display:none")
+            $("#adminInfo").attr("style","display:block")
+        }
+
+        //提交数据
+        function addSubmit(){
+            if ($('#orderInfo>.am-form').validator().data('amui.validator').validateForm().valid) {
+                if($("#agreementQueue").find(".uploadifive-queue-item").length > 0){
+                    registWithImg();
+                } else {
+                    regist();
+                }
+            }
+        }
+
+        function registWithImg(){
+            var questiontypeStr = "";
+            $("#orderInfo").find(":checkbox").each(function(){
+                if($(this).prop("checked") == true){
+                    if($(this).val() == @QuestionTypeEnum.MATERIAL_MEMORY.getId){
+                        questiontypeStr += $(this).val() + "," + @QuestionTypeEnum.MATERIAL_EXTRACT.getId + ",";
+                    } else {
+                        questiontypeStr += $(this).val() + ",";
+                    }
+                }
+            });
+            if(questiontypeStr.length > 0){
+                questiontypeStr = questiontypeStr.substring(1, questiontypeStr.length);
+            }
+            var data = {
+                "orgName":$("#orgName").val(),
+                "address":$("#address").val(),
+                "province":$("#cmbProvince").find("option:selected").val(),
+                "city":$("#cmbCity").find("option:selected").val(),
+                "town":$("#cmbArea").find("option:selected").val(),
+                "property":$("#property").val(),
+                "description":$("#description").val(),
+                "loginName":$("#adminAccount").val(),
+                "password":$("#adminPwd").val(),
+                "name":$("#adminName").val(),
+                "phone":$("#phone").val(),
+                "email":$("#email").val(),
+                "duty":$("#duties").val(),
+                "testNumber":$("#number").val(),
+                "remainNumber":$("#number").val(),
+                "ageLow":$("#ageLow").find("option:selected").val(),
+                "ageUpp":$("#ageUpp").find("option:selected").val(),
+                "startTime":$("#startTime").val(),
+                "endTime":$("#endTime").val(),
+                "testpaperName":$("#testpaperName").val(),
+                "questiontypeStr":questiontypeStr
+            }
+            if(questiontypeStr.length > 0){
+                data.tpid = $("#testpaper").find("option:selected").val();
+            }
+
+            $('#agreement_file_input').data('uploadifive').settings.formData = data;
+            $('#agreement_file_input').uploadifive('upload');
+        }
+
+        function regist(){
+            var questiontypeArr = new Array();
+            $("#orderInfo").find(":checkbox").each(function(){
+                if($(this).prop("checked") == true){
+                    if($(this).val() == @QuestionTypeEnum.MATERIAL_MEMORY.getId){
+                        questiontypeArr.push($(this).val());
+                        questiontypeArr.push("@QuestionTypeEnum.MATERIAL_EXTRACT.getId");
+                    } else {
+                        questiontypeArr.push($(this).val());
+                    }
+                }
+            });
+
+            var admissionsOrg = {
+                "orgName":$("#orgName").val(),
+                "address":$("#address").val(),
+                "province":$("#cmbProvince").find("option:selected").val(),
+                "city":$("#cmbCity").find("option:selected").val(),
+                "town":$("#cmbArea").find("option:selected").val(),
+                "property":$("#property").val(),
+                "description":$("#description").val()
+            };
+            var admin = {
+                "loginName":$("#adminAccount").val(),
+                "password":$("#adminPwd").val(),
+                "name":$("#adminName").val(),
+                "phone":$("#phone").val(),
+                "email":$("#email").val(),
+                "duty":$("#duties").val()
+            }
+            var order = {
+                "testNumber":$("#number").val(),
+                "remainNumber":$("#number").val(),
+                "ageLow":$("#ageLow").find("option:selected").val(),
+                "ageUpp":$("#ageUpp").find("option:selected").val(),
+                "startTime":$("#startTime").val(),
+                "endTime":$("#endTime").val()
+            }
+            if(questiontypeArr.length == 0){
+                order.tpid = $("#testpaper").find("option:selected").val();
+            }
+
+            var orgRegistDto = {
+                "admissionsOrg":admissionsOrg,
+                "admin":admin,
+                "order":order,
+                "testpaperName":$("#testpaperName").val(),
+                "questiontypeList":questiontypeArr
+            }
+
+            $.ajax({
+                url:"/public/admin/org/regist",
+                type:"post",
+                contentType:"application/json",
+                data:JSON.stringify(orgRegistDto),
+                success:function(responseDto) {
+                    var success = responseDto.success;
+                    if(Boolean(success)){
+                        $('#my-alert').modal({
+                            relatedTarget: this,
+                            closeViaDimmer: 0,
+                            onConfirm: function() {
+                                location.href = "/admin/login";
+                            }
+                        });
+                    } else {
+                        am_alert(responseDto.message);
+                    }
+                }
+            })
+        }
+
+        function showPaperSelectDiv(){
+            $('#paperSelect_div').html($('#paperSelect_div_hide').html());
+            $('#testpaper_name').html("");
+            $('#questiontype').html("");
+        }
+
+        function showQuestionTypeCheckBoxDiv(){
+            $('#testpaper_name').html($('#testpaper_name_div_hide').html());
+            $('#questiontype').html($('#questiontypeCheckbox_div_hide').html());
+            $('#paperSelect_div').html("");
+        }
+    </script>
+    @views.html.common.modal.alert()
+</body>
+</html>

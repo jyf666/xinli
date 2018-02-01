@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html manifest="/instructions/instructionsManifest">
+    <head>
+        @views.html.common.test.head()
+        <style>
+            .content_div{width:320px; margin:0 auto 15px auto; border:1px solid #d1d1d1;position:absolute;left:10px;right:10px;}
+            .content_border_div { width:1170px; height:100%; overflow:hidden;position:absolute;}
+            .content_data_div {position:absolute;top:0px; bottom:0px;align:center;}
+            .content_data_count{position:relative;;float:left;}
+        </style>
+        <script src="@routes.Assets.versioned("enjoyhint/enjoyhint.min.js")" type="text/javascript"></script>
+        <link href="@routes.Assets.versioned("enjoyhint/enjoyhint.css")" rel="stylesheet">
+        <script src="@routes.Assets.versioned("javascripts/exam/routes.js")" type="text/javascript"></script>
+        <script>
+             function initialize(){
+                 var num = $(".content_data_count").size();
+                 var width = $(".content_border_div").width();
+                 var height = $(".content_border_div").height();
+                 $(".content_data_div").width(num*width+20);
+                 $(".content_data_count").width(width).height(height);
+             }
+
+             $(document).ready(function(){
+                initialize();
+             });
+
+             function forwardTest(){
+                var isOffLine = getCookieByName("isOffLine");// 用户是否选择了离线考试
+                if(Boolean(isOffLine)){
+                    var storage = window.localStorage;
+                    var qtypeListJson = "@session.get("QTYPE_LIST_JSON")";// 考试题型顺序
+                    var qtypeList = JSON.parse(qtypeListJson);
+                    var next_qtype = 0;
+                    for(var i = qtypeList.length - 1 ;i >= 0; i--){
+                        var userInfo = {
+                            "uid" : uid,
+                            "tid" : tid,
+                            "qtype" : qtypeList[i]
+                        }
+                        var userInfoStr = JSON.stringify(userInfo);
+                        var data = storage.getItem(("answerReport_" + userInfoStr));
+                        if ( data != null && data != undefined && data.indexOf("startTime") > 0 && data.indexOf("endTime") == -1 ) {
+                            next_qtype = qtypeList[i];
+                            break;
+                        } else if ( data != null && data != undefined && data.indexOf("startTime") > 0 && data.indexOf("endTime") > 0 ) {
+                            if( i+1 < qtypeList.length ){
+                                next_qtype = qtypeList[i+1];
+                                break;
+                            } else if( i+1 == qtypeList.length ){
+                                if (confirm("您已完成所有的测试！是否选择退出考试系统？")) {
+                                    location.replace('/userLogout');
+                                }
+                                return;
+                            }
+                        }
+                    }
+                    if(next_qtype == 0){
+                        next_qtype = qtypeList[0];
+                    }
+                    forwardByQtype(next_qtype*1, tid);
+                } else {
+                    location.replace('/index/forwardTest/0?tid=' + tid);
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div id="wenhao_tishi" style="width:500px;height: 120px;border:5px solid #69cdcc;border-radius:4px;position: absolute;top:120px; z-index: 1;display: none">
+                <div style="margin-top:3px;margin-left: 10px;float: left;height: 120px;">
+                    <div class="bg" style="background-color:#7d7d7d;border-radius:100px;height:100px;width:100px" ></div>
+                    <div class="wenhao" style="border-radius:90px;font-size:90px;height:90px;line-height:90px;width:90px">?</div>
+                </div>
+                <div style="float:right ;margin-top:32px;margin-right:40px;">
+                    <span style="font-size: 26px;color: #4b8880;font-weight: bold">提示语：</span>
+                    <span style="font-size: 18px;color: #9a9a9a">单击问号，题型规则提示</span>
+
+                </div>
+            </div>
+            <div id="time_tishi" style="width:500px;height: 120px;border:5px solid #69cdcc;border-radius:4px;position: absolute;top:120px;left:55%; z-index: 1;display: none">
+                <div style="margin-top:3px;margin-left: 10px;float: left;height: 120px;">
+                    <img src="@routes.Assets.versioned("images/common/clock1.png")" />
+                </div>
+                <div style="float:right ;margin-top:32px;margin-right:135px;">
+                    <span style="font-size: 26px;color: #4b8880;font-weight: bold">倒计时：</span>
+                    <span style="font-size: 18px;color: #9a9a9a">帮你掌握时间</span>
+
+                </div>
+            </div>
+            <div id="switch_tishi" style="width:700px;height: 120px;border:5px solid #69cdcc;border-radius:4px;position: absolute;top:25%;left:31.5%; z-index: 1;display: none">
+                <div style="margin-top:8px;margin-left: 30px;float: left;height: 120px;">
+                    <img src="@routes.Assets.versioned("images/common/exchange1.png")" width="110%" />
+                </div>
+                <div style="float:right ;margin-top:36px;margin-right:50px;">
+                    <span style="font-size: 26px;color: #4b8880;font-weight: bold">题目切换：</span>
+                    <span style="font-size: 18px;color: #9a9a9a">点击两侧的绿色箭头可向前或向后切换题目</span>
+
+                </div>
+            </div>
+            <div id="mark_tishi" style="width:750px;height: 120px;border:5px solid #69cdcc;border-radius:4px;position: absolute;top:35%;left:30%; z-index: 1;display: none">
+                <div style="margin-top:8px;margin-left: 30px;float: left;height: 120px;">
+                    <img src="@routes.Assets.versioned("images/common/tag1.png")" width="110%"/>
+                </div>
+                <div style="float:right ;margin-top:30px;margin-right: 30px">
+                    <span style="font-size: 26px;color: #4b8880;font-weight: bold">题目标记：</span>
+                    <span style="font-size: 18px;color: #9a9a9a">
+                        可用 <img src="@routes.Assets.versioned("images/common/mark.png")" width="30px"/>标记不确定的题目，点击右上角按钮 <img src="@routes.Assets.versioned("images/common/seemark.png")"  width="25px"/>
+                    </span>
+                    <br />
+                    <span style="font-size: 18px;color: #9a9a9a">可快速查看并切换至相应题目</span>
+
+                </div>
+            </div>
+            <div class="row" style="height:100px;padding-top:10px;padding-left:50px;padding-right:50px; z-index: 0">
+                    <!-- 问号提示 start -->
+                <div class=" col-sm-offset-1 col-sm-1">
+                    <div class="bg" style="background-color:#7d7d7d;" ></div>
+                    <div class="wenhao" id="smallwenhao">?</div>
+                    <div id="wenhao"  class="wenhao_reminder" style="padding-top:5px">
+                        <span>
+                            ssssssssssssss
+                        </span>
+                    </div>
+                </div>
+                <div class=" col-sm-offset-1 col-sm-1" style="margin-left: 700px;" id="time">
+                    <img src="@routes.Assets.versioned("images/common/smallClock.png")" width="110%">
+                </div>
+                    <!-- 问号提示 end -->
+                <div id="mark" style="float: right;display: block;margin-right: 10px;">
+                    <div style="width:100%;text-align: center;cursor: pointer;">
+                        <img src="@routes.Assets.versioned("images/common/seemark.png")" width="45px">
+                    </div>
+                    <div style="margin-top: 2px;width:100%;text-align: center;">
+                        <span>
+                            <a href="#"  style="color:black;" >查看标记</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:400px;float:left;padding-top:112px;">
+                    <div class="arrow-left"></div>
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;padding-top: 40px;" id="content-index">
+                    <div style="float: right;margin-right:60px">
+                        <img class="marking" src="@routes.Assets.versioned("images/common/mark.png")" style="cursor: pointer;">
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:400px;float:left;padding-top:112px;">
+                    <div class="arrow-right"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript">
+         var enjoyhint_script_steps = [
+//                {
+//                    selector:'#wenhao_tishi',
+//                    description:'?号说明',
+//                    timeout:100,
+//                    showNext:true,
+//                    showSkip:false,
+//                    onBeforeStart:function(){
+//                        $("#wenhao_tishi").css("display","block");
+//                    }
+//                },
+                {
+                    selector:'#smallwenhao',
+                    description:'单击问号，会弹出答题说明',
+                    timeout:100,
+                    nextButton: {text: "下一步"},
+                    showNext:true,
+                    showSkip:false
+                },
+//                {
+//                    selector:'#time_tishi',
+//                    description:'倒计时说明',
+//                    timeout:100,
+//                    showNext:true,
+//                    showSkip:false,
+//                    onBeforeStart:function(){
+//                        $("#time_tishi").css("display","block");
+//                        $(".marking").css("display","none");
+//                        $("#wenhao_tishi").css("display","none");
+//                    }
+//                },
+                {
+                    selector:'#time',
+                    description:'倒计时，帮你掌握答题时间',
+                    timeout:100,
+                    nextButton: {text: "下一步"},
+                    showNext:true,
+                    showSkip:false
+                },
+                {
+                    selector:'.arrow-left',
+                    description:'向前切换题目',
+                    timeout:100,
+                    nextButton: {text: "下一步"},
+                    showNext:true,
+                    showSkip:false
+                },
+                {
+                    selector:'.arrow-right',
+                    description:'向后切换题目',
+                    timeout:100,
+                    nextButton: {text: "下一步"},
+                    showNext:true,
+                    showSkip:false
+                },
+                {
+                    selector:'#mark_tishi',
+                    description:'标记说明',
+                    timeout:100,
+                    nextButton: {text: "下一步"},
+                    showNext:true,
+                    showSkip:false,
+                    onBeforeStart:function(){
+                        $("#time_tishi").css("display","none");
+                        $("#mark_tishi").css("display","block");
+                    }
+                },
+                {
+                    selector:'.marking',
+                    description:'点击可标记当前题目',
+                    timeout:100,
+                    nextButton: {text: "下一步"},
+                    showNext:true,
+                    showSkip:false,
+                    onBeforeStart:function(){
+                        $("#time_tishi").css("display","none");
+                        $(".marking").css("display","block");
+                    }
+                },
+                {
+                    selector:'#mark',
+                    description:'点击可查看标记题目',
+                    timeout:100,
+                    nextButton: {text: "开始测试"},
+                    showNext:true,
+                    showSkip:false
+                }
+//                ,
+//                {
+//                    selector:'#switch_tishi',
+//                    description:'切换说明',
+//                    timeout:100,
+//                    showNext:true,
+//                    showSkip:false,
+//                    onBeforeStart:function(){
+//                        $("#switch_tishi").css("display","block");
+//                        $("#mark_tishi").css("display","none");
+//                    }
+//                }
+            ];
+            var enjoyhint_instance = null;
+            $(function(){
+                initEnjoyhint()
+                $(".enjoyhint_close_btn").css("display","none")
+            });
+
+            function initEnjoyhint(){
+                enjoyhint_instance = new EnjoyHint({
+                    onEnd:function(){
+                        forwardTest();
+                    }
+                });
+                enjoyhint_instance.set(enjoyhint_script_steps);
+                enjoyhint_instance.runScript();
+            }
+
+    </script>
+</html>

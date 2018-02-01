@@ -1,0 +1,93 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]])(list:java.util.List[java.util.Map[String,Object]])(pageNum: String)
+@import java.util.HashMap
+
+<!DOCTYPE html>
+    <html manifest="/paragraphReasoning/practiceManifest">
+        <head>
+            @views.html.common.practice.head()
+        <style>
+            body{
+                background:#F2F2F2;
+                color:#B5DC86;
+                padding-top:0px;
+            }
+            .rightOrWrong{
+                margin-right: 20px;
+                width: 30px;
+                float: right;
+                display: none;
+            }
+        </style>
+        <script>
+
+            function chooseTrigger(obj){
+                $(obj).children('span').click();
+            }
+
+            /**
+             * param choice 选择的答案
+             * param answer 答案
+             * param obj 所选的DOM对象
+             */
+            function choose(obj, choice, answer){
+                $(".rightOrWrong").css("display", "none");
+                $(obj).children(".rightOrWrong").css("display", "block");
+                if(answer == choice){
+                    $("#errorMessage").css("display", "none");
+                    $(".unbind").removeAttr("onclick")
+                    $(obj).siblings(".options").css("background","#d2ede3");
+				    $(obj).css("background","#05c0c2");
+                    setTimeout('show_next_practice("/paragraphReasoning/practiceEnd?tid=' + tid + '")',1000) ;
+                } else {
+                    $("#errorMessage").css("display", "block");
+                }
+            }
+
+		</script>
+        </head>
+        <body>
+            <div class="container">
+                @views.html.common.instructions.progress(questionTypeMap)
+                <div class="row" style="padding-left:50px;padding-right:60px;padding-bottom:10px;color:#000000">
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+                    </div>
+                    <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                        @for(map <- list){
+                            <div class="panel-body" style=@if(map == list.head){"display:block"} else{"display:none"}>
+                                <div class="row" style="padding:30px 30px 10px 30px;font-size:16px;line-height:30px;">
+                                @defining(map.get("question").asInstanceOf[String]){question =>
+                                    <div style="height:100px;border:2px solid #eee;padding:10px 0px 10px 10px;">
+                                        @question
+                                    </div>
+                                }
+                                </div>
+
+                                <div class="row" style="padding:10px 0px 0px 30px;">
+                                    <p style="float: left;margin:0 0 0 0;">请点击你认为正确的选项</p><p id="errorMessage" style="margin:0 0 0 50px;float: left;color:red;display: none;">选择错误，请再尝试一次</p>
+                                </div>
+
+                                <div class="row" style="padding:10px 30px 10px 30px;">
+                                @for((key, value) <- map.get("options").asInstanceOf[HashMap[String, String]]){
+                                    <div class="unbind" style="padding:10px 0px 10px 10px;height:50px;background-color: #d2ede3;margin-bottom: 10px;cursor: pointer;" onclick="choose(this, '@key', '@map.get("answer")')">
+                                        <b>@key</b> @value
+                                        <img src="@if(map.get("answer") == key){@routes.Assets.versioned("images/common/right.png")} else{@routes.Assets.versioned("images/common/wrong.png")}" class="rightOrWrong">
+                                    </div>
+                                }
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="col-sm-1" style="height:445px;float:left;padding-top:135px;">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="text-center" style="margin-top:10px;font-size:16px;" id="page_content">
+                    @pageNum
+                    </p>
+                </div>
+            </div>
+        </body>
+    </html>

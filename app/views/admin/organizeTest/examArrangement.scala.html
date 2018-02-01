@@ -1,0 +1,380 @@
+@(testPapers: java.util.List[Testpaper])
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        @views.html.common.admin.head()
+		<link href="@routes.Assets.versioned("stylesheets/amazeUI/amazeui.datetimepicker.css")" rel="stylesheet">
+		<link href="@routes.Assets.versioned("stylesheets/admin/organizeTest/organizeTest.css")" rel="stylesheet">
+
+		<script src="@routes.Assets.versioned("javascripts/amazeUI/amazeui.datetimepicker.min.js")" type="text/javascript"></script>
+		<script src="@routes.Assets.versioned("javascripts/test.guide.js")" type="text/javascript"></script>
+		<script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+		<script src="@routes.Assets.versioned("javascripts/common/date.js")" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			var orgCode = '@session.get("ORG_CODE")';
+			var orgName = '@session.get("ORG_NAME")';
+			var orderStart = 0;
+			var orderEnd = 0;
+			function getQuestionType(tpid){
+				if(tpid){
+					$.getJSON("/admin/questionType/list/" + tpid, function(questiontypes){
+						if(questiontypes){
+							var questiontypeText = "<label>您订购的模块为：</label>\n";
+							for(var i=0; i < questiontypes.length; i++){
+								var questiontype = questiontypes[i];
+								questiontypeText += "<span class='am-badge am-badge-success am-round am-text-sm'>" + questiontype.name + "</span>\n";
+							}
+							$("#questiontypes").html(questiontypeText);
+						}
+					});
+					$.getJSON("/admin/orders/findOne/" + tpid, function(order){
+						var remainNumber = order.remainNumber;
+						orderStart = order.startTime;
+						orderEnd = order.endTime;
+						if(remainNumber){
+							var remainNumberText = "<label>可测人数：</label>\n" + "<span>" + remainNumber + "</span>";
+							$("#remainNumber").html(remainNumberText);
+						}
+
+						var orderTimeText = "";
+						if(validateOrderTime()){
+							orderTimeText = "<label>可测时间范围：</label>\n" + "<span>" + formatDateTime(orderStart) + "——" + formatDateTime(orderEnd) + "</span>";
+						} else {
+							orderTimeText = "<div class='am-alert am-alert-danger' data-am-alert>订单不可用，您无法创建考试</div>";
+						}
+						$("#orderTime").html(orderTimeText);
+					});
+				} else {
+					$("#questiontypes").html("");
+					$("#remainNumber").html("");
+					$("#orderTime").html("");
+				}
+			}
+
+			function validateOrderTime(){
+				if(orderStart && orderStart > 0 && orderEnd && orderEnd > 0){
+					if(orderStart > new Date().getTime() || orderEnd < new Date().getTime()){
+						return false;
+					}
+				} else {
+					return false;
+				}
+				return true;
+			}
+
+			function addTest(){
+				var testSize =  $("#testDiv").find("tbody").find("tr").size();
+				$("#testDiv").find("tbody").append("<tr><td class='am-text-middle'>第"+ (testSize+1) +"轮</td>" +
+				 "<td class='am-text-middle'><div class='am-form-icon'>" +
+				    "<i class='am-icon-calendar'></i>" +
+				    "<input size='16' type='text' minlength='16' style='margin-top:0px;cursor: pointer' data-validation-message='请选择考试开始时间' class='am-form-field datetimepicker startTime'>" +
+				 "</div></td>" +
+				 "<td class='am-text-middle'><div class='am-form-icon'>" +
+				    "<i class='am-icon-calendar'></i>" +
+				    "<input size='16' type='text' minlength='16' style='margin-top:0px;cursor: pointer' data-validation-message='请选择考试结束时间' class='am-form-field datetimepicker endTime'>" +
+				 "</div></td>" +
+				 "<td class='am-text-middle'><input size='16' type='text' maxlength='4'  style='cursor: pointer' class='am-form-field' required></td>" +
+				 "<td class='am-text-middle'>" +
+				    "<button type='button' onclick='removeTest(this)' class='am-btn am-btn-default am-btn-xs am-text-danger am-hide-sm-only'><span class='am-icon-trash-o'></span> 移除</button>" +
+				 "</td></tr>");
+				 $("#testDiv").find("tr").find('.datetimepicker').datetimepicker({
+					format:"yyyy-mm-dd hh:ii",
+					autoclose:true,
+					todayBtn:true,
+					todayHighlight:true,
+					language:"zh-CN",
+					startDate:new Date()
+				});
+			}
+
+			function removeTest(e){
+				$(e).parents("tr").remove();
+				$("#testDiv").find("tbody").find("tr").each(function(idx){
+					$(this).find("td").eq(0).html("第"+ (idx+1) +"轮");
+				});
+			}
+
+			function submitForm(){
+				if(!validateOrderTime()){
+					return;
+				}
+				if ($('.am-form').validator().data('amui.validator').validateForm().valid){
+					$('#my-confirm').modal({
+						onConfirm: function () {
+							$('#my-modal-loading').modal();
+							var testName = $("#testName").val();
+							var tests = new Array();
+							$("#testDiv").find("tbody").find("tr").each(function (index) {
+								var test = {
+									"pid": $("#testPaper").val(),
+									"name": testName,
+									"orgCode": orgCode,
+									"orgName": orgName,
+									"turn": getNumFromStr($(this).find("td").eq(0).html()),
+									"startTime": $(this).find("td").find("input").eq(0).val(),
+									"endTime": $(this).find("td").find("input").eq(1).val(),
+									"population": $(this).find("td").find("input").eq(2).val()
+								}
+								tests.push(test);
+							});
+
+							var organizeTestDto = {
+								"tests":tests
+							};
+
+							$.ajax({
+								url: "/admin/organizeTest/test/upload",
+								timeout: 1000,
+								async: false,
+								type: "POST",
+								contentType:"application/json",
+								data: JSON.stringify(organizeTestDto),
+								success: function (testIds) {
+									if(testIds){
+										if(testIds == 0){
+											$('#my-modal-loading').modal('close');
+											alert("失败");
+										} else {
+											location.href="/admin/organizeTest/user/importView";
+										}
+									}
+								},
+								error:function(){
+									$('#my-modal-loading').modal('close');
+									alert("失败");
+								}
+							});
+						}
+					});
+				}
+			}
+
+			$(function(){
+				$('.am-form').validator({
+					onValid: function(validity) {
+						$(validity.field).closest('.am-form-group').find('.am-alert').hide();
+					},
+					onInValid: function(validity) {
+						var $field = $(validity.field);
+						var $group = $field.closest('.am-form-group');
+						var $alert = $group.find('.am-alert');
+						var msg = $(validity.field).attr("data-validation-message") || this.getValidationMessage(validity);
+
+						if (!$alert.length) {
+							$alert = $('<span class="am-alert am-alert-danger"></span>').hide().appendTo($group);
+						}
+						$alert.html(msg).show();
+					},
+					validate: function(validity) {
+						// 本地验证，同步操作，无需返回值
+						var v = $(validity.field).val();
+						if(v == "") return validity;
+						if ($(validity.field).is('.js-ajax-validate')) {
+							// 异步操作必须返回 Deferred 对象
+							return $.ajax({
+								url: '/admin/test/validateName/' + v,
+								type:'get'
+							}).then(function(data) {
+							   if(data != "" && v.length < 25){
+								  $(validity.field).attr("data-validation-message", data);
+								  validity.valid = false;
+							   }
+								return validity;
+							});
+						} else if ($(validity.field).is(".population")){
+							var remainNumber = $("#remainNumber").children("span").html();
+							if(remainNumber == undefined || remainNumber == ""){
+								remainNumber = 0;
+							} else {
+								remainNumber = parseInt(remainNumber);
+							}
+							var population = 0;
+							$(".population").each(function(){
+								population += parseInt($(this).val());
+							});
+							console.log(remainNumber);
+							console.log(population);
+							if(remainNumber < population){
+								$(validity.field).attr("data-validation-message", "考试人数不能大于订单可测人数");
+							    validity.valid = false;
+							    return validity;
+							}
+						} else if ($(validity.field).is(".startTime")){
+							var startTime = getUnixTime(v);
+							if(orderStart && orderStart > 0 && orderEnd && orderEnd > 0){
+								if(startTime < orderStart || startTime >= orderEnd){
+									$(validity.field).attr("data-validation-message", "考试时间必须在订单时间范围内");
+									validity.valid = false;
+									return validity;
+								}
+							} else {
+								$(validity.field).attr("data-validation-message", "考试时间必须在订单时间范围内");
+								validity.valid = false;
+								return validity;
+							}
+							var endTime = 0;
+							var endTimeStr = $(validity.field).closest('tr').find(".endTime").eq(0).val();
+							if(endTimeStr != ""){
+								endTime = getUnixTime(endTimeStr);
+								if(endTime <= startTime){
+									$(validity.field).attr("data-validation-message", "考试结束时间不能小于等于考试开始时间");
+									validity.valid = false;
+									return validity;
+								}
+							}
+							var repeatNum = 0;
+							$(".startTime").each(function(){
+								if(v == $(this).val()){
+									repeatNum ++;
+								}
+							});
+							if(repeatNum > 1){
+								$(validity.field).attr("data-validation-message", "每轮考试开始时间不能重复");
+								validity.valid = false;
+								return validity;
+							}
+						} else if ($(validity.field).is(".endTime")){
+							var endTime = getUnixTime(v);
+							if(orderStart && orderStart > 0 && orderEnd && orderEnd > 0){
+								if(endTime < orderStart || endTime > orderEnd){
+									$(validity.field).attr("data-validation-message", "考试时间必须在订单时间范围内");
+									validity.valid = false;
+									return validity;
+								}
+							} else {
+								$(validity.field).attr("data-validation-message", "考试时间必须在订单时间范围内");
+								validity.valid = false;
+								return validity;
+							}
+							var startTime = 0;
+							var startTimeStr = $(validity.field).closest('tr').find(".startTime").eq(0).val();
+							if(startTimeStr != ""){
+								startTime = getUnixTime(startTimeStr);
+								if(endTime <= startTime){
+									$(validity.field).attr("data-validation-message", "考试结束时间不能小于等于考试开始时间");
+									validity.valid = false;
+									return validity;
+								}
+							}
+						}
+						return validity;
+					}
+				});
+				datatimepickerZn();
+
+				//日期时间组件初始化
+				$('.datetimepicker').datetimepicker({
+					format:"yyyy-mm-dd hh:ii",
+					autoclose:true,
+					todayBtn:true,
+					todayHighlight:true,
+					language:"zh-CN",
+					startDate:new Date()
+				});
+			});
+		</script>
+    </head>
+    <body>
+		<div id="container">
+			<div style="height:50px;background-color:#f8f8f8;margin-bottom:30px;">
+				<div align="center" >
+					<span class="guide" style="font-size:20px;">组织考试流程</span>
+					<span class="guide" >确定配置</span>
+					<img class="arrow" src="@routes.Assets.versioned("images/admin/arrow.png")" />
+					<span class="guide jiacu" >考试安排</span>
+					<img class="arrow" src="@routes.Assets.versioned("images/admin/arrow.png")" />
+					<span class="guide" >考生导入</span>
+				</div>
+			</div>
+			<div id="testDiv" class="admin-content">
+				<div class="am-cf am-padding">
+				<form class="am-form am-form-horizontal">
+					<div class="am-panel-bd">
+						<div class="am-form-group">
+							<label for="testName">考试名称：</label>
+							<input type="text" id="testName" class="js-ajax-validate" style="width:300px;display: inline;" maxlength="25" placeholder="输入考试名称" required/>
+						</div>
+						<div class="am-form-group" style="width: 49%">
+							<label for="testPaper">考试试卷：</label>
+							<select id="testPaper" style="width:300px;display: inline;" required onchange="getQuestionType(this.value);">
+								<option value="">请选择</option>
+								@for(testPaper <- testPapers ) {
+									<option value="@testPaper.getId">@testPaper.getName</option>
+								}
+							</select>
+						</div>
+						<div id = "questiontypes"></div>
+						<div id = "remainNumber" style="margin-top: 10px;"></div>
+						<div id = "orderTime" style="margin-top: 10px;"></div>
+					</div>
+
+					<div style="margin-bottom:5px" align="center">
+						<span style="font-size:20px;font-weight:bold;color:#072a46;font-family:'微软雅黑'">考 试 安 排</span>
+					</div>
+					<div class="am-g am-text-right am-u-sm-12">
+						<button class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" type="button" onclick="addTest()">
+							<span class="am-icon-plus"></span> 添加轮次
+						</button>
+					</div>
+					<table class="am-table am-table-striped am-table-bordered am-table-radius am-table-compact am-table-centered am-table-compact">
+						<thead>
+							<tr>
+								<th class="table-title" width="10%" >轮次</th>
+								<th class="table-title" width="25%" >考试开始时间</th>
+								<th class="table-title" width="25%" >考试结束时间</th>
+								<th class="table-author"  width="25%" >考试人数</th>
+								<th class="table-author am-hide-sm-only">操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="am-text-middle">第1轮</td>
+								<td class="am-text-middle">
+									<div class="am-form-icon">
+										<i class="am-icon-calendar"></i>
+										<input size="16" type="text" minlength="16" style="margin-top:0px;cursor: pointer" data-validation-message="请选择考试开始时间" class="am-form-field datetimepicker startTime">
+									</div>
+								</td>
+								<td class="am-text-middle">
+									<div class="am-form-icon">
+										<i class="am-icon-calendar"></i>
+										<input size="16" type="text" minlength="16" style="margin-top:0px;cursor: pointer" data-validation-message="请选择考试结束时间" class="am-form-field datetimepicker endTime">
+									</div>
+								</td>
+								<td class="am-hide-sm-only am-text-middle">
+									<input size="16" type="text"  style="cursor: pointer;" maxlength="4" class="am-form-field population" pattern="^[1-9][0-9]*$" required>
+								</td>
+
+								<td class="am-hide-sm-only am-text-middle">
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+					<div>
+						<div class="biaoti">
+							<span>每轮考试间隔时间须大于预计考试时间</span>
+						</div>
+						<div class="biaoti" style="margin-top: 4px">
+							<span type="text" style="width:150px;height: 35px;border:none" readonly>预计时间:   120  分钟</span>
+						</div>
+					</div>
+				</div>
+				<div style="clear: right;margin-top:100px;height: 200px;">
+					<div >
+						<button class="am-btn am-btn-secondary" style="float:right;width: 100px;margin-right: 50px" type="button" onclick="submitForm();">
+							<span style="color:white;font-size:18px;font-family:'微软雅黑';">继&nbsp;&nbsp;&nbsp;续</span>
+						</button>
+						<button class="am-btn am-btn-secondary" style="float:right;width: 100px;margin-right: 20px" type="button" onclick="history.go(-1);">
+							<span style="color:white;font-size:18px;font-family:'微软雅黑';">上&nbsp;一&nbsp;步</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		@views.html.common.modal.alert()
+		@views.html.common.modal.loading("my-modal-loading", "数据处理中.....")
+		@views.html.common.modal.confirm("my-confirm", "是否确定发布考试？")
+    </body>
+</html>

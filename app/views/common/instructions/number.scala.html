@@ -1,0 +1,22 @@
+@(questiontypes: java.util.List[Questiontype], index: Int, current: Int, last: Int)
+    <li>
+        <label style="font-size:12px;color:#4f68c7;">@questiontypes.get(index).getName</label>
+        <br />
+    @if(index < current) {
+        <div name="circle" class="progress-num progress-num-finished">@(index + 1)</div>
+        @*<img src="@routes.Assets.versioned("images/common/questiontype/b_" + (index + 1) + ".png")" alt="..." style="width:45px;">*@
+    }
+    @if(index == current) {
+        <div name="circle" class="progress-arrow-right-testing">&nbsp;
+            <div class="progress-arrow-right"></div>
+        </div>
+        @*<img src="@routes.Assets.versioned("images/common/questiontype/dati.png")" alt="..." style="width:45px;">*@
+    }
+    @if(index > current) {
+        <div name="circle" class="progress-num progress-num-waiting">@(index + 1)</div>
+        @*<img src="@routes.Assets.versioned("images/common/questiontype/a_" + (index + 1) + ".png")" alt="..." style="width:45px;">*@
+    }
+    </li>
+@if(index != last) {
+    <li style="width:60px;height:5px;background:#4f68c7;"></li>
+}

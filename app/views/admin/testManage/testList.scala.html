@@ -1,0 +1,330 @@
+@import be.objectify.deadbolt.java.views.html._
+@import be.objectify.deadbolt.core.utils.TemplateUtils._
+<!doctype html>
+<html>
+    <head>
+        @views.html.common.admin.head()
+        <link rel="stylesheet" href="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.css")"/>
+        <script src="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/common/date.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+        <script type="text/javascript">
+            var testTable;
+            var queryData = new Object();
+
+            $(function(){
+                if(session.orgCode != 0){
+                    queryData.search_EQ_orgCode = session.orgCode;
+                }
+                testTable = darwTable(queryData);
+
+                $('#test_table tbody').on( 'click', 'tr', function () {
+                    if ($(this).hasClass('am-active')) {
+                        $(this).removeClass('am-active');
+
+                        $('#edit_btn').removeAttr("disabled");
+                        $('#delete_btn').removeAttr("disabled");
+                    } else {
+                        testTable.$('tr.am-active').removeClass('am-active');
+                        $(this).addClass('am-active');
+
+                        var test_status = testTable.row('.am-active').data().status;
+                        if(test_status == "1" || test_status == "2"){
+                            $('#edit_btn').attr({"disabled":"disabled"});
+                            $('#delete_btn').attr({"disabled":"disabled"});
+                        } else {
+                            $('#edit_btn').removeAttr("disabled");
+                            $('#delete_btn').removeAttr("disabled");
+                        }
+                    }
+                });
+            @restrict(la(as("admin"))) {
+                $.getJSON("/admin/org/list", function(admissionsOrgs){
+                    if(admissionsOrgs){
+                        for(var i=0; i < admissionsOrgs.length; i++){
+                            var admissionsOrg = admissionsOrgs[i];
+                            $("#orgCode").append('<option value="' + admissionsOrg.id + '">' + admissionsOrg.orgName + '</option>');
+                        }
+                    }
+                });
+            }
+            });
+
+            function searchTest(){
+                if(session.orgCode == 0){
+                    queryData.search_EQ_orgCode = $("#orgCode").val()==0?"":$("#orgCode").val();
+                }
+                var startDate = $("#testTime").val();
+                if(startDate){
+                    var tm_startDate = +new Date(startDate) + 1000*60*60*24;
+                    queryData.search_GTE_startTime = startDate;
+                    queryData.search_LT_startTime = formatDateTime(tm_startDate).substr(0, 10);
+                }
+                testTable.destroy();
+                testTable=darwTable(queryData);
+            }
+
+            function darwTable(queryData){
+                var table = $('#test_table').DataTable({
+                    ajax: {
+                        url: "/admin/test/page",
+                        data:queryData
+                    },
+                    scrollCollapse: false,
+                    serverSide: true,
+                    pagingType: "full_numbers",
+                    processing: true,
+                    columns: [
+                        {"data": null},
+                        {"data": "id"},
+                        {"data": "name"},
+                        {"data": "turn"},
+                        {"data": "orgName"},
+                        {"data": "startTime"},
+                        {"data": "report"},
+                        {"data": "status"},
+                        {"data": "importedPopulation"},
+                        {"data": "submitNum"},
+                        {"data": "orgCode"},
+                        {"data": "endTime"}
+                    ],
+                    "columnDefs": [{
+                        "targets": [0],
+                        "searchable": false,
+                        "orderable": false
+                    },{
+                        "targets": [1],
+                        "visible": false,
+                        "searchable": false
+                    },{
+                        "targets" : 5,
+                        "render":function(data,type,row){
+                            return formatDateTime(data);
+                        }
+                    },{
+                        "targets":7,
+                        "render":function(data,type,row){
+                            if(data=="0"){
+                                var now = new Date().getTime();
+                                if(row.startTime <= now && now < row.endTime){
+                                    return "进行中";
+                                } else if(now >= row.endTime){
+                                    return "已结束";
+                                } else {
+                                    return "未开始";
+                                }
+                            }
+                            if(data=="1") return "进行中";
+                            if(data=="2") return "已结束";
+                        }
+                    },{
+                        "targets" : 11,
+                        "render":function(data,type,row){
+                            var num = row.importedPopulation - row.submitNum;
+                            if(num == 0){
+                                return "全部提交";
+                            } else {
+                                return "有 <a href='/test/noAnswerUser/" + row.id + "/" + row.orgCode + "/1' style='color:red'>" + num + "</a> 人未提交";
+                            }
+                        }
+                    },{
+                        "targets": [10],
+                        "visible": false
+                    }],
+                    "order": [[5, 'asc'], [7, 'asc']],
+                    "language": {
+                        "sProcessing": "正在加载...",
+                        "lengthMenu": "每页_MENU_ 条记录",
+                        "zeroRecords": "没有找到记录",
+                        "info": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 )",
+                        "infoEmpty": "无记录",
+                        "infoFiltered": "(从 _MAX_ 条记录过滤)",
+                        "paginate": {
+                            "previous": "上一页",
+                            "next": "下一页"
+                        }
+                    },
+                    "dom": 'rt<"am-g am-datatable-footer"<"am-u-sm-5"i><"am-u-sm-7"p>>'
+                });
+                table.on('order.dt search.dt',function() {
+                    table.column(0, {
+                        search: 'applied',
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
+                        cell.innerHTML = i + 1;
+                    });
+                });
+                return table;
+            }
+
+            //编辑考试 
+            function editTest(){ 
+                if(testTable.row('.am-active').data() == undefined){
+                    alert("请选择一次考试");
+                    return;
+                }
+                var tid = testTable.row('.am-active').data().id;
+                location.href = "/test/editView/" + tid;
+            }
+
+            // 修改考试时间 
+            function editTestTime(){ 
+                if(testTable.row('.am-active').data() == undefined){
+                    alert("请选择一次考试");
+                    return;
+                }
+                var tid = testTable.row('.am-active').data().id;
+                location.href = "/org/editTestView/"+tid;
+            }
+
+             //展示参加考试学生 
+            function showUserList() { 
+                if(testTable.row('.am-active').data() == undefined){
+                    alert("请选择一次考试");
+                    return;
+                }
+                var tid = testTable.row('.am-active').data().id;
+                var orgCode= testTable.row('.am-active').data().orgCode;
+                location.href = "/admin/test/user/listView/" + tid;
+//                location.href = "/test/testUser/" + tid + "/" + orgCode + "/1"; 
+            } 
+
+            // 展示试题 
+            function showquestion(){ 
+                if(testTable.row('.am-active').data() == undefined){
+                    alert("请选择一次考试");
+                    return;
+                }
+                var tid = testTable.row('.am-active').data().id;
+                location.href = "/testpaper/testpaperQuestionView/" + tid;
+            } 
+
+            // 导入考生 
+            function uploadUser() { 
+                if(testTable.row('.am-active').data() == undefined){
+                    alert("请选择一次考试");
+                    return;
+                }
+                var tid = testTable.row('.am-active').data().id;
+                var orgCode= testTable.row('.am-active').data().orgCode;
+                location.href = "/admin/test/user/uploadView/" + tid + "/" + orgCode; 
+            } 
+            //添加考试用户 
+            function addUser(){ 
+                if(testTable.row('.am-active').data() == undefined){
+                    alert("请选择一次考试");
+                    return;
+                }
+                var tid = testTable.row('.am-active').data().id;
+                var orgCode= testTable.row('.am-active').data().orgCode;
+                location.href = "/admin/test/user/addView/" + tid + "/" + orgCode; 
+            }  
+            //绑定考试用户 
+            function addUsers(){ 
+                if(testTable.row('.am-active').data() == undefined){
+                    alert("请选择一次考试");
+                    return;
+                }
+                var tid = testTable.row('.am-active').data().id;
+                var orgCode= testTable.row('.am-active').data().orgCode;
+                location.href = "/test/addUserView/" + tid + "/" + orgCode; 
+            } 
+
+            function deleteTest(tid){
+                if(testTable.row('.am-active').data() == undefined){
+                        alert("请选择一次考试");
+                        return;
+                }
+                var tid = testTable.row('.am-active').data().id; 
+                $('#my-confirm').modal({ 
+                    onConfirm: function() { 
+                        deleteAjaxSubmit("get","/test/delete/" + tid); 
+                    } 
+                }); 
+            }
+        </script>
+    </head>
+    <body>
+        @views.html.common.admin.upgradeBrowserInfo()
+        <!-- content start -->
+        <div class="admin-content">
+
+            <div class="am-cf am-padding">
+                <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">考试列表</strong> / <small>Test List</small></div>
+            </div>
+            <div class="am-cf am-padding am-form-inline">
+            @restrict(la(as("admin"))) {
+                <div class="am-form-group"> 
+                    <select data-am-selected="{searchBox: 1}" name="orgCode" id="orgCode">
+                        <option value="0">请选择招生机构</option>
+                    </select>
+                </div> 
+            }
+                <div class="am-form-group"> 
+                    <div class="am-datepicker-date" data-am-datepicker="{format: 'yyyy-mm-dd'}" id="datetimepicker"> 
+                        <input type="text" id="testTime" class="am-form-field" placeholder="选择考试日期" data-am-datepicker  readonly> 
+                    </div> 
+                </div> 
+                <span class="am-input-group-btn am-form-group"> 
+                    <button class="am-btn am-btn-default" type="button" onclick="searchTest()">搜索</button> 
+                </span> 
+            </div>
+            <div class="am-g am-text-right am-u-sm-12">
+            @restrict(la(as("admin"))) {
+                <button id="edit_btn" class="am-btn am-btn-xs am-text-secondary" style="background-color : #fff" onclick="editTest()" type="button">
+                    <span class="am-icon-pencil-square-o"></span> 修改
+                </button>
+            }
+                <button id="edit_btn" class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="editTestTime()" type="button">
+                    <span class="am-icon-pencil-square-o"></span> 修改时间
+                </button>
+                <button class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="showUserList()" type="button">
+                    <span class="am-icon-pencil-square-o"></span> 查看考生
+                </button>
+            @restrict(la(as("admin"))) {
+                <button class="am-btn am-btn-xs am-text-secondary" style="background-color : #fff" onclick="showquestion()" type="button">
+                    <span class="am-icon-pencil-square-o"></span> 查看试题
+                </button>
+            }
+                <button class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="uploadUser()" type="button">
+                    <span class="am-icon-pencil-square-o"></span> 导入考生
+                </button>
+                <button class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="addUser()" type="button">
+                    <span class="am-icon-pencil-square-o"></span> 添加考生
+                </button>
+            @restrict(la(as("admin"))) {
+                <button class="am-btn am-btn-xs am-text-secondary" style="background-color : #fff" onclick="addUsers()" type="button">
+                    <span class="am-icon-pencil-square-o"></span> 绑定考生
+                </button>
+            }
+                <button id="delete_btn" class="am-btn am-btn-xs am-text-secondary" style="background-color:#fff" onclick="deleteTest()" type="button">
+                    <span class="am-icon-trash-o"></span> 删除
+                </button>
+            </div>
+            <div class="am-g am-u-sm-12 am-scrollable-horizontal">
+                <table width="100%" class="am-table am-table-striped am-table-bordered am-table-radius am-table-compact am-text-nowrap am-table-centered am-table-hover"
+                id="test_table">
+                    <thead>
+                        <tr>
+                            <th class="table-id">序号</th>
+                            <th>ID</th>
+                            <th class="table-author am-hide-sm-only">考试名称</th>
+                            <th class="table-author am-hide-sm-only">轮次</th>
+                            <th class="table-author am-hide-sm-only">招生机构</th>
+                            <th class="table-author am-hide-sm-only">考试时间</th>
+                            <th class="table-author am-hide-sm-only">报告内容</th>
+                            <th class="table-author am-hide-sm-only">考试状态</th>
+                            <th class="table-author am-hide-sm-only">考试人数</th>
+                            <th class="table-author am-hide-sm-only">交卷人数</th>
+                            <th class="table-author am-hide-sm-only">交卷情况</th>
+                            <th>机构编码</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        @views.html.common.modal.confirm("my-confirm", "你确定要删除这条记录吗？")
+        <!-- content end -->
+    </body>
+</html>

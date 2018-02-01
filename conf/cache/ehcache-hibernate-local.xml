@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache updateCheck="false" name="hibernateCache">
+
+    <diskStore path="java.io.tmpdir/ehcache/xinli/hibernate" />
+    <!-- DefaultCache setting. -->
+    <defaultCache maxEntriesLocalHeap="1000" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+
+    <cache name="models.Questiontype" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="true" maxEntriesLocalDisk="10000" />
+    <cache name="models.Question" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="true" maxEntriesLocalDisk="10000" />
+    <cache name="models.Test" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="true" maxEntriesLocalDisk="10000" />
+
+    <cache name="models.Admin" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="true" maxEntriesLocalDisk="10000" />
+    <cache name="models.Role" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="true" maxEntriesLocalDisk="10000" />
+    <cache name="models.Permission" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="true" maxEntriesLocalDisk="10000" />
+
+</ehcache>

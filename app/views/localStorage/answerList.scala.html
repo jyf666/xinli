@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+    @views.html.common.admin.head()
+    <script src="@routes.Assets.versioned("javascripts/page.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/localStorage/answerList.js")" type="text/javascript"></script>
+    <script type="text/javascript">
+
+        function showAnswer(){
+            var storage = window.localStorage;
+            var answer = new Array();
+            var answerReport = new Array();
+            var answerDetail = new Array();
+            var keyArr = new Array();
+            for(var i=0;i<storage.length;i++){
+                var key = storage.key(i);
+                var type = key.split("_")[0];// answer or answerReport
+
+                var value = storage.getItem(key);
+                if(isJson(value)){
+                    var json = JSON.parse(value);
+                    if ("answerReport" == type){
+                        answerReport.push(json);
+                    } else if("answer" == type){
+                        for(var j=0;j<json.length;j++){
+                            answer.push(json[j]);
+                        }
+                    } else if ("answerDetail" == type){
+                        for(var j=0;j<json.length;j++){
+                            answerDetail.push(json[j]);
+                        }
+                    }
+                    keyArr.push(key);
+                }
+            }
+
+            var jsonData = {
+                answers:answer,
+                answerReports:answerReport,
+                answerDetails:answerDetail
+            }
+            var data = JSON.stringify(jsonData);
+            $("#answerJson").css("display", "block");
+            $("#answerJson").val(data);
+        }
+
+    </script>
+</head>
+<body>
+    @views.html.common.admin.upgradeBrowserInfo()
+    <div class="admin-content">
+
+        <div class="am-cf am-padding">
+            <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">考生列表</strong>
+                / <small>答案未提交</small></div>
+        </div>
+        <div class="am-g am-text-right am-u-sm-12">
+            <button class="am-btn am-btn-default am-btn-xs am-text-secondary" type="button" onclick="showAnswer()" style="display: none;">
+                <span class="am-icon-search"></span> 查看答案
+            </button>
+            <button class="am-btn am-btn-default am-btn-xs am-text-secondary" type="button" onclick="submitAnswerAll()">
+                <span class="am-icon-save"></span> 一键提交
+            </button>
+            <button class="am-btn am-btn-default am-btn-xs am-text-secondary" type="button" onclick="location.replace('/userLogout');">
+                <span class="am-icon-power-off"></span> 退出系统
+            </button>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-12">
+                <form class="am-form">
+                    <table class="am-table am-table-striped am-table-hover table-main am-table-centered">
+                        <thead>
+                            <tr>
+                                <th class="table-check"><input type="checkbox" /></th>
+                                <th class="table-id">编号</th>
+                                <th class="table-title">姓名</th>
+                                <th class="table-title">性别</th>
+                                <th class="table-title">出生日期</th>
+                                <th class="table-title">电话</th>
+                                <th class="table-title">邮箱</th>
+                                <th class="table-title">身份证号</th>
+                                <th class="table-set">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pageContent"></tbody>
+                    </table>
+                    <div class="am-cf">
+                    共 <span id="totalElements">0</span> 条记录
+                        <div class="am-fr">
+                            <ul class="am-pagination" id="pagination"></ul>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="am-g">
+        <div class="am-u-sm-12">
+            <textarea id="answerJson" style="width: 100%;display: none;" readonly></textarea>
+        </div>
+    </div>
+    <div class="am-modal am-modal-loading am-modal-no-btn" tabindex="-1" id="my-modal-loading">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd">正在载入...</div>
+            <div class="am-modal-bd">
+                <span class="am-icon-spinner am-icon-spin"></span>
+            </div>
+        </div>
+    </div>
+    <!-- content end -->
+</body>
+</html>

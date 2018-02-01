@@ -1,0 +1,43 @@
+<title>综合素质测评系统</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/common/logo_xinli.png")">
+<!-- Bootstrap core CSS -->
+<link href="@routes.Assets.versioned("stylesheets/bootstrap.min.css")" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="@routes.Assets.versioned("javascripts/skin/layer.css")" rel="stylesheet">
+<link href="@routes.Assets.versioned("stylesheets/exam/question.css")" rel="stylesheet">
+<link href="@routes.Assets.versioned("stylesheets/exam/time.css")" rel="stylesheet">
+
+<script src="@routes.Assets.versioned("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/layer.min.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/question/question.js")" type="text/javascript"></script>
+<script src="@routes.Assets.versioned("javascripts/exam/time.js")" type="text/javascript"></script>
+<!-- Just for debugging purposes. Don't actually copy this line! -->
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+    var uid = getCookieByName("uid");// 考生id
+    var userName = getCookieByName("userName");// 考生姓名
+    var tid = getCookieByName("tid");// 考试id
+    var isOffLine = getCookieByName("isOffLine");// 用户是否选择了离线考试
+
+    if(uid){
+        uid =parseInt(uid);
+    }
+    if(tid){
+        tid =parseInt(tid);
+    }
+    if(isOffLine){
+        isOffLine =parseInt(isOffLine);
+    }
+</script>
+
+
+
+
+

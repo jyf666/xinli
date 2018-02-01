@@ -1,0 +1,152 @@
+@(testpaperNorm:TestpaperNorm,data:List[models.vo.QuestionTypeNormVo])
+@import utils.SystemConstant
+@import utils.enums.DimensionEnum
+@import utils.enums.FamilyDimensionEnum
+<!doctype html>
+<html>
+    <head>
+        @views.html.common.admin.head()
+    <link rel="stylesheet" href="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.css")"/>
+    <script src="@routes.Assets.versioned("javascripts/datatables/amazeui.datatables.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/proAndCity/jsAddress.js")" type="text/javascript"></script>
+    </head>
+    <body>
+            <!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器，Amaze UI 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>
+    以获得更好的体验！</p>
+<![endif]-->
+        <script type="text/javascript">
+            $(function() {
+                 addressInit('cmbProvince', 'cmbCity', 'cmbArea','@testpaperNorm.getProvince','@testpaperNorm.getCity','@testpaperNorm.getTown');
+                formValidator();
+            });
+            function test(){
+                if ($('.am-form').validator().data('amui.validator').isFormValid()) {
+                    var array = [];
+                    var json ={};
+
+                    $("tbody").find("tr").each(function(index){
+                        var dimension = $(this).find(".dimension").attr("data");
+                        json[index]={
+                            "qtype":$(this).attr("data"),
+                            "dimension":dimension,
+                            "avg": $(this).find("input").eq(0).val(),
+                            "stdev":$(this).find("input").eq(1).val()
+                        }
+                        array.push(json[index])
+                    })
+                    var subJson = {
+                        "age":$("#age").val(),
+                        "sex":$("#container").find(":radio:checked").val(),
+                        "province":$("#cmbProvince").find("option:selected").val(),
+                        "city":$("#cmbCity").find("option:selected").val(),
+                        "town":$("#cmbArea").find("option:selected").val(),
+                        "data":JSON.stringify(json)
+                    }
+                    addOrUpdataAjaxSubmit("post",JSON.stringify(subJson),"/admin/testpaperNorm/edit/@testpaperNorm.getId","/admin/testpaperNorm/listView")
+                }
+            }
+        </script>
+
+            <!-- content start -->
+        <div class="admin-content">
+            <section class="am-panel am-panel-default">
+                <header class="am-panel-hd">
+                    <h3 class="am-panel-title">修改常模信息</h3>
+                </header>
+                <div class="am-panel-bd" id="container" style="width: 1000px">
+                    <form class="am-form" id="doc-vld-msg">
+                        <fieldset>
+                            <legend>修改常模信息</legend>
+                            <div class="am-form-group">
+                                <label for="name">年龄：</label>
+                                <input type="text" id="age" minlength="1"  value="@testpaperNorm.getAge" placeholder="年龄" required/>
+                            </div>
+                            <div class="am-form-group">
+                                <label>性别： </label>
+                                <label class="am-radio-inline">
+                                    <input type="radio"  value="男"  name="sex" @if(testpaperNorm.getSex.equals("1") || testpaperNorm.getSex.equals("男")){checked} required> 男
+                                </label>
+                                <label class="am-radio-inline">
+                                    <input type="radio"  value="女"  @if(testpaperNorm.getSex.equals("2") || testpaperNorm.getSex.equals("女")){checked}  name="sex"> 女
+                                </label>
+                            </div>
+                            <div class="am-form-group">
+                                <label style="display: inline">机构地址：</label>
+                                <div class="am-form-inline">
+                                    <div class="am-form-group" style="width:32%">
+                                        <select id="cmbProvince"   required>
+
+                                        </select>
+                                    </div>
+                                    <div class="am-form-group" style="width:32%">
+                                        <select id="cmbCity"  required></select>
+                                    </div>
+                                    <div class="am-form-group" style="width:32%">
+                                        <select id="cmbArea"  required></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="am-form-group">
+                                <label style="display: inline">常模数据：</label>
+                                <table class="am-table am-table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2" style="text-align: center">题型名称</th>
+                                            <th style="text-align: center">平均数</th>
+                                            <th style="text-align: center">标准差</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @data.map{ testpaperNormVo=>
+                                            @if(testpaperNormVo.getQtype != SystemConstant.QUESTION_TYPE_PERSONALITY && testpaperNormVo.getQtype !=SystemConstant.QUESTION_TYPE_FAMILY_QUESTIONNAIRE){
+                                                <tr data="@testpaperNormVo.getQtype">
+                                                    <td colspan="2" style="text-align: center">@testpaperNormVo.getQtypeName</td>
+                                                    <td style="text-align: center"><input type="text" value="@testpaperNormVo.getAvg" required></td>
+                                                    <td style="text-align: center"><input type="text" value="@testpaperNormVo.getStdev" required></td>
+                                                </tr>
+                                            }
+                                            @if(testpaperNormVo.getQtype == SystemConstant.QUESTION_TYPE_PERSONALITY){
+                                                <tr data="@testpaperNormVo.getQtype">
+                                                    @if(testpaperNormVo.getDimension.equals("1")) {
+                                                        <td colspan="1" rowspan="7" style="text-align : center">@testpaperNormVo.getQtypeName</td>
+                                                    }
+                                                    <td style="text-align: center" class="dimension" data="@testpaperNormVo.getDimension">@DimensionEnum.getName(Integer.parseInt(testpaperNormVo.getDimension))</td>
+                                                    <td style="text-align: center"><input type="text" value="@testpaperNormVo.getAvg" required></td>
+                                                    <td style="text-align: center"><input type="text" value="@testpaperNormVo.getStdev"></td>
+                                                </tr>
+                                            }
+                                            @if(testpaperNormVo.getQtype == SystemConstant.QUESTION_TYPE_FAMILY_QUESTIONNAIRE){
+                                                <tr data="@testpaperNormVo.getQtype">
+                                                    @if(testpaperNormVo.getDimension.equals("1")) {
+                                                        <td colspan="1" rowspan="4" style="text-align : center">@testpaperNormVo.getQtypeName</td>
+                                                    }
+                                                    <td style="text-align: center" class="dimension" data="@testpaperNormVo.getDimension">@FamilyDimensionEnum.getName(Integer.parseInt(testpaperNormVo.getDimension))</td>
+                                                    <td style="text-align: center"><input type="text" value="@testpaperNormVo.getAvg" required></td>
+                                                    <td style="text-align: center"><input type="text" value="@testpaperNormVo.getStdev" required></td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="am-btn am-btn-secondary" type="button" onclick="test()">修改</button>
+                        </fieldset>
+                    </form>
+                </div>
+            </section>
+            <div class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+                <div class="am-modal-dialog">
+                    <div class="am-modal-bd">
+                    修改成功！
+                    </div>
+                    <div class="am-modal-footer">
+                        <span class="am-modal-btn" data-am-modal-confirm>确定</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- content end -->
+    </body>
+</html>

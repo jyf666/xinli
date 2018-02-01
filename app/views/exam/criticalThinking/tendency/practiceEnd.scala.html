@@ -1,0 +1,79 @@
+@(questionTypeMap:java.util.Map[String, java.util.List[Questiontype]], size: java.lang.Long)
+<!DOCTYPE html>
+<html manifest="/criticalThinking/tendency/practiceEndManifest">
+    @views.html.common.instructions.head()
+<body>
+    <div class="container">
+        @views.html.common.instructions.progress(questionTypeMap)
+
+        <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+            <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+            </div>
+            <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                <div class="panel-body">
+                    <div class="row">
+                        <h3 style="margin-top: 40px"><p class="text-center"><b>测试须知</b></p></h3>
+                    </div>
+                    <div class="row" >
+                        <table align="center" width="650px" style="margin-top: 40px;border-collapse:separate;border-spacing: 20px;">
+                            <tr>
+                                <td>
+                                    <div style="text-align: center;background-color: #d2ede3;line-height:45px; height: 45px;width:150px;position:relative;">
+                                        <img src="@routes.Assets.versioned("images/common/feedback0.png")" style="width:60px;position: absolute;left:-28px;top:-7px;">
+                                        不反馈
+                                    </div>
+                                </td>
+                                <td>
+                                    共计 @size 道题，无对错之分。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: center;background-color: #d2ede3;line-height:45px; height: 45px;width:150px;position:relative;">
+                                        <img src="@routes.Assets.versioned("images/common/clock0.png")" style="width:60px;position: absolute;left:-28px;top:-12px;">
+                                        不限时
+                                    </div>
+                                </td>
+                                <td>
+                                    自己控制答题时间。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: center;background-color: #d2ede3;line-height:45px; height: 45px;width:150px;position:relative;">
+                                        <img src="@routes.Assets.versioned("images/common/exchange1.png")" style="width:60px;position: absolute;left:-28px;top:-7px;">
+                                        题目切换
+                                    </div>
+                                </td>
+                                <td>
+                                    作答后可进入下一题，可返回修改。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="text-align: center;background-color: #d2ede3;line-height:45px; height: 45px;width:150px;position:relative;">
+                                        <img src="@routes.Assets.versioned("images/common/tag1.png")" style="width:60px;position: absolute;left:-28px;top:-7px;">
+                                        题目标记
+                                    </div>
+                                </td>
+                                <td>
+                                    可用<img src="@routes.Assets.versioned("images/common/mark.png")" style="width:20px;">标记不确定的题目， 点击右上角<img src="@routes.Assets.versioned("images/common/seemark.png")" style="width:20px;">按钮可快速查看<br>
+                                    并切换至相应题目
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+        </div>
+        <div class="row">
+            <p class="text-center" style="margin-top:10px;">
+                <input id="startBtn" type="button" class="btn-test btn-default"
+                onclick="location.replace('/criticalThinking/tendency/test?tid=' + tid);" value="继 续"/>
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

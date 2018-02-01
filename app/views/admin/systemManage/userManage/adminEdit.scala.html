@@ -1,0 +1,110 @@
+@(admin:Admin)
+<!doctype html>
+<html>
+<head>
+    @views.html.common.admin.head()
+    <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function() {
+            formValidator();
+            initRoleSelect();// 加载角色下拉选框
+        });
+
+        /**
+         * 提交数据
+         */
+        function submitData(){
+            if ($('.am-form').validator().data('amui.validator').isFormValid()) {
+                var json ={
+                    "adminName":$("#adminName").val(),
+                    "phone":$("#phone").val(),
+                    "email":$("#email").val(),
+                    "duties":$("#duties").val(),
+                    "orgCode":@admin.getOrgCode,
+                    "roleId": $("#role").val()
+                }
+                addOrUpdataAjaxSubmit("post",JSON.stringify(json),"/admin/system/user/edit","/admin/system/user/listView")
+            }
+        }
+
+        /**
+         * 加载角色下拉选框
+         */
+        function initRoleSelect(){
+            $.ajax({
+                type:"get",
+                url:"/admin/system/role/list",
+                success:function(data) {
+                    $(".roleOption").remove();
+                    var roleId = "";
+                    @if(admin.getRoles.size() > 0){
+                        roleId = @admin.getRoles.get(0).getId;
+                    }
+                    for(var i =0;i<data.length;i++){
+                        var role = data[i];
+                        if(role.id == roleId){
+                            $("#roleList").find("select").append("<option class='roleOption' value=" + role.id + " selected >" + role.roleName + "</option>");
+                        } else {
+                            $("#roleList").find("select").append("<option class='roleOption' value=" + role.id + ">" + role.roleName + "</option>");
+                        }
+
+                    }
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    @views.html.common.admin.upgradeBrowserInfo()
+    <!-- content start -->
+    <div class="admin-content">
+        <section class="am-panel am-panel-default">
+            <div class="am-panel-bd" id="container">
+                <form class="am-form" id="doc-vld-msg">
+                    <fieldset>
+                        <legend>修改招生负责人信息</legend>
+                        <div class="am-form-group">
+                            <label for="account">用户名：</label>
+                            <input type="text" id="account" minlength="3" value="@admin.getLoginName" maxlength="15" placeholder="输入用户名（至少 6 个字符）"  readonly />
+                        </div>
+                        <div class="am-form-group">
+                            <label for="adminName">姓名：</label>
+                            <input type="text" id="adminName" maxlength="20" value="@admin.getName" placeholder="输入姓名" required/>
+                        </div>
+                        <div class="am-form-group">
+                            <label for="phone">电话：</label>
+                            <input type="text" id="phone" minlength="11" maxlength="11" value="@admin.getPhone" placeholder="输入电话" required/>
+                        </div>
+                        <div class="am-form-group">
+                            <label for="email">email：</label>
+                            <input type="email" id="email"  maxlength="100"  value="@admin.getEmail" placeholder="输入email" required/>
+                        </div>
+                        <div class="am-form-group">
+                            <label for="duties">职务：</label>
+                            <input type="text" id="duties" maxlength="10" value="@admin.getDuty" placeholder="输入职务(最大10个字符)" required/>
+                        </div>
+                        <div class="am-form-group" id="roleList">
+                            <label for="duties">角色：</label>
+                            <select id="role" data-validation-message="请选择角色" required>
+                                <option value="">请选择角色</option>
+                            </select>
+                        </div>
+                        <button class="am-btn am-btn-secondary" type="button" onclick="submitData()">保存</button>
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+        <div class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+            <div class="am-modal-dialog">
+                <div class="am-modal-bd">
+                    修改成功！
+                </div>
+                <div class="am-modal-footer">
+                    <span class="am-modal-btn" data-am-modal-confirm>确定</span>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- content end -->
+</body>
+</html>

@@ -1,0 +1,56 @@
+@(questionTypeMap: java.util.Map[String, java.util.List[Questiontype]])
+<!DOCTYPE html>
+<html manifest="/criticalThinking/ability/instructionsManifest">
+    <head>
+        @views.html.common.instructions.head()
+    <style>
+        .btn-imitation{
+            height:40px;
+            width:150px;
+            margin-left: 20px;
+            border:2px solid #6ACB9A;
+            background:#d2ede3;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            @views.html.common.instructions.progress(questionTypeMap)
+
+            <div class="row" style="padding-left:50px;padding-right:50px;padding-bottom:10px;color:#000000">
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;">
+                </div>
+                <div class="col-sm-10 panel-info" style="height:445px;background:#FFFFFF;border:5px solid #d2ede3;border-radius:4px;float:left;" id="content-index">
+                    <div class="panel-body">
+                        <div class="row" style="font-size:18px;padding: 10px 20px">
+                            <div class="col-md-12">
+                                <span>测验2</span>
+                                <input type="button" class="btn-imitation" style="cursor: default;" value="假设辨认"/>
+                            </div>
+                        </div>
+                        <div class="row" style="font-size: 16px;padding: 30px 50px;line-height: 2.22857;">
+                            <div class="col-md-12">
+                                <p style="text-indent:2em;">
+                                    假设”是指对一些事实预设的前提假设，当你说，“我将于六月毕业”时，你的陈述中包含着一系列的假设。例如：我将活到六月；我可以通过毕业考试；我可以达到学校的毕业要求……
+                                </p>
+                                <p style="text-indent:2em;">
+                                    在这部分题目中，文本（语料）是一个命题或陈述。题目是这个命题可能包含的假设。如果你认为该假设可由事实陈述确定合理且必要，则选择“必要”假设，如果该假设并不必须根据事实陈述而提出，则选择“不必要“假设。
+                                </p>
+                                <p style="text-indent:2em;">
+                                    请注意，你需要对各个可能的假设独立地进行判断。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="height:445px;float:left;padding-top:112px;"></div>
+            </div>
+            <div class="row">
+                <p class="text-center" style="margin-top:10px;">
+                    <input id="inputBtn" type="button" class="btn-test btn-default"
+                    onclick="location.replace('/criticalThinking/ability/assuming/practice?tid=' + tid);" value="练 习"/>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>
